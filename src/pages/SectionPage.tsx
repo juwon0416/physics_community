@@ -116,7 +116,7 @@ export function SectionPage() {
     }
 
     // Generate processed content for view mode
-    const processedContent = section ? section.content.replace(/\[\[(.*?)\]\]/g, (match, term) => `[${term}](/concept/${term.replace(/ /g, '%20')})`) : '';
+    const processedContent = section ? section.content.replace(/\[\[(.*?)\]\]/g, (_, term) => `[${term}](/concept/${term.replace(/ /g, '%20')})`) : '';
 
     return (
         <div className="container px-4 py-8 max-w-screen-lg mx-auto min-h-screen">

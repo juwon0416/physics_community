@@ -99,7 +99,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     };
 
     // Pre-process markdown to turn [[Link]] into [Link](/concept/Link)
-    const processedValue = value?.replace(/\[\[(.*?)\]\]/g, (match, term) => {
+    const processedValue = value?.replace(/\[\[(.*?)\]\]/g, (_, term) => {
         // Standard markdown link: [text](url). Url cannot have spaces unless encoded.
         // So we MUST encode spaces.
         return `[${term}](/concept/${encodeURIComponent(term)})`;

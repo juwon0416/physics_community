@@ -17,9 +17,7 @@ export interface SimulationEdge {
 export const runForceSimulation = (
     nodes: SimulationNode[],
     edges: SimulationEdge[],
-    iterations: number = 300,
-    width: number = 1000,
-    height: number = 600
+    iterations: number = 300
 ): SimulationNode[] => {
     // Constants
     const REPULSION = 20000; // Increased repulsion to spread nodes out

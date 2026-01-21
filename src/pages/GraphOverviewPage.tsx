@@ -5,7 +5,7 @@ import { ZoomIn, ZoomOut, RefreshCw, Sparkles, Calendar, Share2 } from 'lucide-r
 
 import { Button } from '../components/ui';
 
-import { useAuth } from '../lib/auth';
+
 import type { GraphModel } from '../lib/graphModel';
 import { buildGraphModel } from '../lib/graphModel';
 import type { PositionedNode } from '../lib/graphLayouts';
