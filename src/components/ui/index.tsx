@@ -144,22 +144,22 @@ export const DialogContent = ({ className, children, ...props }: React.HTMLAttri
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-[20000] bg-background/80 backdrop-blur-sm"
                         onClick={() => context.onOpenChange(false)}
                     />
 
                     {/* Content */}
-                    <div className="fixed left-[50%] top-[50%] z-[9999] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg">
+                    <div className={cn(
+                        "fixed left-[50%] top-[50%] z-[20000] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg",
+                        className
+                    )}>
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className={cn(
-                                "w-full",
-                                className
-                            )}
-                            {...props as any}
+                            className="w-full"
+                            {...props as any} // Propagate props to the motion div if they are relevant, or better, to the container? Context suggests props are div props.
                         >
                             {children}
                             <button
