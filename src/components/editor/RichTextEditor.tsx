@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -54,22 +54,18 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     const [conceptStatus, setConceptStatus] = useState<'idle' | 'checking' | 'exists' | 'new'>('idle');
 
     // Macros Menu State
-    const [showMacros, setShowMacros] = useState(false);
-    const macrosMenuRef = useRef<HTMLDivElement>(null);
+    const [showMacroDialog, setShowMacroDialog] = useState(false);
+    // const macrosMenuRef = useRef<HTMLDivElement>(null); // Removed
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Close macros menu when clicking outside
+    // Close macros menu when clicking outside - REMOVED (Dialog handles this)
+    /* 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (macrosMenuRef.current && !macrosMenuRef.current.contains(event.target as Node)) {
-                setShowMacros(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        ...
     }, []);
+    */
 
     const insertText = (before: string, after: string = '') => {
         const textarea = textareaRef.current;
@@ -185,44 +181,14 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     <ToolbarButton icon={<Code className="w-4 h-4" />} onClick={() => insertText('`', '`')} label="Code" disabled={mode === 'preview'} />
                     <ToolbarButton icon={<Sigma className="w-4 h-4" />} onClick={() => insertText('$', '$')} label="Math" disabled={mode === 'preview'} />
 
-                    {/* Macros Button with Dropdown */}
-                    <div className="relative" ref={macrosMenuRef}>
-                        <ToolbarButton
-                            icon={<FunctionSquare className="w-4 h-4" />}
-                            onClick={() => setShowMacros(!showMacros)}
-                            label="Physics Macros"
-                            disabled={mode === 'preview'}
-                            active={showMacros}
-                        />
-
-                        {/* Dropdown Menu */}
-                        {showMacros && mode === 'write' && (
-                            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl rounded-lg z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 p-1">
-                                {MACRO_GROUPS.map((group) => (
-                                    <div key={group.title} className="mb-1 last:mb-0">
-                                        <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 bg-muted/50 uppercase tracking-wider">
-                                            {group.title}
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-px">
-                                            {group.items.map((item) => (
-                                                <button
-                                                    key={item.label}
-                                                    onClick={() => {
-                                                        insertText(item.tex, item.suffix || '');
-                                                        setShowMacros(false);
-                                                    }}
-                                                    className="flex items-center justify-between text-left px-2 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-sm transition-colors text-foreground group"
-                                                >
-                                                    <span className="font-medium">{item.label}</span>
-                                                    <span className="font-mono text-[9px] opacity-40 group-hover:opacity-100">{item.tex}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    {/* Macros Button */}
+                    <ToolbarButton
+                        icon={<FunctionSquare className="w-4 h-4" />}
+                        onClick={() => setShowMacroDialog(true)}
+                        label="Physics Macros"
+                        disabled={mode === 'preview'}
+                        active={showMacroDialog}
+                    />
 
                     <ToolbarButton icon={<Network className="w-4 h-4" />} onClick={handleConceptClick} label="Concept/Keyword" disabled={mode === 'preview'} />
                     <ToolbarButton
@@ -236,58 +202,6 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     Markdown + LaTeX
                 </div>
             </div>
-
-            {/* Concept Dialog */}
-            <Dialog open={showConceptDialog} onOpenChange={setShowConceptDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Link Concept / Keyword</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Keyword Term</label>
-                            <Input
-                                value={conceptTerm}
-                                onChange={(e) => {
-                                    setConceptTerm(e.target.value);
-                                    if (conceptStatus !== 'idle') setConceptStatus('idle');
-                                }}
-                                onBlur={() => checkConcept(conceptTerm)}
-                                placeholder="e.g., Quantum Entanglement"
-                            />
-                        </div>
-
-                        {conceptStatus === 'checking' && <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Checking database...</div>}
-
-                        {conceptStatus === 'exists' && (
-                            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded text-sm text-green-600">
-                                <span className="font-semibold block mb-1">Concept Found!</span>
-                                {conceptDesc ? conceptDesc : "No description available."}
-                            </div>
-                        )}
-
-                        {conceptStatus === 'new' && (
-                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Description (New Concept)</label>
-                                <textarea
-                                    className="w-full min-h-[100px] p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
-                                    placeholder="Enter a brief description for this concept..."
-                                    value={conceptDesc}
-                                    onChange={(e) => setConceptDesc(e.target.value)}
-                                />
-                                <p className="text-xs text-muted-foreground">This will create a new node in the Graph DB.</p>
-                            </div>
-                        )}
-
-                        <div className="flex justify-end pt-2">
-                            <Button onClick={handleCreateConcept} disabled={!conceptTerm || isCreatingConcept || conceptStatus === 'checking'}>
-                                {isCreatingConcept ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                {conceptStatus === 'new' ? 'Create & Link' : 'Insert Link'}
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
 
             {/* Content */}
             <div className="min-h-[300px] relative rounded-b-md overflow-hidden">
@@ -343,6 +257,100 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     </div>
                 )}
             </div>
+
+            {/* Physics Macros Dialog */}
+            <Dialog open={showMacroDialog} onOpenChange={setShowMacroDialog}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Insert Physics Symbol</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                        {MACRO_GROUPS.map((group) => (
+                            <div key={group.title} className="space-y-3">
+                                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider border-b border-border/50 pb-1">
+                                    {group.title}
+                                </h4>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    {group.items.map((item) => (
+                                        <button
+                                            key={item.label}
+                                            onClick={() => {
+                                                insertText(item.tex, item.suffix || '');
+                                                setShowMacroDialog(false);
+                                            }}
+                                            className="flex flex-col items-center justify-center p-3 rounded-lg border border-border/50 bg-secondary/10 hover:bg-secondary/30 hover:border-primary/50 transition-all gap-2 group h-24"
+                                        >
+                                            <span className="text-lg font-serif font-medium text-foreground group-hover:scale-110 transition-transform">
+                                                {item.label.split(' ')[0]}
+                                            </span>
+                                            <div className="flex flex-col items-center gap-0.5">
+                                                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                                                    {item.label.split(' ').slice(1).join(' ')}
+                                                </span>
+                                                <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-primary font-mono opacity-70 group-hover:opacity-100">
+                                                    {item.tex}
+                                                </code>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Concept Dialog */}
+            <Dialog open={showConceptDialog} onOpenChange={setShowConceptDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Link Concept / Keyword</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Keyword Term</label>
+                            <Input
+                                value={conceptTerm}
+                                onChange={(e) => {
+                                    setConceptTerm(e.target.value);
+                                    if (conceptStatus !== 'idle') setConceptStatus('idle');
+                                }}
+                                onBlur={() => checkConcept(conceptTerm)}
+                                placeholder="e.g., Quantum Entanglement"
+                            />
+                        </div>
+
+                        {conceptStatus === 'checking' && <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Checking database...</div>}
+
+                        {conceptStatus === 'exists' && (
+                            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded text-sm text-green-600">
+                                <span className="font-semibold block mb-1">Concept Found!</span>
+                                {conceptDesc ? conceptDesc : "No description available."}
+                            </div>
+                        )}
+
+                        {conceptStatus === 'new' && (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Description (New Concept)</label>
+                                <textarea
+                                    className="w-full min-h-[100px] p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                                    placeholder="Enter a brief description for this concept..."
+                                    value={conceptDesc}
+                                    onChange={(e) => setConceptDesc(e.target.value)}
+                                />
+                                <p className="text-xs text-muted-foreground">This will create a new node in the Graph DB.</p>
+                            </div>
+                        )}
+
+                        <div className="flex justify-end pt-2">
+                            <Button onClick={handleCreateConcept} disabled={!conceptTerm || isCreatingConcept || conceptStatus === 'checking'}>
+                                {isCreatingConcept ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                {conceptStatus === 'new' ? 'Create & Link' : 'Insert Link'}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
