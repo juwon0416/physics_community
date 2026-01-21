@@ -154,17 +154,19 @@
 }
 
 /* Scoped Timeline Vintage Theme */
+/* Scoped Timeline Vintage Theme */
 .timeline-vintage {
-  /* Core Palette */
-  --paper: #FDFBF7;
-  --ink: #1A1A1A;
-  --muted: #5B5B5B;
-  --grid: #CFC7B8;
-  --accent: #2C3E50;
+  /* Core Palette - Adaptive to Global Theme */
+  --paper: hsl(var(--background));
+  --ink: hsl(var(--foreground));
+  --muted: hsl(var(--muted-foreground));
 
-  /* Fallback/System mappings if needed, overriding global theme within scope */
-  --background: 38 28% 98%;
-  /* Matching Paper approx */
-  --foreground: 0 0% 10%;
-  /* Matching Ink approx */
+  /* Grid is Ink with low opacity for subtle lines */
+  --grid: hsl(var(--foreground) / 0.15);
+
+  --accent: hsl(var(--primary));
+
+  /* Fallback/System mappings if needed */
+  /* We use the variable directly now, so these overrides might not be strictly necessary 
+     if we use the vars above, but keeping for safety if components read these specific ones */
 }

@@ -121,43 +121,42 @@ export function GraphOverviewPage() {
         }
     }, [model, activeTab, nodes]);
 
-    // Vintage Constants
-    const FIELD_ORDER = ['classical', 'electrodynamics', 'statistical', 'quantum'];
-    const LANE_HEIGHT = 150;
-    const MIN_YEAR = 1600;
-    const MAX_YEAR = 2030;
-    const PADDING_X = 100;
-    const TOTAL_WIDTH = 2000;
-    const AVAILABLE_WIDTH = TOTAL_WIDTH - (PADDING_X * 2);
-    const PX_PER_YEAR = AVAILABLE_WIDTH / (MAX_YEAR - MIN_YEAR);
 
     // Background Layers
     const renderBackground = () => {
         const isVintage = activeTab === 'chronological';
-        const strokeWidth = 1 / scale; // Counter-scale stroke width
+        const strokeWidth = 1 / scale;
 
         if (isVintage) {
-            // Ruler Ticks
+            // Constants must match graphLayouts
+            const PADDING_X = 400; // Matches TIMELINE_X0 in layout
+            const AVAILABLE_WIDTH = 2000 - PADDING_X - 50;
+            const MIN_YEAR = 1600;
+            const MAX_YEAR = 2030;
+            const PX_PER_YEAR = AVAILABLE_WIDTH / (MAX_YEAR - MIN_YEAR);
+            const LANE_HEIGHT = 150;
+            const FIELD_ORDER = ['classical', 'electrodynamics', 'statistical', 'quantum'];
+
             const majorTicks = [];
             const minorTicks = [];
             const labels = [];
 
-            // Generate Axis Ticks
-            for (let year = Math.ceil(MIN_YEAR / 10) * 10; year <= MAX_YEAR; year += 10) {
+            for (let year = Math.ceil(MIN_YEAR / 20) * 20; year <= MAX_YEAR; year += 20) {
                 const x = PADDING_X + (year - MIN_YEAR) * PX_PER_YEAR;
-                const isMajor = year % 50 === 0;
+                const isMajor = year % 100 === 0;
 
                 if (isMajor) {
                     majorTicks.push(
                         <line
-                            key={`maj-${year}`} x1={x} y1={-20} x2={x} y2={600}
-                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.5}
+                            key={`maj-${year}`} x1={x} y1={-50} x2={x} y2={600}
+                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.8}
+                            strokeDasharray={`${4 / scale} ${4 / scale}`}
                         />
                     );
                     labels.push(
                         <text
-                            key={`lbl-${year}`} x={x + 5} y={-30}
-                            fill="var(--ink)" fillOpacity={0.4}
+                            key={`lbl-${year}`} x={x + 5} y={-60}
+                            fill="var(--muted)"
                             fontSize={12 / scale} fontFamily="serif"
                             style={{ fontVariantNumeric: 'tabular-nums' }}
                         >
@@ -167,8 +166,8 @@ export function GraphOverviewPage() {
                 } else {
                     minorTicks.push(
                         <line
-                            key={`min-${year}`} x1={x} y1={-10} x2={x} y2={0}
-                            stroke="var(--grid)" strokeWidth={strokeWidth}
+                            key={`min-${year}`} x1={x} y1={-20} x2={x} y2={600}
+                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.3}
                         />
                     );
                 }
@@ -178,35 +177,21 @@ export function GraphOverviewPage() {
                 <div className="absolute inset-0 pointer-events-none">
                     <svg width="100%" height="100%" className="overflow-visible absolute top-0 left-0">
                         <g>
-                            {/* Axis Line */}
-                            <line x1={PADDING_X} y1={0} x2={PADDING_X + AVAILABLE_WIDTH} y2={0} stroke="var(--ink)" strokeWidth={strokeWidth * 2} />
-
                             {/* Ticks & Labels */}
                             {majorTicks}
                             {minorTicks}
                             {labels}
 
-                            {/* Lane Dividers (Subtle) */}
+                            {/* Lane Guides (Subtle) */}
                             {FIELD_ORDER.map((field, i) => {
                                 const y = i * LANE_HEIGHT;
                                 return (
-                                    <g key={field}>
-                                        <line
-                                            x1={-1000} y1={y} x2={3000} y2={y}
-                                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeDasharray={`${4 / scale} ${4 / scale}`}
-                                        />
-                                        <text
-                                            x={PADDING_X - 20} y={y + 20}
-                                            fill="var(--ink)" fillOpacity={0.2}
-                                            fontSize={24 / scale} fontFamily='"Crimson Text", serif'
-                                            fontWeight="bold"
-                                            textAnchor="end"
-                                            className="uppercase tracking-widest"
-                                        >
-                                            {field}
-                                        </text>
-                                    </g>
-                                )
+                                    <line
+                                        key={`lane-${field}`}
+                                        x1={PADDING_X} y1={y} x2={2000} y2={y}
+                                        stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.2}
+                                    />
+                                );
                             })}
                         </g>
                     </svg>
@@ -214,7 +199,6 @@ export function GraphOverviewPage() {
             )
         }
 
-        // Network View Background (Original)
         return (
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(#1f1b1f 1px, transparent 1px)', backgroundSize: '30px 30px' }}
@@ -231,8 +215,7 @@ export function GraphOverviewPage() {
     return (
         <div
             ref={containerRef}
-            // Scoped class for Vintage Theme
-            className={`w-full h-[calc(100dvh-64px)] relative overflow-hidden select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+            className={`w-full h-[calc(100dvh-64px)] relative overflow-hidden select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} 
                 ${activeTab === 'chronological' ? 'timeline-vintage bg-[var(--paper)] text-[var(--ink)]' : 'bg-[#e6e0d6]'}`}
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
@@ -246,7 +229,7 @@ export function GraphOverviewPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, x: viewX, y: viewY, scale }}
                 exit={{ opacity: 0 }}
-                transition={{ type: "tween", duration: 0 }} // Instant update for background to match
+                transition={{ type: "tween", duration: 0 }}
                 style={{ transformOrigin: "0 0" }}
                 className="absolute inset-0 pointer-events-none"
             >
@@ -300,7 +283,6 @@ export function GraphOverviewPage() {
                                 if (!source || !target) return null;
 
                                 const isVintage = activeTab === 'chronological';
-                                // Vintage Logic: Faint default, Dark on Hover
                                 const isHovered = hoveredNodeId && (edge.source === hoveredNodeId || edge.target === hoveredNodeId);
 
                                 let strokeColor = "#1f1b1f";
@@ -308,19 +290,23 @@ export function GraphOverviewPage() {
                                 let strokeWidth = 1.5;
 
                                 if (isVintage) {
-                                    strokeColor = "var(--ink)";
-                                    // Default very faint
-                                    strokeOpacity = 0.05;
+                                    strokeColor = "var(--grid)";
+                                    strokeOpacity = 0.3;
                                     strokeWidth = 1 / scale;
 
+                                    if (source.type === 'root' || target.type === 'root') {
+                                        strokeColor = "var(--ink)";
+                                        strokeOpacity = 0.6;
+                                        strokeWidth = 1.5 / scale;
+                                    }
+
                                     if (isHovered) {
-                                        strokeOpacity = 0.8;
-                                        strokeWidth = 2 / scale;
+                                        strokeColor = "var(--accent)";
+                                        strokeOpacity = 1;
+                                        strokeWidth = 2.5 / scale;
                                     }
                                 } else {
-                                    // Network View
                                     strokeOpacity = 0.2;
-                                    strokeWidth = 1.5;
                                 }
 
                                 return (
@@ -344,42 +330,36 @@ export function GraphOverviewPage() {
                         {nodes.map((node) => {
                             const isVintage = activeTab === 'chronological';
 
-                            // ---------------------
-                            // VINTAGE NODE STYLES
-                            // ---------------------
                             if (isVintage) {
                                 const isRoot = node.type === 'root';
                                 const isField = node.type === 'field';
 
-                                // Index Card Style
-                                let containerStyle = "bg-[var(--paper)] border border-[var(--muted)] text-[var(--ink)] shadow-[2px_2px_0px_0px_var(--muted)] transition-all";
-                                let fontClass = "font-serif text-sm leading-tight";
-                                let shapeClass = "px-3 py-2 min-w-[140px] rounded-sm"; // Sharp corners for index cards
+                                let containerStyle = "bg-[var(--paper)] border border-[var(--muted)] text-[var(--ink)] shadow-sm transition-all";
+                                let fontClass = "font-serif text-[10px] leading-tight";
+                                let shapeClass = "px-2 py-1 min-w-[100px] max-w-[110px] min-h-[50px] rounded-sm";
 
                                 if (isRoot) {
-                                    containerStyle = "bg-[var(--ink)] text-[var(--paper)] border-4 border-double border-[var(--paper)]";
-                                    fontClass = "font-display text-lg uppercase tracking-widest";
-                                    shapeClass = "aspect-square rounded-full w-32 h-32 flex items-center justify-center";
+                                    containerStyle = "bg-[var(--ink)] text-[var(--paper)] border-4 border-double border-[var(--paper)] z-20";
+                                    fontClass = "font-display text-base uppercase tracking-widest";
+                                    shapeClass = "aspect-square rounded-full w-24 h-24 flex items-center justify-center";
                                 } else if (isField) {
-                                    containerStyle = "bg-[var(--paper)] border-b-2 border-[var(--ink)] text-[var(--ink)]";
-                                    fontClass = "font-display font-bold text-base uppercase tracking-wider";
-                                    shapeClass = "px-4 py-2 min-w-[120px]"; // Label style
+                                    containerStyle = "bg-[var(--paper)] border-2 border-[var(--ink)] text-[var(--ink)] z-10";
+                                    fontClass = "font-display font-bold text-xs uppercase tracking-wider";
+                                    shapeClass = "px-3 py-1 min-w-[100px] text-center rounded-lg";
                                 }
 
-                                // Interactive States
                                 const isHovered = hoveredNodeId === node.id;
                                 if (isHovered && !isRoot) {
-                                    containerStyle += " border-[var(--ink)] translate-y-[-1px]";
+                                    containerStyle += " border-[var(--accent)] ring-1 ring-[var(--accent)] z-30";
                                 }
-
 
                                 return (
                                     <foreignObject
                                         key={node.id}
-                                        x={node.x - (node.type === 'root' ? 64 : node.type === 'concept' ? 60 : 70)}
-                                        y={node.y - (node.type === 'root' ? 64 : node.type === 'concept' ? 20 : 30)}
-                                        width={node.type === 'root' ? 128 : 140}
-                                        height={node.type === 'root' ? 128 : 100}
+                                        x={node.x - (isRoot ? 48 : 50)}
+                                        y={node.y - (isRoot ? 48 : 25)}
+                                        width={isRoot ? 96 : 100}
+                                        height={isRoot ? 96 : 80}
                                         className="pointer-events-auto overflow-visible"
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onMouseEnter={() => setHoveredNodeId(node.id)}
@@ -388,7 +368,7 @@ export function GraphOverviewPage() {
                                         <div className="flex items-center justify-center h-full w-full p-1">
                                             <div
                                                 className={`
-                                                     flex flex-col items-center justify-center text-center cursor-pointer relative
+                                                     flex flex-col items-center justify-center text-center cursor-pointer relative group
                                                      ${containerStyle}
                                                      ${shapeClass}
                                                  `}
@@ -396,30 +376,20 @@ export function GraphOverviewPage() {
                                                     if (node.slug) navigate(`/topic/${node.slug}`);
                                                 }}
                                             >
-                                                {/* Header Caption (Year/Field) */}
-                                                {node.type === 'topic' && node.data?.year && (
-                                                    <div className="absolute top-1 right-2 text-[10px] font-mono opacity-50 text-[var(--ink)]">
+                                                {!isRoot && !isField && node.data?.year && (
+                                                    <div className="absolute top-0.5 right-1.5 text-[8px] font-mono opacity-60 text-[var(--muted)]">
                                                         {node.data.year}
                                                     </div>
                                                 )}
 
-                                                <div className={`${fontClass} z-10`}>{node.label}</div>
-
-                                                {/* Description or Subtext */}
-                                                {node.description && node.type === 'topic' && (
-                                                    <div className="text-[10px] font-sans opacity-70 mt-1 z-10 line-clamp-2 leading-none text-[var(--muted)]">
-                                                        {node.description}
-                                                    </div>
-                                                )}
+                                                <div className={`${fontClass} z-10 line-clamp-2`}>{node.label}</div>
                                             </div>
                                         </div>
                                     </foreignObject>
                                 );
                             }
 
-                            // ---------------------
-                            // NETWORK (ORIGINAL) STYLES
-                            // ---------------------
+                            // Network Render (Original)
                             let containerStyle = "bg-[#f4f1ea] border border-[#1f1b1f]/20 text-[#1f1b1f] shadow-sm";
                             let fontClass = "font-serif";
                             let shapeClass = "aspect-[3/2] rounded-sm";
@@ -448,9 +418,7 @@ export function GraphOverviewPage() {
                                     className="pointer-events-auto overflow-visible"
                                     onMouseDown={(e) => e.stopPropagation()}
                                 >
-                                    <div
-                                        className="flex items-center justify-center h-full w-full p-2"
-                                    >
+                                    <div className="flex items-center justify-center h-full w-full p-2">
                                         <div
                                             className={`
                                                  flex flex-col items-center justify-center text-center cursor-pointer relative
@@ -480,4 +448,3 @@ export function GraphOverviewPage() {
         </div>
     );
 }
-
