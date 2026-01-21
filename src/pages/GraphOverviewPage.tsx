@@ -289,11 +289,7 @@ export function GraphOverviewPage() {
                                 // But clicking node is effectively a "Click". If we drag, it might be weird.
                                 // For now, let's stop propagation so node clicks feel "solid".
                                 >
-                                    <motion.div
-                                        layout
-                                        initial={false}
-                                        animate={{ x: 0, y: 0 }}
-                                        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                                    <div
                                         className="flex items-center justify-center h-full w-full p-2"
                                     >
                                         <div
@@ -315,7 +311,7 @@ export function GraphOverviewPage() {
                                                 </div>
                                             )}
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 </foreignObject>
                             );
                         })}
