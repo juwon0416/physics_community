@@ -17,6 +17,7 @@ export function GraphOverviewPage() {
     const [activeTab, setActiveTab] = useState<'chronological' | 'network'>('chronological');
     const [model, setModel] = useState<GraphModel | null>(null);
     const [nodes, setNodes] = useState<PositionedNode[]>([]);
+    const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
     // Cache for network positions to avoid re-simulating
     const networkCache = useRef<PositionedNode[] | null>(null);
@@ -62,11 +63,7 @@ export function GraphOverviewPage() {
     }, [activeTab, model]);
 
 
-
-
-
-
-    // ... Actually, let's use a helper for viewport refs
+    // Helper for viewport refs for event handlers
     const viewportRef = useRef({ x: viewX, y: viewY, scale: scale });
     useEffect(() => {
         viewportRef.current = { x: viewX, y: viewY, scale };
@@ -116,47 +113,108 @@ export function GraphOverviewPage() {
     const edges = useMemo(() => {
         if (!model) return [];
         if (activeTab === 'chronological') {
+            // Show temporal and hierarchy edges in chronological view
+            // hierarchy edges only if source is a field (connecting field to topic/concept)
             return model.edges.filter(e => e.type === 'temporal' || (e.type === 'hierarchy' && nodes.find(n => n.id === e.source)?.type === 'field'));
         } else {
             return model.edges;
         }
     }, [model, activeTab, nodes]);
 
+    // Vintage Constants
+    const FIELD_ORDER = ['classical', 'electrodynamics', 'statistical', 'quantum'];
+    const LANE_HEIGHT = 150;
+    const MIN_YEAR = 1600;
+    const MAX_YEAR = 2030;
+    const PADDING_X = 100;
+    const TOTAL_WIDTH = 2000;
+    const AVAILABLE_WIDTH = TOTAL_WIDTH - (PADDING_X * 2);
+    const PX_PER_YEAR = AVAILABLE_WIDTH / (MAX_YEAR - MIN_YEAR);
+
     // Background Layers
     const renderBackground = () => {
-        if (activeTab === 'chronological') {
-            const LANES = [
-                { y: 0, label: 'CLASSICAL MECHANICS' },
-                { y: 150, label: 'ELECTRODYNAMICS' },
-                { y: 300, label: 'STATISTICAL MECHANICS' },
-                { y: 450, label: 'QUANTUM MECHANICS' },
-            ];
+        const isVintage = activeTab === 'chronological';
+        const strokeWidth = 1 / scale; // Counter-scale stroke width
+
+        if (isVintage) {
+            // Ruler Ticks
+            const majorTicks = [];
+            const minorTicks = [];
+            const labels = [];
+
+            // Generate Axis Ticks
+            for (let year = Math.ceil(MIN_YEAR / 10) * 10; year <= MAX_YEAR; year += 10) {
+                const x = PADDING_X + (year - MIN_YEAR) * PX_PER_YEAR;
+                const isMajor = year % 50 === 0;
+
+                if (isMajor) {
+                    majorTicks.push(
+                        <line
+                            key={`maj-${year}`} x1={x} y1={-20} x2={x} y2={600}
+                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.5}
+                        />
+                    );
+                    labels.push(
+                        <text
+                            key={`lbl-${year}`} x={x + 5} y={-30}
+                            fill="var(--ink)" fillOpacity={0.4}
+                            fontSize={12 / scale} fontFamily="serif"
+                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                        >
+                            {year}
+                        </text>
+                    );
+                } else {
+                    minorTicks.push(
+                        <line
+                            key={`min-${year}`} x1={x} y1={-10} x2={x} y2={0}
+                            stroke="var(--grid)" strokeWidth={strokeWidth}
+                        />
+                    );
+                }
+            }
 
             return (
                 <div className="absolute inset-0 pointer-events-none">
                     <svg width="100%" height="100%" className="overflow-visible absolute top-0 left-0">
-                        {/* We don't translate SVG here anymore, we let the parent motion.div handle it.
-                            BUT we need the grid to be large enough?
-                            Actually, the background logic assumes 0,0 is some center line.
-                            With `origin-0` and `viewX/Y` acting as offset, we can just draw normally.
-                        */}
                         <g>
-                            {LANES.map(lane => (
-                                <g key={lane.label}>
-                                    <rect x="-5000" y={lane.y - 60} width="10000" height="140" fill={lane.label.includes('CLASSICAL') ? '#eff6ff' : lane.label.includes('ELECTRO') ? '#fff7ed' : lane.label.includes('STAT') ? '#f0fdf4' : '#faf5ff'} fillOpacity="0.3" />
-                                    <line x1="-5000" y1={lane.y} x2="5000" y2={lane.y} stroke="#000" strokeOpacity="0.05" strokeWidth="2" strokeDasharray="4 4" />
-                                    <text x="-50" y={lane.y} fill="currentColor" fillOpacity="0.1" fontSize="40" fontWeight="bold" fontFamily="serif" alignmentBaseline="middle" textAnchor="end">
-                                        {lane.label}
-                                    </text>
-                                </g>
-                            ))}
-                            <line x1="100" y1="-200" x2="100" y2="700" stroke="red" strokeOpacity="0.1" strokeDasharray="2 2" />
-                            <text x="110" y="-180" fill="red" fillOpacity="0.3" fontSize="12">TIME &rarr;</text>
+                            {/* Axis Line */}
+                            <line x1={PADDING_X} y1={0} x2={PADDING_X + AVAILABLE_WIDTH} y2={0} stroke="var(--ink)" strokeWidth={strokeWidth * 2} />
+
+                            {/* Ticks & Labels */}
+                            {majorTicks}
+                            {minorTicks}
+                            {labels}
+
+                            {/* Lane Dividers (Subtle) */}
+                            {FIELD_ORDER.map((field, i) => {
+                                const y = i * LANE_HEIGHT;
+                                return (
+                                    <g key={field}>
+                                        <line
+                                            x1={-1000} y1={y} x2={3000} y2={y}
+                                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeDasharray={`${4 / scale} ${4 / scale}`}
+                                        />
+                                        <text
+                                            x={PADDING_X - 20} y={y + 20}
+                                            fill="var(--ink)" fillOpacity={0.2}
+                                            fontSize={24 / scale} fontFamily='"Crimson Text", serif'
+                                            fontWeight="bold"
+                                            textAnchor="end"
+                                            className="uppercase tracking-widest"
+                                        >
+                                            {field}
+                                        </text>
+                                    </g>
+                                )
+                            })}
                         </g>
                     </svg>
                 </div>
             )
         }
+
+        // Network View Background (Original)
         return (
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(#1f1b1f 1px, transparent 1px)', backgroundSize: '30px 30px' }}
@@ -173,7 +231,9 @@ export function GraphOverviewPage() {
     return (
         <div
             ref={containerRef}
-            className={`w-full h-[calc(100dvh-64px)] bg-[#e6e0d6] relative overflow-hidden select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+            // Scoped class for Vintage Theme
+            className={`w-full h-[calc(100dvh-64px)] relative overflow-hidden select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+                ${activeTab === 'chronological' ? 'timeline-vintage bg-[var(--paper)] text-[var(--ink)]' : 'bg-[#e6e0d6]'}`}
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
             onMouseLeave={() => setIsDragging(false)}
@@ -193,7 +253,7 @@ export function GraphOverviewPage() {
                 {renderBackground()}
             </motion.div>
 
-            {/* UI Controls (Fixed to Container) */}
+            {/* UI Controls */}
             <div className="absolute top-4 left-4 z-20 flex gap-2" onMouseDown={e => e.stopPropagation()}>
                 <div className="bg-white/80 backdrop-blur p-1 rounded-lg border border-black/10 shadow-sm flex gap-1">
                     <Button
@@ -228,7 +288,7 @@ export function GraphOverviewPage() {
                 <motion.div
                     className="w-full h-full"
                     animate={{ x: viewX, y: viewY, scale }}
-                    transition={{ type: "tween", duration: 0 }} // Instant updates for drag/zoom responsiveness
+                    transition={{ type: "tween", duration: 0 }}
                     style={{ transformOrigin: "0 0" }}
                 >
                     <svg width="100%" height="100%" className="overflow-visible absolute top-0 left-0">
@@ -239,17 +299,41 @@ export function GraphOverviewPage() {
                                 const target = nodes.find(n => n.id === edge.target);
                                 if (!source || !target) return null;
 
+                                const isVintage = activeTab === 'chronological';
+                                // Vintage Logic: Faint default, Dark on Hover
+                                const isHovered = hoveredNodeId && (edge.source === hoveredNodeId || edge.target === hoveredNodeId);
+
+                                let strokeColor = "#1f1b1f";
+                                let strokeOpacity = 0.2;
+                                let strokeWidth = 1.5;
+
+                                if (isVintage) {
+                                    strokeColor = "var(--ink)";
+                                    // Default very faint
+                                    strokeOpacity = 0.05;
+                                    strokeWidth = 1 / scale;
+
+                                    if (isHovered) {
+                                        strokeOpacity = 0.8;
+                                        strokeWidth = 2 / scale;
+                                    }
+                                } else {
+                                    // Network View
+                                    strokeOpacity = 0.2;
+                                    strokeWidth = 1.5;
+                                }
+
                                 return (
                                     <motion.line
                                         key={`${edge.source}-${edge.target}-${activeTab}`}
                                         initial={{ opacity: 0 }}
                                         animate={{
-                                            opacity: activeTab === 'chronological' ? 0.3 : 0.2,
+                                            opacity: strokeOpacity,
                                             x1: source.x, y1: source.y, x2: target.x, y2: target.y
                                         }}
                                         exit={{ opacity: 0 }}
-                                        stroke="#1f1b1f"
-                                        strokeWidth={activeTab === 'chronological' ? 2 : 1.5}
+                                        stroke={strokeColor}
+                                        strokeWidth={strokeWidth}
                                         strokeLinecap="round"
                                     />
                                 );
@@ -258,6 +342,84 @@ export function GraphOverviewPage() {
 
                         {/* Nodes */}
                         {nodes.map((node) => {
+                            const isVintage = activeTab === 'chronological';
+
+                            // ---------------------
+                            // VINTAGE NODE STYLES
+                            // ---------------------
+                            if (isVintage) {
+                                const isRoot = node.type === 'root';
+                                const isField = node.type === 'field';
+
+                                // Index Card Style
+                                let containerStyle = "bg-[var(--paper)] border border-[var(--muted)] text-[var(--ink)] shadow-[2px_2px_0px_0px_var(--muted)] transition-all";
+                                let fontClass = "font-serif text-sm leading-tight";
+                                let shapeClass = "px-3 py-2 min-w-[140px] rounded-sm"; // Sharp corners for index cards
+
+                                if (isRoot) {
+                                    containerStyle = "bg-[var(--ink)] text-[var(--paper)] border-4 border-double border-[var(--paper)]";
+                                    fontClass = "font-display text-lg uppercase tracking-widest";
+                                    shapeClass = "aspect-square rounded-full w-32 h-32 flex items-center justify-center";
+                                } else if (isField) {
+                                    containerStyle = "bg-[var(--paper)] border-b-2 border-[var(--ink)] text-[var(--ink)]";
+                                    fontClass = "font-display font-bold text-base uppercase tracking-wider";
+                                    shapeClass = "px-4 py-2 min-w-[120px]"; // Label style
+                                }
+
+                                // Interactive States
+                                const isHovered = hoveredNodeId === node.id;
+                                if (isHovered && !isRoot) {
+                                    containerStyle += " border-[var(--ink)] translate-y-[-1px]";
+                                }
+
+
+                                return (
+                                    <foreignObject
+                                        key={node.id}
+                                        x={node.x - (node.type === 'root' ? 64 : node.type === 'concept' ? 60 : 70)}
+                                        y={node.y - (node.type === 'root' ? 64 : node.type === 'concept' ? 20 : 30)}
+                                        width={node.type === 'root' ? 128 : 140}
+                                        height={node.type === 'root' ? 128 : 100}
+                                        className="pointer-events-auto overflow-visible"
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onMouseEnter={() => setHoveredNodeId(node.id)}
+                                        onMouseLeave={() => setHoveredNodeId(null)}
+                                    >
+                                        <div className="flex items-center justify-center h-full w-full p-1">
+                                            <div
+                                                className={`
+                                                     flex flex-col items-center justify-center text-center cursor-pointer relative
+                                                     ${containerStyle}
+                                                     ${shapeClass}
+                                                 `}
+                                                onClick={() => {
+                                                    if (node.slug) navigate(`/topic/${node.slug}`);
+                                                }}
+                                            >
+                                                {/* Header Caption (Year/Field) */}
+                                                {node.type === 'topic' && node.data?.year && (
+                                                    <div className="absolute top-1 right-2 text-[10px] font-mono opacity-50 text-[var(--ink)]">
+                                                        {node.data.year}
+                                                    </div>
+                                                )}
+
+                                                <div className={`${fontClass} z-10`}>{node.label}</div>
+
+                                                {/* Description or Subtext */}
+                                                {node.description && node.type === 'topic' && (
+                                                    <div className="text-[10px] font-sans opacity-70 mt-1 z-10 line-clamp-2 leading-none text-[var(--muted)]">
+                                                        {node.description}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </foreignObject>
+                                );
+                            }
+
+                            // ---------------------
+                            // NETWORK (ORIGINAL) STYLES
+                            // ---------------------
                             let containerStyle = "bg-[#f4f1ea] border border-[#1f1b1f]/20 text-[#1f1b1f] shadow-sm";
                             let fontClass = "font-serif";
                             let shapeClass = "aspect-[3/2] rounded-sm";
@@ -284,10 +446,7 @@ export function GraphOverviewPage() {
                                     width={node.type === 'root' ? 128 : 200}
                                     height={node.type === 'root' ? 128 : 100}
                                     className="pointer-events-auto overflow-visible"
-                                    onMouseDown={(e) => e.stopPropagation()} // Allow clicking nodes without dragging canvas logic interference if desired, OR let it bubble but handle drag check.
-                                // Decision: Stop prop to prevent Panning when trying to interact with node?
-                                // But clicking node is effectively a "Click". If we drag, it might be weird.
-                                // For now, let's stop propagation so node clicks feel "solid".
+                                    onMouseDown={(e) => e.stopPropagation()}
                                 >
                                     <div
                                         className="flex items-center justify-center h-full w-full p-2"

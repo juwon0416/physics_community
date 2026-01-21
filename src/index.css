@@ -152,3 +152,19 @@
   opacity: 0.5;
   border-radius: calc(var(--radius) - 4px);
 }
+
+/* Scoped Timeline Vintage Theme */
+.timeline-vintage {
+  /* Core Palette */
+  --paper: #FDFBF7;
+  --ink: #1A1A1A;
+  --muted: #5B5B5B;
+  --grid: #CFC7B8;
+  --accent: #2C3E50;
+
+  /* Fallback/System mappings if needed, overriding global theme within scope */
+  --background: 38 28% 98%;
+  /* Matching Paper approx */
+  --foreground: 0 0% 10%;
+  /* Matching Ink approx */
+}
