@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { Edit2, Eye, Bold, Italic, Code, Image as ImageIcon, Sigma, Network, Loader2 } from 'lucide-react';
+import { Edit2, Eye, Bold, Italic, Code, Image as ImageIcon, Sigma, Network, Loader2, FunctionSquare } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import 'katex/dist/katex.min.css';
 import { storage } from '../../data/storage';
@@ -16,10 +16,52 @@ interface RichTextEditorProps {
     className?: string;
 }
 
+// ----------------------------------------------------------------------------
+// PHYSICS MACROS DEFINITION
+// ----------------------------------------------------------------------------
+// These will be passed to KaTeX to render them correctly in the preview.
+const PHYSICS_MACROS = {
+    "\\ket": "\\left|#1\\right\\rangle",
+    "\\bra": "\\left\\langle#1\\right|",
+    "\\braket": "\\left\\langle#1\\middle|#2\\right\\rangle",
+    "\\grad": "\\nabla",
+    "\\div": "\\nabla\\cdot",
+    "\\curl": "\\nabla\\times",
+    "\\pd": "\\frac{\\partial #1}{\\partial #2}",
+    "\\dd": "\\frac{d #1}{d #2}",
+    "\\avg": "\\left\\langle#1\\right\\rangle",
+    "\\dag": "^\\dagger",
+    "\\L": "\\mathcal{L}",
+    "\\H": "\\mathcal{H}",
+    "\\unity": "\\mathbb{1}",
+};
+
+// UI Grouping for the Dropdown
+const MACRO_GROUPS = [
+    {
+        title: "Quantum",
+        items: [
+            { label: "|ψ⟩ Ket", tex: "\\ket{", suffix: "}" },
+            { label: "⟨ψ| Bra", tex: "\\bra{", suffix: "}" },
+            { label: "⟨φ|ψ⟩ Inner Prod", tex: "\\braket{", suffix: "}{}" }, // default cursor handling will be tricky for 2 args, simplified
+            { label: "† Dagger", tex: "\\dag" },
+            { label: "H Hamiltonian", tex: "\\H" },
+        ]
+    },
+    {
+        title: "Vector / Calc",
+        items: [
+            { label: "∇ Grad", tex: "\\grad " },
+            { label: "∇⋅ Div", tex: "\\div " },
+            { label: "∇× Curl", tex: "\\curl " },
+            { label: "∂y/∂x Partial", tex: "\\pd{y}{x}" }, // Placeholder defaults
+            { label: "dy/dx Total", tex: "\\dd{y}{x}" },
+        ]
+    },
+];
 
 export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
     const [mode, setMode] = useState<'write' | 'preview'>('write');
-    // ... (rest of component state) ...
     const [isUploading, setIsUploading] = useState(false);
 
     // Concept Dialog State
@@ -29,8 +71,23 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     const [isCreatingConcept, setIsCreatingConcept] = useState(false);
     const [conceptStatus, setConceptStatus] = useState<'idle' | 'checking' | 'exists' | 'new'>('idle');
 
+    // Macros Menu State
+    const [showMacros, setShowMacros] = useState(false);
+    const macrosMenuRef = useRef<HTMLDivElement>(null);
+
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Close macros menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (macrosMenuRef.current && !macrosMenuRef.current.contains(event.target as Node)) {
+                setShowMacros(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const insertText = (before: string, after: string = '') => {
         const textarea = textareaRef.current;
@@ -132,7 +189,7 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
             />
 
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-2 border-b border-border/50 bg-secondary/20 rounded-t-md">
+            <div className="flex items-center justify-between p-2 border-b border-border/50 bg-secondary/20 rounded-t-md relative">
                 <div className="flex items-center gap-1 overflow-x-auto">
                     <button onClick={() => setMode('write')} className={cn("p-2 rounded hover:bg-secondary transition-colors", mode === 'write' ? "bg-secondary text-primary" : "text-muted-foreground")}>
                         <Edit2 className="w-4 h-4" />
@@ -145,6 +202,46 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                     <ToolbarButton icon={<Italic className="w-4 h-4" />} onClick={() => insertText('*', '*')} label="Italic" disabled={mode === 'preview'} />
                     <ToolbarButton icon={<Code className="w-4 h-4" />} onClick={() => insertText('`', '`')} label="Code" disabled={mode === 'preview'} />
                     <ToolbarButton icon={<Sigma className="w-4 h-4" />} onClick={() => insertText('$', '$')} label="Math" disabled={mode === 'preview'} />
+
+                    {/* Macros Button with Dropdown */}
+                    <div className="relative" ref={macrosMenuRef}>
+                        <ToolbarButton
+                            icon={<FunctionSquare className="w-4 h-4" />}
+                            onClick={() => setShowMacros(!showMacros)}
+                            label="Physics Macros"
+                            disabled={mode === 'preview'}
+                            active={showMacros}
+                        />
+
+                        {/* Dropdown Menu */}
+                        {showMacros && mode === 'write' && (
+                            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl rounded-lg z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 p-1">
+                                {MACRO_GROUPS.map((group) => (
+                                    <div key={group.title} className="mb-1 last:mb-0">
+                                        <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 bg-muted/50 uppercase tracking-wider">
+                                            {group.title}
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-px">
+                                            {group.items.map((item) => (
+                                                <button
+                                                    key={item.label}
+                                                    onClick={() => {
+                                                        insertText(item.tex, item.suffix || '');
+                                                        setShowMacros(false);
+                                                    }}
+                                                    className="flex items-center justify-between text-left px-2 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-sm transition-colors text-foreground group"
+                                                >
+                                                    <span className="font-medium">{item.label}</span>
+                                                    <span className="font-mono text-[9px] opacity-40 group-hover:opacity-100">{item.tex}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <ToolbarButton icon={<Network className="w-4 h-4" />} onClick={handleConceptClick} label="Concept/Keyword" disabled={mode === 'preview'} />
                     <ToolbarButton
                         icon={<ImageIcon className={cn("w-4 h-4", isUploading && "animate-pulse text-primary")} />}
@@ -229,7 +326,8 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
                                     throwOnError: false,
                                     globalGroup: true,
                                     trust: true,
-                                    strict: "ignore"
+                                    strict: "ignore",
+                                    macros: PHYSICS_MACROS
                                 }]]}
                                 components={{
                                     img: ({ node, ...props }) => (
@@ -267,12 +365,15 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
     );
 }
 
-function ToolbarButton({ icon, onClick, label, disabled }: { icon: React.ReactNode, onClick: () => void, label: string, disabled?: boolean }) {
+function ToolbarButton({ icon, onClick, label, disabled, active }: { icon: React.ReactNode, onClick: () => void, label: string, disabled?: boolean, active?: boolean }) {
     return (
         <button
             onClick={onClick}
             disabled={disabled}
-            className="p-2 rounded hover:bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            className={cn(
+                "p-2 rounded text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0",
+                active ? "bg-secondary text-primary hover:bg-secondary/90" : "hover:bg-secondary hover:text-foreground"
+            )}
             title={label}
         >
             {icon}
