@@ -1,0 +1,154 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+
+@layer base {
+  :root {
+    /* Vintage American Book Theme - Paper & Ink */
+
+    /* Paper Background (Aged Cream) */
+    --background: 36 28% 90%;
+
+    /* Ink Foreground (Deep Charcoal) */
+    --foreground: 30 10% 12%;
+
+    /* Slightly darker paper for cards */
+    --card: 38 25% 94%;
+    --card-foreground: 30 15% 15%;
+
+    /* Popovers align with cards */
+    --popover: 38 25% 94%;
+    --popover-foreground: 30 15% 15%;
+
+    /* Primary: Rust/Faded Red (Highlights/Links) */
+    --primary: 15 70% 45%;
+    --primary-foreground: 35 30% 96%;
+
+    /* Secondary: Muted Green (Badges/Accents) */
+    --secondary: 150 20% 40%;
+    --secondary-foreground: 35 30% 96%;
+
+    /* Muted Text (Faded Ink) */
+    --muted: 38 10% 85%;
+    --muted-foreground: 30 10% 45%;
+
+    /* Accent: Rust for consistency in active states */
+    --accent: 15 70% 45%;
+    --accent-foreground: 35 30% 96%;
+
+    /* Destructive: Deep Red */
+    --destructive: 0 60% 35%;
+    --destructive-foreground: 35 30% 96%;
+
+    /* Borders: Muted Beige/Grey */
+    --border: 30 10% 75%;
+    --input: 30 10% 75%;
+    --ring: 15 70% 45%;
+
+    /* Sharp/Paper-like Radius */
+    --radius: 0.15rem;
+  }
+
+  /* Force "Vintage Paper" theme even in dark mode initially to ensure consistency */
+  .dark {
+    --background: 30 15% 12%;
+    /* Deep Leather Brown */
+    --foreground: 35 30% 90%;
+    /* Faded Paper Text */
+
+    --card: 30 15% 15%;
+    --card-foreground: 35 30% 90%;
+
+    --popover: 30 15% 15%;
+    --popover-foreground: 35 30% 90%;
+
+    --primary: 15 60% 55%;
+    /* Lighter Rust */
+    --primary-foreground: 30 15% 12%;
+
+    --secondary: 150 20% 50%;
+    --secondary-foreground: 30 15% 12%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 35 15% 60%;
+
+    --accent: 15 60% 55%;
+    --accent-foreground: 30 15% 12%;
+
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 35 30% 90%;
+
+    --border: 30 15% 25%;
+    --input: 30 15% 25%;
+    --ring: 15 60% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    position: relative;
+  }
+
+  /* Paper Noise Texture Overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.08;
+    /* Subtle Texture */
+    background-image:
+      radial-gradient(circle at center, transparent 0%, rgba(60, 50, 40, 0.15) 100%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+
+  /* Vintage Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-wide;
+  }
+
+  p,
+  span,
+  li,
+  a {
+    @apply font-sans;
+  }
+
+  code,
+  pre {
+    @apply font-mono;
+  }
+}
+
+/* Vintage Component Utilities */
+.glass {
+  @apply bg-card/95 text-card-foreground border border-border shadow-sm;
+}
+
+.glass-card {
+  @apply bg-card text-card-foreground border border-border shadow-md relative;
+}
+
+/* Add a subtle inner border for a printed look if valid */
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid theme('colors.border');
+  pointer-events: none;
+  opacity: 0.5;
+  border-radius: calc(var(--radius) - 4px);
+}
