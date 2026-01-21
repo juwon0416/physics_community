@@ -10,6 +10,7 @@ import { TIMELINE_TOPICS, FIELDS, KEYWORD_SECTIONS } from '../data/seed';
 import { storage, type Question, type TopicSection } from '../data/storage';
 import { useAuth } from '../lib/auth';
 import { Button, Input, Badge, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
+import { PHYSICS_MACROS } from '../lib/latexMacros';
 
 export function TopicPage() {
     const { topicSlug } = useParams();
@@ -183,7 +184,7 @@ export function TopicPage() {
                                 <div className="prose prose-lg prose-invert max-w-none text-foreground/90 font-serif leading-loose">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkMath]}
-                                        rehypePlugins={[rehypeKatex]}
+                                        rehypePlugins={[[rehypeKatex, { macros: PHYSICS_MACROS }]]}
                                         components={{
                                             img: ({ node, ...props }) => (
                                                 <figure className="my-8">

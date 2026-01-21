@@ -11,6 +11,7 @@ import { useAuth } from '../lib/auth';
 import { Button, Input } from '../components/ui';
 import { RichTextEditor } from '../components/editor/RichTextEditor';
 import { conceptAPI } from '../lib/concepts';
+import { PHYSICS_MACROS } from '../lib/latexMacros';
 
 
 
@@ -253,7 +254,8 @@ export function SectionPage() {
                                 throwOnError: false,
                                 globalGroup: true,
                                 trust: true,
-                                strict: "ignore"
+                                strict: "ignore",
+                                macros: PHYSICS_MACROS
                             }]]}
                             components={{
                                 img: ({ node, ...props }) => (

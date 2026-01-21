@@ -8,6 +8,7 @@ import 'katex/dist/katex.min.css';
 import { storage } from '../../data/storage';
 import { conceptAPI } from '../../lib/concepts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Button } from '../../components/ui';
+import { PHYSICS_MACROS } from '../../lib/latexMacros';
 
 interface RichTextEditorProps {
     value: string;
@@ -16,25 +17,6 @@ interface RichTextEditorProps {
     className?: string;
 }
 
-// ----------------------------------------------------------------------------
-// PHYSICS MACROS DEFINITION
-// ----------------------------------------------------------------------------
-// These will be passed to KaTeX to render them correctly in the preview.
-const PHYSICS_MACROS = {
-    "\\ket": "\\left|#1\\right\\rangle",
-    "\\bra": "\\left\\langle#1\\right|",
-    "\\braket": "\\left\\langle#1\\middle|#2\\right\\rangle",
-    "\\grad": "\\nabla",
-    "\\div": "\\nabla\\cdot",
-    "\\curl": "\\nabla\\times",
-    "\\pd": "\\frac{\\partial #1}{\\partial #2}",
-    "\\dd": "\\frac{d #1}{d #2}",
-    "\\avg": "\\left\\langle#1\\right\\rangle",
-    "\\dag": "^\\dagger",
-    "\\L": "\\mathcal{L}",
-    "\\H": "\\mathcal{H}",
-    "\\unity": "\\mathbb{1}",
-};
 
 // UI Grouping for the Dropdown
 const MACRO_GROUPS = [
