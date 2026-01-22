@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { storage } from '../../data/storage';
 import { cn } from '../../lib/cn';
-import { Button } from '../ui';
+import { Button } from './Button';
 
 interface ImageUploadProps {
     value?: string;
