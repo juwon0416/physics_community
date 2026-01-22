@@ -7,7 +7,8 @@ import { cn } from '../../lib/cn';
 import 'katex/dist/katex.min.css';
 import { storage } from '../../data/storage';
 import { conceptAPI } from '../../lib/concepts';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Button } from '../../components/ui';
+import { Input, Button } from '../../components/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
 import { PHYSICS_MACROS } from '../../lib/latexMacros';
 import { processConceptLinks, MarkdownLink } from '../../lib/markdownUtils';
 
@@ -107,8 +108,8 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
         setConceptStatus('checking');
         try {
             const existing = await conceptAPI.getByLabel(term);
-            setConceptStatus(existing ? 'exists' : 'new');
-            if (existing && existing.data.description) {
+            setConceptStatus(existing?.data ? 'exists' : 'new');
+            if (existing?.data?.description) {
                 setConceptDesc(existing.data.description);
             }
         } catch (e) {
