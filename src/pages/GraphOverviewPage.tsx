@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ZoomIn, ZoomOut, RefreshCw, Sparkles, Calendar, Share2, Loader2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, RefreshCw, Calendar, Share2, Loader2 } from 'lucide-react';
 
 import { Button } from '../components/ui';
 

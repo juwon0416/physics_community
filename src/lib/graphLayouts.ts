@@ -244,7 +244,7 @@ export const getChronologicalEdges = (model: GraphModel) => {
         return !isFieldTopic;
     });
 
-    const chainEdges: { source: string; target: string; type: string }[] = [];
+    const chainEdges: { source: string; target: string; type: 'temporal' | 'hierarchy' }[] = [];
     const topics = model.nodes.filter(n => n.type === 'topic' && n.data?.fieldId && n.data?.year);
     const topicsByField: Record<string, typeof topics> = {};
     topics.forEach(t => {
@@ -259,7 +259,7 @@ export const getChronologicalEdges = (model: GraphModel) => {
             chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'hierarchy' });
         }
         for (let i = 0; i < fieldTopics.length - 1; i++) {
-            chainEdges.push({ source: fieldTopics[i].id, target: fieldTopics[i + 1].id, type: 'run' });
+            chainEdges.push({ source: fieldTopics[i].id, target: fieldTopics[i + 1].id, type: 'temporal' });
         }
     });
 
