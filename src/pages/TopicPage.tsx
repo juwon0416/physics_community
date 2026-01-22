@@ -11,6 +11,7 @@ import { storage, type Question, type TopicSection } from '../data/storage';
 import { useAuth } from '../lib/auth';
 import { Button, Input, Badge, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
 import { PHYSICS_MACROS } from '../lib/latexMacros';
+import { processConceptLinks, MarkdownLink } from '../lib/markdownUtils';
 
 export function TopicPage() {
     const { topicSlug } = useParams();
@@ -195,10 +196,11 @@ export function TopicPage() {
                                             h1: ({ node, ...props }) => <h3 className="text-2xl font-bold mt-8 mb-4" {...props} />,
                                             h2: ({ node, ...props }) => <h4 className="text-xl font-bold mt-6 mb-3" {...props} />,
                                             p: ({ node, ...props }) => <p className="mb-6 whitespace-pre-wrap" {...props} />,
-                                            blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#c15b4d]/50 pl-6 italic my-8 text-muted-foreground bg-muted/10 p-4 rounded-r-lg" {...props} />
+                                            blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#c15b4d]/50 pl-6 italic my-8 text-muted-foreground bg-muted/10 p-4 rounded-r-lg" {...props} />,
+                                            a: MarkdownLink
                                         }}
                                     >
-                                        {getDisplayContent(section)}
+                                        {processConceptLinks(getDisplayContent(section))}
                                     </ReactMarkdown>
                                 </div>
                             </section>

@@ -12,6 +12,7 @@ import { Button, Input } from '../components/ui';
 import { RichTextEditor } from '../components/editor/RichTextEditor';
 import { conceptAPI } from '../lib/concepts';
 import { PHYSICS_MACROS } from '../lib/latexMacros';
+import { processConceptLinks, MarkdownLink } from '../lib/markdownUtils';
 
 
 
@@ -141,12 +142,7 @@ export function SectionPage() {
     // Generate processed content for view mode
     const processedContent = useMemo(() => {
         if (!section?.content) return '';
-        // Use [\s\S]*? to match across newlines if necessary
-        return section.content.replace(/\[\[([\s\S]*?)\]\]/g, (_, term) => {
-            const cleanTerm = term.trim();
-            if (!cleanTerm) return `[[${term}]]`;
-            return `[${cleanTerm}](/concept/${encodeURIComponent(cleanTerm)})`;
-        });
+        return processConceptLinks(section.content);
     }, [section?.content]);
 
     return (
@@ -292,34 +288,7 @@ export function SectionPage() {
                                 img: ({ node, ...props }) => (
                                     <img {...props} className="rounded-xl border border-border/50 shadow-lg my-8 w-full max-h-[600px] object-contain bg-black/5" />
                                 ),
-                                a: ({ node, href, children, ...props }) => {
-                                    // Robust check for concept links (handles relative and absolute using includes)
-                                    if (href && href.includes('/concept/')) {
-                                        const term = decodeURIComponent(href.split('/concept/')[1]);
-                                        return (
-                                            <span
-                                                className="!text-blue-500 font-bold underline decoration-dotted cursor-help hover:!text-blue-400 transition-colors"
-                                                title={`Concept: ${term}`}
-                                                onClick={async (e) => {
-                                                    e.preventDefault();
-                                                    try {
-                                                        const concept = await conceptAPI.getByLabel(term);
-                                                        if (concept?.data?.slug) {
-                                                            navigate(concept.data.slug);
-                                                        } else {
-                                                            alert(`Concept: ${term}\n${concept?.data?.description || 'No description available.'}\n(Not yet a Topic Page)`);
-                                                        }
-                                                    } catch (err) {
-                                                        console.error(err);
-                                                    }
-                                                }}
-                                            >
-                                                {children}
-                                            </span>
-                                        );
-                                    }
-                                    return <a href={href} {...props}>{children}</a>;
-                                }
+                                a: MarkdownLink
                             }}
                         >
                             {processedContent}
