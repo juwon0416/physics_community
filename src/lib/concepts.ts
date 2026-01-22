@@ -156,9 +156,10 @@ export const conceptAPI = {
     // Sync edges extracting from content
     async syncContentEdges(source: { id: string; type: 'topic' | 'section'; label: string }, content: string) {
         // 1. Parse content for [[concepts]]
-        const regex = /\[\[(.*?)\]\]/g;
+        // Use [\s\S] to match newlines if concepts span lines (unlikely but safe)
+        const regex = /\[\[([\s\S]*?)\]\]/g;
         const matches = [...content.matchAll(regex)];
-        const terms = [...new Set(matches.map(m => m[1]))]; // dedup
+        const terms = [...new Set(matches.map(m => m[1].trim()).filter(Boolean))]; // dedup & trim
 
         // 2. Upsert Source Node (Topic or Section)
         await supabase

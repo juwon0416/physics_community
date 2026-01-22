@@ -91,9 +91,10 @@ export function SectionPage() {
 
                 // 2. Batch save manual links (Add-Only policy)
                 await conceptAPI.connectBatch(section.id, Array.from(linkedConceptIds));
-            } catch (e) {
+            } catch (e: any) {
                 console.error("Failed to sync graph edges:", e);
-                // Don't block UI saving success
+                // Alert user to DB errors so they know why graph isn't updating
+                alert(`Graph Sync Error: ${e.message || JSON.stringify(e)}. Please run complete_graph_schema.sql in Supabase!`);
             }
         }
 
@@ -140,7 +141,8 @@ export function SectionPage() {
     // Generate processed content for view mode
     const processedContent = useMemo(() => {
         if (!section?.content) return '';
-        return section.content.replace(/\[\[(.*?)\]\]/g, (_, term) => {
+        // Use [\s\S]*? to match across newlines if necessary
+        return section.content.replace(/\[\[([\s\S]*?)\]\]/g, (_, term) => {
             const cleanTerm = term.trim();
             if (!cleanTerm) return `[[${term}]]`;
             return `[${cleanTerm}](/concept/${encodeURIComponent(cleanTerm)})`;
