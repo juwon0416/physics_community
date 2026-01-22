@@ -206,5 +206,7 @@ export const conceptAPI = {
 
         // 4. Batch Connect
         await this.connectBatch(source.id, targetIds, 'mentions');
+
+        return targetIds;
     }
 };

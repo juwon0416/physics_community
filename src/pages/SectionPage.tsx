@@ -84,8 +84,9 @@ export function SectionPage() {
         if (!error) {
             // Save Graph Edges (Hierarchy)
             try {
-                // 1. Sync edges from text content (Section -> Concepts)
-                await conceptAPI.syncContentEdges(
+                // 1. Sync edges from text content (Section -> Concepts [mentions])
+                // Returns list of concept IDs found in the text
+                const contentConceptIds = await conceptAPI.syncContentEdges(
                     { id: section.id, type: 'section', label: editTitle },
                     editDetailedContent
                 );
@@ -93,10 +94,15 @@ export function SectionPage() {
                 // 2. Link Topic -> Section (So section isn't orphaned)
                 if (section.topic_id) {
                     await conceptAPI.createEdge(section.topic_id, section.id, 'hierarchy');
+
+                    // 3. Link Topic -> Concepts [hierarchy] (Grandparent -> Grandchild direct link for graph structure)
+                    // Combine content concepts and manual concepts
+                    const allConceptIds = [...(contentConceptIds || []), ...Array.from(linkedConceptIds)];
+                    await conceptAPI.connectBatch(section.topic_id, allConceptIds, 'hierarchy');
                 }
 
-                // 3. Batch save manual links (Add-Only policy)
-                await conceptAPI.connectBatch(section.id, Array.from(linkedConceptIds));
+                // 4. Batch save manual links (Section -> Concepts [manual_mentions])
+                await conceptAPI.connectBatch(section.id, Array.from(linkedConceptIds), 'manual_mentions');
             } catch (e: any) {
                 console.error("Failed to sync graph edges:", e);
                 // Alert user to DB errors so they know why graph isn't updating
