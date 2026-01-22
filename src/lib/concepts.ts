@@ -105,6 +105,19 @@ export const conceptAPI = {
         if (error) throw error;
     },
 
+    // Create a generic edge between two existing nodes (e.g. Topic -> Section)
+    async createEdge(sourceId: string, targetId: string, label: string) {
+        const { error } = await supabase
+            .from('graph_edges')
+            .upsert({
+                source: sourceId,
+                target: targetId,
+                label: label
+            }, { onConflict: 'source,target,label', ignoreDuplicates: true });
+
+        if (error) throw error;
+    },
+
     // Promote a concept to link to a topic page
     async promoteToTopic(label: string, slug: string) {
         // 1. Find the concept node

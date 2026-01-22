@@ -84,13 +84,18 @@ export function SectionPage() {
         if (!error) {
             // Save Graph Edges (Hierarchy)
             try {
-                // 1. Sync edges from text content (parse [[links]])
+                // 1. Sync edges from text content (Section -> Concepts)
                 await conceptAPI.syncContentEdges(
                     { id: section.id, type: 'section', label: editTitle },
                     editDetailedContent
                 );
 
-                // 2. Batch save manual links (Add-Only policy)
+                // 2. Link Topic -> Section (So section isn't orphaned)
+                if (section.topic_id) {
+                    await conceptAPI.createEdge(section.topic_id, section.id, 'hierarchy');
+                }
+
+                // 3. Batch save manual links (Add-Only policy)
                 await conceptAPI.connectBatch(section.id, Array.from(linkedConceptIds));
             } catch (e: any) {
                 console.error("Failed to sync graph edges:", e);
