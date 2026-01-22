@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ZoomIn, ZoomOut, RefreshCw, Sparkles, Calendar, Share2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, RefreshCw, Sparkles, Calendar, Share2, Loader2 } from 'lucide-react';
 
 import { Button } from '../components/ui';
 
 import type { GraphModel } from '../lib/graphModel';
-import { buildGraphModel } from '../lib/graphModel';
+import { fetchGraphModel } from '../lib/graphModel';
 import type { PositionedNode } from '../lib/graphLayouts';
 import { layoutChronological, layoutNetwork } from '../lib/graphLayouts';
 
@@ -18,6 +18,7 @@ export function GraphOverviewPage() {
     const [model, setModel] = useState<GraphModel | null>(null);
     const [nodes, setNodes] = useState<PositionedNode[]>([]);
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Cache for network positions to avoid re-simulating
     const networkCache = useRef<PositionedNode[] | null>(null);
@@ -31,15 +32,25 @@ export function GraphOverviewPage() {
 
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Initialization: Center the view
+    // Initialization: Center the view & Load Data
     useEffect(() => {
         // Initial center
         setViewX(window.innerWidth / 2);
         setViewY(window.innerHeight / 2);
 
-        // Build agnostic model once
-        const graphModel = buildGraphModel();
-        setModel(graphModel);
+        // Load Graph Data
+        const loadGraph = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchGraphModel();
+                setModel(data);
+            } catch (e) {
+                console.error("Failed to load graph:", e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadGraph();
     }, []);
 
     // Layout Effect
@@ -223,6 +234,16 @@ export function GraphOverviewPage() {
             onMouseMove={handleDragMove}
             style={{ touchAction: 'none', overscrollBehavior: 'none' }}
         >
+            {/* Loading Indicator */}
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-50 bg-background/50 backdrop-blur-sm">
+                    <div className="flex flex-col items-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
+                        <span className="text-sm text-muted-foreground font-serif">Loading Knowledge Graph...</span>
+                    </div>
+                </div>
+            )}
+
             {/* Background Container - Moves with Viewport */}
             <motion.div
                 key={activeTab}
@@ -275,6 +296,42 @@ export function GraphOverviewPage() {
                     style={{ transformOrigin: "0 0" }}
                 >
                     <svg width="100%" height="100%" className="overflow-visible absolute top-0 left-0">
+                        <defs>
+                            <marker
+                                id="arrow-vintage"
+                                viewBox="0 0 10 10"
+                                refX="10"
+                                refY="5"
+                                markerWidth="6"
+                                markerHeight="6"
+                                orient="auto-start-reverse"
+                            >
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" opacity="0.5" />
+                            </marker>
+                            <marker
+                                id="arrow-network"
+                                viewBox="0 0 10 10"
+                                refX="22" // Adjust based on node size approx
+                                refY="5"
+                                markerWidth="5"
+                                markerHeight="5"
+                                orient="auto-start-reverse"
+                            >
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f1b1f" opacity="0.3" />
+                            </marker>
+                            <marker
+                                id="arrow-network-hover"
+                                viewBox="0 0 10 10"
+                                refX="22"
+                                refY="5"
+                                markerWidth="6"
+                                markerHeight="6"
+                                orient="auto-start-reverse"
+                            >
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" opacity="1" />
+                            </marker>
+                        </defs>
+
                         {/* Edges */}
                         <AnimatePresence>
                             {edges.map((edge) => {
@@ -288,6 +345,7 @@ export function GraphOverviewPage() {
                                 let strokeColor = "#1f1b1f";
                                 let strokeOpacity = 0.2;
                                 let strokeWidth = 1.5;
+                                let markerEnd = "";
 
                                 if (isVintage) {
                                     strokeColor = "var(--grid)";
@@ -306,7 +364,18 @@ export function GraphOverviewPage() {
                                         strokeWidth = 2.5 / scale;
                                     }
                                 } else {
+                                    // Network Style
                                     strokeOpacity = 0.2;
+                                    // Arrows for hierarchy/mentions
+                                    if (edge.type === 'hierarchy' || edge.type === 'mentions') {
+                                        markerEnd = isHovered ? "url(#arrow-network-hover)" : "url(#arrow-network)";
+                                    }
+
+                                    if (isHovered) {
+                                        strokeColor = "var(--accent)"; // Or a dark color
+                                        strokeOpacity = 0.8;
+                                        strokeWidth = 2;
+                                    }
                                 }
 
                                 return (
@@ -321,6 +390,7 @@ export function GraphOverviewPage() {
                                         stroke={strokeColor}
                                         strokeWidth={strokeWidth}
                                         strokeLinecap="round"
+                                        markerEnd={markerEnd}
                                     />
                                 );
                             })}

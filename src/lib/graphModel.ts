@@ -1,3 +1,4 @@
+import { supabase } from './supabase';
 import { FIELDS, TIMELINE_TOPICS } from '../data/seed';
 
 export interface GraphNode {
@@ -9,12 +10,14 @@ export interface GraphNode {
     description?: string;
     slug?: string;
     data?: any; // For flexible extra data (e.g. year)
+    x?: number; // Optional from DB
+    y?: number;
 }
 
 export interface GraphEdge {
     source: string;
     target: string;
-    type?: 'hierarchy' | 'temporal' | 'relational';
+    type?: 'hierarchy' | 'temporal' | 'relational' | 'mentions';
 }
 
 export interface GraphModel {
@@ -22,7 +25,7 @@ export interface GraphModel {
     edges: GraphEdge[];
 }
 
-export const buildGraphModel = (): GraphModel => {
+export const buildStaticGraphModel = (): GraphModel => {
     const nodes: GraphNode[] = [];
     const edges: GraphEdge[] = [];
 
@@ -71,4 +74,69 @@ export const buildGraphModel = (): GraphModel => {
     });
 
     return { nodes, edges };
+};
+
+export const fetchGraphModel = async (): Promise<GraphModel> => {
+    // 1. Fetch from DB
+    const { data: dbNodes, error: nodeError } = await supabase
+        .from('graph_nodes')
+        .select('*');
+
+    const { data: dbEdges, error: edgeError } = await supabase
+        .from('graph_edges')
+        .select('*');
+
+    if (nodeError) throw nodeError;
+    if (edgeError) throw edgeError;
+
+    // 2. Build Static Base (for fallback/hybrid)
+    // Ideally user might want ONLY DB if we fully migrated. 
+    // But for now, let's Merge.
+    // If DB has data, prefer DB? 
+    // Strategy: Use Static Model as base, overwrite/append with DB.
+    // However, duplicate IDs?
+    // Let's assume DB nodes MIGHT mirror static nodes if we synced.
+    // If not, we just concat.
+
+    // For this prototype, user is adding "Concepts" which are dynamic.
+    // Topics might be static or dynamic.
+    // Let's simpler: Return DB nodes. If DB is empty, return Static.
+    // Or better: Combine.
+
+    const staticModel = buildStaticGraphModel();
+
+    // Map DB nodes to GraphNode
+    const dynamicNodes: GraphNode[] = (dbNodes || []).map(n => ({
+        id: n.id,
+        type: n.type as any,
+        label: n.label,
+        x: n.x,
+        y: n.y,
+        data: n.data,
+        slug: n.data?.slug,
+        description: n.data?.description
+    }));
+
+    const dynamicEdges: GraphEdge[] = (dbEdges || []).map(e => ({
+        source: e.source,
+        target: e.target,
+        type: (e.label === 'hierarchy' || e.label === 'mentions') ? 'hierarchy' : 'relational' // map label to type
+    }));
+
+    // Deduplication Strategy:
+    // If ID exists in both, prefer DB (it might have positions).
+    // Actually, static model has no positions.
+
+    const nodeMap = new Map<string, GraphNode>();
+    staticModel.nodes.forEach(n => nodeMap.set(n.id, n));
+    dynamicNodes.forEach(n => nodeMap.set(n.id, n)); // Overwrite if exists
+
+    // Edges: unique by source-target-type
+    // We can just concat and let the layout/renderer handle it, or dedup.
+    // Simpler to just concat for now.
+
+    return {
+        nodes: Array.from(nodeMap.values()),
+        edges: [...staticModel.edges, ...dynamicEdges]
+    };
 };

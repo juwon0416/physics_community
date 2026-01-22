@@ -33,6 +33,9 @@ export function SectionPage() {
     const [editLightContent, setEditLightContent] = useState('');
     const [editTitle, setEditTitle] = useState('');
 
+    // Track concepts linked during this session
+    const [linkedConceptIds, setLinkedConceptIds] = useState<Set<string>>(new Set());
+
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -76,6 +79,24 @@ export function SectionPage() {
             content: editDetailedContent,
             content_light: editLightContent
         });
+
+        if (!error) {
+            // Save Graph Edges (Hierarchy)
+            try {
+                // 1. Sync edges from text content (parse [[links]])
+                await conceptAPI.syncContentEdges(
+                    { id: section.id, type: 'section', label: editTitle },
+                    editDetailedContent
+                );
+
+                // 2. Batch save manual links (Add-Only policy)
+                await conceptAPI.connectBatch(section.id, Array.from(linkedConceptIds));
+            } catch (e) {
+                console.error("Failed to sync graph edges:", e);
+                // Don't block UI saving success
+            }
+        }
+
         setIsSaving(false);
 
         if (!error) {
@@ -190,6 +211,7 @@ export function SectionPage() {
                                 value={editDetailedContent}
                                 onChange={setEditDetailedContent}
                                 className="min-h-[500px]"
+                                onConceptLinked={(id) => setLinkedConceptIds(prev => new Set(prev).add(id))}
                             />
                         ) : (
                             <RichTextEditor

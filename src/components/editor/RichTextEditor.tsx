@@ -15,6 +15,7 @@ interface RichTextEditorProps {
     onChange: (value: string) => void;
     placeholder?: string;
     className?: string;
+    onConceptLinked?: (conceptId: string) => void;
 }
 
 
@@ -42,7 +43,7 @@ const MACRO_GROUPS = [
     },
 ];
 
-export function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, className, onConceptLinked }: RichTextEditorProps) {
     const [mode, setMode] = useState<'write' | 'preview'>('write');
     const [isUploading, setIsUploading] = useState(false);
 
@@ -119,14 +120,26 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         if (!conceptTerm) return;
         setIsCreatingConcept(true);
         try {
+            let conceptId = '';
+
             if (conceptStatus === 'new') {
-                await conceptAPI.create(conceptTerm, conceptDesc);
+                const newC = await conceptAPI.create(conceptTerm, conceptDesc);
+                if (newC) conceptId = newC.id;
+            } else {
+                // Existing
+                const existing = await conceptAPI.getByLabel(conceptTerm);
+                if (existing) conceptId = existing.id;
             }
+
+            if (conceptId && onConceptLinked) {
+                onConceptLinked(conceptId);
+            }
+
             // Just insert the link
             insertText(`[[${conceptTerm}]]`);
             setShowConceptDialog(false);
         } catch (e) {
-            alert('Failed to create concept');
+            alert('Failed to create/link concept');
             console.error(e);
         } finally {
             setIsCreatingConcept(false);

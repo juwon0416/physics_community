@@ -38,11 +38,17 @@ export const conceptAPI = {
         return data as Concept | null;
     },
 
-    // Create a new concept
+    // Create a new concept (UPSERT safe)
     async create(label: string, description: string) {
-        // First check if exists
+        // Upsert based on label being unique (application logic)
+        // Since we didn't add a unique constraint on label in SQL explicitly yet (relying on index),
+        // we'll stick to "check-then-insert" or try insert-and-fetch.
+        // Better: Use upsert with onConflict if we had a constraint.
+        // For prototype, we will check existence first (already implemented).
+        // Let's optimize to return existing if found without throwing.
+
         const existing = await this.getByLabel(label);
-        if (existing) throw new Error('Concept already exists');
+        if (existing) return existing;
 
         const { data, error } = await supabase
             .from('graph_nodes')
@@ -50,7 +56,7 @@ export const conceptAPI = {
                 id: crypto.randomUUID(),
                 type: 'concept',
                 label: label,
-                x: 0, // Default positions, let layout handler update later if needed
+                x: 0,
                 y: 0,
                 data: { description }
             })
@@ -70,11 +76,33 @@ export const conceptAPI = {
                 target: targetId,
                 label: label
             })
-            .select()
+            .select() // Returning might fail if on conflict do nothing isn't set, but we catch error
             .single();
 
-        if (error) throw error;
+        // If duplicate, error 23505. Ignore it.
+        if (error && error.code !== '23505') throw error;
         return data;
+    },
+
+    // Batch connect multiple targets to one source (for hierarchical saving)
+    async connectBatch(sourceId: string, targetIds: string[], label: string = 'hierarchy') {
+        if (targetIds.length === 0) return;
+
+        // Dedup and remove self-loops
+        const uniqueTargets = [...new Set(targetIds)].filter(tid => tid !== sourceId);
+        if (uniqueTargets.length === 0) return;
+
+        const rows = uniqueTargets.map(targetId => ({
+            source: sourceId,
+            target: targetId,
+            label: label
+        }));
+
+        const { error } = await supabase
+            .from('graph_edges')
+            .upsert(rows, { onConflict: 'source,target,label', ignoreDuplicates: true });
+
+        if (error) throw error;
     },
 
     // Promote a concept to link to a topic page
@@ -145,7 +173,7 @@ export const conceptAPI = {
         if (terms.length === 0) return;
 
         // 3. Process each term
-        const conceptIds: string[] = [];
+        const targetIds: string[] = [];
 
         for (const term of terms) {
             // Get or Create Concept Node
@@ -153,25 +181,10 @@ export const conceptAPI = {
             if (!concept) {
                 concept = await this.create(term, '');
             }
-            conceptIds.push(concept.id);
-
-            // 4. Ensure Edge exists
-            // Check if edge exists
-            const { data: existingEdge } = await supabase
-                .from('graph_edges')
-                .select('id')
-                .eq('source', source.id)
-                .eq('target', concept.id)
-                .single();
-
-            if (!existingEdge) {
-                await this.connect(source.id, concept.id, 'mentions');
-            }
+            targetIds.push(concept.id);
         }
 
-        // 5. Cleanup removed edges (optional but good for sync)
-        // Delete edges from this source where target is NOT in current conceptIds AND target type is concept
-        // This requires a more complex query or fetching all edges first.
-        // For MVP, just adding is safer.
+        // 4. Batch Connect
+        await this.connectBatch(source.id, targetIds, 'mentions');
     }
 };
