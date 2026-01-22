@@ -7,6 +7,7 @@ export interface SimulationNode {
     vy?: number;
     fx?: number | null; // Fixed x
     fy?: number | null; // Fixed y
+    type?: string;
 }
 
 export interface SimulationEdge {

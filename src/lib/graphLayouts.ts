@@ -45,7 +45,7 @@ export const layoutChronological = (model: GraphModel, width: number = 2000): Po
     const yearBuckets: Record<string, number> = {};
 
     const base = model.nodes.map(node => {
-        let x = 0; let y = 0; let isPositioned = false;
+        let x = 0; let y = 0;
         if (node.type === 'root') {
             x = ROOT_X;
             y = (FIELD_ORDER.length * LANE_HEIGHT) / 2 - LANE_HEIGHT / 2;
@@ -311,7 +311,7 @@ export const layoutNetwork = (
         }
 
         if (fx === undefined && prev) { x = prev.x; y = prev.y; }
-        if (fx !== undefined) { x = fx; y = fy; }
+        if (fx !== undefined && fy !== undefined) { x = fx; y = fy; }
 
         const sn: any = { id: n.id, x, y, fx, fy, vx: 0, vy: 0 };
         sn.type = n.type;
