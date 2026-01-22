@@ -476,6 +476,14 @@ export function GraphOverviewPage() {
                                 containerStyle = "bg-[#fcfbf9] border border-[#1f1b1f]/30 hover:border-[#1f1b1f] hover:shadow-md transition-all";
                                 fontClass = "font-serif text-sm";
                                 shapeClass = "px-3 py-2 min-w-[140px] rounded-sm";
+                            } else if (node.type === 'section') {
+                                containerStyle = "bg-white border-l-4 border-[#1f1b1f] shadow-sm hover:shadow-md transition-all";
+                                fontClass = "font-serif text-xs";
+                                shapeClass = "px-2 py-1 min-w-[120px] rounded-r-sm";
+                            } else if (node.type === 'concept') {
+                                containerStyle = "bg-[#fffdf5] border border-dashed border-[#1f1b1f]/40 hover:border-solid transition-all";
+                                fontClass = "font-mono text-[10px]";
+                                shapeClass = "px-2 py-1 min-w-[100px] rounded-lg";
                             }
 
                             return (

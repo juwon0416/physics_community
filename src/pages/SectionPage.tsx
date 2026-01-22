@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit2, Save, Trash2, Layers, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -138,7 +138,14 @@ export function SectionPage() {
     }
 
     // Generate processed content for view mode
-    const processedContent = section ? section.content.replace(/\[\[(.*?)\]\]/g, (_, term) => `[${term}](/concept/${term.replace(/ /g, '%20')})`) : '';
+    const processedContent = useMemo(() => {
+        if (!section?.content) return '';
+        return section.content.replace(/\[\[(.*?)\]\]/g, (_, term) => {
+            const cleanTerm = term.trim();
+            if (!cleanTerm) return `[[${term}]]`;
+            return `[${cleanTerm}](/concept/${encodeURIComponent(cleanTerm)})`;
+        });
+    }, [section?.content]);
 
     return (
         <div className="container px-4 py-8 max-w-screen-lg mx-auto min-h-screen">
