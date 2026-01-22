@@ -9,6 +9,7 @@ import { storage } from '../../data/storage';
 import { conceptAPI } from '../../lib/concepts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Input, Button } from '../../components/ui';
 import { PHYSICS_MACROS } from '../../lib/latexMacros';
+import { processConceptLinks, MarkdownLink } from '../../lib/markdownUtils';
 
 interface RichTextEditorProps {
     value: string;
@@ -147,11 +148,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
     };
 
     // Pre-process markdown to turn [[Link]] into [Link](/concept/Link)
-    const processedValue = value?.replace(/\[\[(.*?)\]\]/g, (_, term) => {
-        // Standard markdown link: [text](url). Url cannot have spaces unless encoded.
-        // So we MUST encode spaces.
-        return `[${term}](/concept/${encodeURIComponent(term)})`;
-    });
+    const processedValue = processConceptLinks(value);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -242,24 +239,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
                                     img: ({ node, ...props }) => (
                                         <img {...props} className="rounded-lg border border-border/50 my-4 max-h-[500px] object-contain bg-black/20" />
                                     ),
-                                    a: ({ node, href, children, ...props }) => {
-                                        if (href?.startsWith('/concept/')) {
-                                            const term = decodeURIComponent(href.replace('/concept/', ''));
-                                            return (
-                                                <span
-                                                    className="text-blue-500 font-bold underline decoration-dotted cursor-help hover:text-blue-400 transition-colors"
-                                                    title={`Concept: ${term}`}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        alert(`Concept Info: ${term}\n(Click to navigate in future update)`);
-                                                    }}
-                                                >
-                                                    {children}
-                                                </span>
-                                            );
-                                        }
-                                        return <a href={href} {...props}>{children}</a>;
-                                    }
+                                    a: MarkdownLink
                                 }}
                             >
                                 {processedValue}
