@@ -41,14 +41,21 @@ export function TimelinePage() {
         loadTopics();
     }, [fieldSlug]);
 
+    const isDictionaryMode = field?.slug === 'mathematical-physics';
+
     const filteredTopics = useMemo(() => {
-        return topics
-            .filter(t =>
-                t.title.toLowerCase().includes(search.toLowerCase()) ||
-                t.year.includes(search)
-            )
-            .sort((a, b) => parseInt(a.year) - parseInt(b.year));
-    }, [topics, search]);
+        const result = topics.filter(t =>
+            t.title.toLowerCase().includes(search.toLowerCase()) ||
+            t.year.includes(search)
+        );
+
+        if (isDictionaryMode) {
+            // A-Z Sort for Dictionary
+            return result.sort((a, b) => a.title.localeCompare(b.title));
+        }
+        // Year Sort for Timeline
+        return result.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+    }, [topics, search, isDictionaryMode]);
 
     // Active Topic Management
     const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
@@ -268,84 +275,118 @@ export function TimelinePage() {
                 </AnimatePresence>
             </div>
 
-            {/* Bottom Area: Timeline Carousel */}
-            <div className="border-t border-border/40 bg-background/50 backdrop-blur-sm relative z-20">
-                <div className="container mx-auto max-w-screen-2xl h-24 md:h-32 flex items-center gap-2 md:gap-4 px-2 md:px-4">
+            {/* Bottom Area: Content List (Timeline or Dictionary) */}
+            <div className="border-t border-border/40 bg-background/50 backdrop-blur-sm relative z-20 flex-1 overflow-hidden flex flex-col">
+                <div className="container mx-auto max-w-screen-2xl h-full flex flex-col p-4 gap-4">
                     {/* Controls & Search */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                         {isEditor && (
                             <Button onClick={handleAddClick} size="icon" className="rounded-full h-10 w-10 md:h-12 md:w-12 shrink-0">
                                 <Plus className="w-5 h-5 md:w-6 md:h-6" />
                             </Button>
                         )}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0"
-                            onClick={handlePrev}
-                            disabled={activeIndex === 0}
-                        >
-                            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                        </Button>
 
-                        {/* Mobile: Search hidden or smaller? keeping it visible but small */}
+                        {!isDictionaryMode && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0"
+                                onClick={handlePrev}
+                                disabled={activeIndex === 0}
+                            >
+                                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                            </Button>
+                        )}
+
                         <div className="hidden md:block">
                             <Input
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
-                                placeholder="Filter timeline..."
+                                placeholder="Filter topics..."
                                 className="pl-4 bg-background rounded-full border-primary/20 w-40"
                             />
                         </div>
+
+                        {!isDictionaryMode && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0 ml-auto md:ml-0"
+                                onClick={handleNext}
+                                disabled={activeIndex === filteredTopics.length - 1}
+                            >
+                                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                            </Button>
+                        )}
                     </div>
 
-                    <div
-                        ref={containerRef}
-                        className="flex-1 overflow-x-auto no-scrollbar scroll-smooth py-4 md:py-8"
-                        style={{ scrollbarWidth: 'none' }}
-                    >
-                        <div className="relative flex items-center gap-4 md:gap-8 px-[50%] w-max">
-                            {filteredTopics.map((topic, index) => {
-                                const isActive = index === activeIndex;
-                                return (
-                                    <div
-                                        key={topic.id}
-                                        ref={(el) => { itemsRef.current[index] = el; }}
-                                        onClick={() => setActiveTopicId(topic.id)}
-                                        className={`
-                                            flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
-                                            flex flex-col items-center gap-2 group
-                                            ${isActive ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'}
-                                        `}
-                                    >
-                                        <div className={`
-                                            relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300
-                                            ${isActive
-                                                ? 'bg-foreground text-background border-foreground shadow-md scale-110'
-                                                : 'bg-background border-foreground/30 text-muted-foreground group-hover:border-foreground/60'}
-                                        `}>
-                                            <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
-                                            {/* Connector Line */}
-                                            <div className={`absolute top-1/2 left-full w-4 md:w-8 h-0.5 -translate-y-1/2 ${isActive ? 'bg-foreground' : 'bg-foreground/20'} ${index === filteredTopics.length - 1 ? 'hidden' : ''}`} />
+                    {/* View Switch: Grid vs Timeline */}
+                    {isDictionaryMode ? (
+                        <div className="flex-1 overflow-y-auto min-h-0 pr-2">
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-12">
+                                {filteredTopics.map((topic) => {
+                                    const isActive = topic.id === activeTopicId;
+                                    return (
+                                        <div
+                                            key={topic.id}
+                                            onClick={() => setActiveTopicId(topic.id)}
+                                            className={`
+                                                cursor-pointer rounded-xl border p-4 transition-all hover:shadow-md flex flex-col items-center text-center gap-2
+                                                ${isActive
+                                                    ? 'bg-primary/5 border-primary ring-1 ring-primary'
+                                                    : 'bg-card border-border hover:border-primary/50'}
+                                            `}
+                                        >
+                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xs shrink-0">
+                                                {topic.title.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="text-sm font-medium leading-tight line-clamp-2">
+                                                {topic.title}
+                                            </span>
                                         </div>
-                                        <span className={`text-[10px] md:text-xs font-medium max-w-[80px] md:max-w-[120px] text-center truncate px-2 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                            {topic.title}
-                                        </span>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
-
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0"
-                        onClick={handleNext}
-                        disabled={activeIndex === filteredTopics.length - 1}
-                    >
-                        <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-                    </Button>
+                    ) : (
+                        <div
+                            ref={containerRef}
+                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center"
+                            style={{ scrollbarWidth: 'none' }}
+                        >
+                            <div className="relative flex items-center gap-4 md:gap-8 px-[50%] w-max mx-auto">
+                                {filteredTopics.map((topic, index) => {
+                                    const isActive = index === activeIndex;
+                                    return (
+                                        <div
+                                            key={topic.id}
+                                            ref={(el) => { itemsRef.current[index] = el; }}
+                                            onClick={() => setActiveTopicId(topic.id)}
+                                            className={`
+                                                flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
+                                                flex flex-col items-center gap-2 group
+                                                ${isActive ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'}
+                                            `}
+                                        >
+                                            <div className={`
+                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                                ${isActive
+                                                    ? 'bg-foreground text-background border-foreground shadow-md scale-110'
+                                                    : 'bg-background border-foreground/30 text-muted-foreground group-hover:border-foreground/60'}
+                                            `}>
+                                                <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
+                                                {/* Connector Line */}
+                                                <div className={`absolute top-1/2 left-full w-4 md:w-8 h-0.5 -translate-y-1/2 ${isActive ? 'bg-foreground' : 'bg-foreground/20'} ${index === filteredTopics.length - 1 ? 'hidden' : ''}`} />
+                                            </div>
+                                            <span className={`text-[10px] md:text-xs font-medium max-w-[80px] md:max-w-[120px] text-center truncate px-2 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                                {topic.title}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

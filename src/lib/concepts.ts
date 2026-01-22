@@ -32,10 +32,10 @@ export const conceptAPI = {
             .select('*')
             .eq('type', 'concept')
             .ilike('label', label) // ilike for case-insensitivity consistency
-            .single();
+            .limit(1);
 
-        if (error && error.code !== 'PGRST116') throw error; // Ignore not found
-        return data as Concept | null;
+        if (error) throw error;
+        return data && data.length > 0 ? (data[0] as Concept) : null;
     },
 
     // Create a new concept (UPSERT safe)
@@ -166,47 +166,162 @@ export const conceptAPI = {
 
         return { concept, relations: edges };
     },
+
     // Sync edges extracting from content
-    async syncContentEdges(source: { id: string; type: 'topic' | 'section'; label: string }, content: string) {
+    async syncContentEdges(source: { id: string; type: 'topic' | 'section'; label: string; fieldId?: string }, content: string) {
         // 1. Parse content for concepts
-        // Pattern A: [[Concept]]
         const regexDouble = /\[\[([\s\S]*?)\]\]/g;
-        // Pattern B: [Concept](/concept/Slug) - explicit markdown links
         const regexLink = /\[([\s\S]*?)\]\(\/concept\/[\s\S]*?\)/g;
 
         const matchesDouble = [...content.matchAll(regexDouble)].map(m => m[1]);
         const matchesLink = [...content.matchAll(regexLink)].map(m => m[1]);
 
         const allTerms = [...matchesDouble, ...matchesLink];
-        const terms = [...new Set(allTerms.map(t => t.trim()).filter(Boolean))]; // dedup & trim
+        const terms = [...new Set(allTerms.map(t => t.trim()).filter(Boolean))];
 
-        // 2. Upsert Source Node (Topic or Section)
+        console.log(`[syncContentEdges] Scanning content for source '${source.label}' (${source.id}). Terms found:`, terms);
+
+        // 2. Upsert Source Node
         await supabase
             .from('graph_nodes')
             .upsert({
                 id: source.id,
                 type: source.type,
                 label: source.label,
-                data: {}
+                data: source.fieldId ? { fieldId: source.fieldId } : {}
             });
 
-        if (terms.length === 0) return;
+        // 3. Delete existing mentions edges
+        await supabase
+            .from('graph_edges')
+            .delete()
+            .eq('source', source.id)
+            .eq('label', 'mentions');
 
-        // 3. Process each term
+        if (terms.length === 0) {
+            console.log('[syncContentEdges] No terms found. Exiting.');
+            return [];
+        }
+
+        // 4. Process each term
         const targetIds: string[] = [];
 
         for (const term of terms) {
-            // Get or Create Concept Node
-            let concept = await this.getByLabel(term);
-            if (!concept) {
-                concept = await this.create(term, '');
+            // Check existence
+            let node = await this.getByLabel(term); // Checks concept type
+
+            // If not found as concept, check as topic (since we might link to existing topics)
+            if (!node) {
+                const { data } = await supabase.from('graph_nodes').select('*').eq('label', term).maybeSingle();
+                if (data) node = data;
             }
-            targetIds.push(concept.id);
+
+            if (node) {
+                console.log(`[syncContentEdges] Found existing node for '${term}':`, node.type, node.id);
+
+                // AUTO-PROMOTION Logic for Legacy Concepts
+                if (node.type === 'concept') {
+                    console.log(`[syncContentEdges] AUTO-PROMOTING legacy concept '${term}' to TOPIC.`);
+                    const targetField = 'mathematical-physics';
+                    let slug = term.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                    if (!slug || slug.length < 2) slug = `topic-${node.id.slice(0, 8)}`;
+
+                    // 1. Upsert Topic
+                    const { error: tErr } = await supabase.from('topics').upsert({
+                        id: node.id,
+                        field_id: targetField,
+                        title: term,
+                        slug: slug,
+                        year: '0',
+                        summary: 'Auto-promoted concept.',
+                        tags: []
+                    }, { onConflict: 'id' });
+
+                    if (!tErr) {
+                        // 2. Update Graph Node Type
+                        await supabase.from('graph_nodes').update({
+                            type: 'topic',
+                            data: { ...node.data, fieldId: targetField, slug, year: '0' }
+                        }).eq('id', node.id);
+                        console.log(`[syncContentEdges] Promotion success for ${term}`);
+                    }
+                }
+            }
+
+            if (!node) {
+                // GLOBAL LOGIC: All new concepts become Mathematical Physics Topics
+                console.log(`[syncContentEdges] Creating NEW PROMOTED topic for '${term}'. Source Field: '${source.fieldId}'`);
+
+                // Always mathematical-physics
+                const targetField = 'mathematical-physics';
+
+                let slug = term.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                const newTopicId = crypto.randomUUID();
+
+                // Fallback for non-ASCII
+                if (!slug || slug.length < 2) {
+                    slug = `topic-${newTopicId.slice(0, 8)}`;
+                }
+
+                console.log(`[syncContentEdges] Global Promotion: '${term}' -> TOPIC (slug: ${slug}) in ${targetField}`);
+
+                // Insert into TOPICS table
+                const { error: tErr } = await supabase.from('topics').insert({
+                    id: newTopicId,
+                    field_id: targetField,
+                    title: term,
+                    slug: slug,
+                    year: '0',
+                    summary: 'Auto-generated from concept link.',
+                    tags: []
+                });
+
+                if (tErr) {
+                    console.error("Failed to insert topic:", tErr);
+                    throw tErr;
+                }
+
+                // Insert into GRAPH_NODES
+                const { data: newNode, error: nErr } = await supabase.from('graph_nodes').insert({
+                    id: newTopicId,
+                    type: 'topic',
+                    label: term,
+                    data: { fieldId: targetField, slug, year: '0' }
+                }).select().single();
+
+                if (nErr) {
+                    console.error("Failed to insert graph node for topic:", nErr);
+                    throw nErr;
+                }
+                node = newNode;
+            }
+
+            if (node) targetIds.push(node.id);
         }
 
-        // 4. Batch Connect
-        await this.connectBatch(source.id, targetIds, 'mentions');
+        // 5. Batch Insert Edges (UPSERT to avoid 409)
+        const rows = targetIds.map(tid => ({
+            source: source.id,
+            target: tid,
+            label: 'mentions'
+        }));
+
+        const { error } = await supabase.from('graph_edges').upsert(rows, { onConflict: 'source,target,label', ignoreDuplicates: true });
+        if (error) console.error("Failed to insert edges:", error);
 
         return targetIds;
+    },
+
+    // Utility to purge nodes for a specific topic (and orphans)
+    async purgeTopicNodes(topicId: string) {
+        const { data, error } = await supabase.rpc('purge_topic_nodes', { target_topic_id: topicId });
+
+        if (error) {
+            console.error("Purge RPC failed", error);
+            return { error };
+        }
+
+        console.log("Purge Result:", data);
+        return { error: null, data };
     }
 };

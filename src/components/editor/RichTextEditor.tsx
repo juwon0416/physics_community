@@ -7,7 +7,8 @@ import { cn } from '../../lib/cn';
 import 'katex/dist/katex.min.css';
 import { storage } from '../../data/storage';
 import { conceptAPI } from '../../lib/concepts';
-import { Input, Button } from '../../components/ui';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
 import { PHYSICS_MACROS } from '../../lib/latexMacros';
 import { processConceptLinks, MarkdownLink } from '../../lib/markdownUtils';
@@ -149,7 +150,10 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
     };
 
     // Pre-process markdown to turn [[Link]] into [Link](/concept/Link)
-    const processedValue = processConceptLinks(value);
+    const processedValue = React.useMemo(() => {
+        if (mode !== 'preview') return '';
+        return processConceptLinks(value);
+    }, [value, mode]);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {

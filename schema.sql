@@ -22,7 +22,8 @@ create table if not exists topics (
   slug text unique not null,
   summary text,
   tags text[],
-  image_url text
+  image_url text,
+  content text
 );
 -- Migration for existing tables:
 alter table topics add column if not exists image_url text;

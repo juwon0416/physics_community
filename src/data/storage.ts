@@ -133,6 +133,18 @@ export const storage = {
                 .eq('id', id);
 
             if (error) return { error: new Error(error.message) };
+
+            // Sync graph edges on update
+            if (updates.title || updates.content) {
+                const { data: section } = await supabase.from('topic_sections').select('*').eq('id', id).single();
+                if (section) {
+                    conceptAPI.syncContentEdges(
+                        { id: section.id, type: 'section', label: section.title },
+                        section.content
+                    ).catch(console.error);
+                }
+            }
+
             return { error: null };
         } catch (e: any) {
             return { error: e instanceof Error ? e : new Error('Unknown error') };
@@ -184,10 +196,16 @@ export const storage = {
                                 t.slug === 'electrodynamics' ? '/images/maxwell.png' : undefined
                 } as Topic));
 
-            return [...dbTopics, ...seedTopics].sort((a, b) => parseInt(a.year) - parseInt(b.year));
+            const sortedTopics = [...dbTopics, ...seedTopics];
+
+            if (fieldId === 'mathematical-physics') {
+                return sortedTopics.sort((a, b) => a.title.localeCompare(b.title));
+            } else {
+                return sortedTopics.sort((a, b) => parseInt(a.year || '0') - parseInt(b.year || '0'));
+            }
         } catch (e) {
             // Fallback completely to seed
-            return SEED_TOPICS
+            const seed = SEED_TOPICS
                 .filter(t => t.fieldId === fieldId)
                 .map(t => ({
                     id: t.id,
@@ -197,8 +215,12 @@ export const storage = {
                     slug: t.slug,
                     summary: t.summary,
                     tags: t.tags,
-                } as Topic))
-                .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+                } as Topic));
+
+            if (fieldId === 'mathematical-physics') {
+                return seed.sort((a, b) => a.title.localeCompare(b.title));
+            }
+            return seed.sort((a, b) => parseInt(a.year || '0') - parseInt(b.year || '0'));
         }
     },
 
@@ -256,7 +278,8 @@ export const storage = {
                     slug: topic.slug,
                     summary: topic.summary,
                     tags: topic.tags,
-                    image_url: topic.image_url
+                    image_url: topic.image_url,
+                    content: topic.content
                 }])
                 .select()
                 .single();
@@ -268,7 +291,7 @@ export const storage = {
 
             // Sync graph node for topic
             conceptAPI.syncContentEdges(
-                { id: data.id, type: 'topic', label: topic.title },
+                { id: data.id, type: 'topic', label: topic.title, fieldId: topic.field_id },
                 topic.summary || ''
             ).catch(console.error);
 
@@ -286,6 +309,18 @@ export const storage = {
                 .eq('id', id);
 
             if (error) return { error: new Error(error.message) };
+
+            // Sync graph edges on update
+            if (updates.title || updates.summary || updates.content) {
+                const { data: topic } = await supabase.from('topics').select('*').eq('id', id).single();
+                if (topic) {
+                    conceptAPI.syncContentEdges(
+                        { id: topic.id, type: 'topic', label: topic.title, fieldId: topic.field_id },
+                        (topic.summary || '') + ' ' + (topic.content || '')
+                    ).catch(console.error);
+                }
+            }
+
             return { error: null };
         } catch (e: any) {
             return { error: e };
@@ -396,6 +431,29 @@ export const storage = {
         } catch (e: any) {
             return { error: e };
         }
+    },
+
+    // Migration Helper
+    migrateSectionsToContent: async (topicId: string): Promise<{ content: string | null; error: Error | null }> => {
+        try {
+            const sections = await storage.getSectionsByTopic(topicId);
+            if (sections.length === 0) return { content: null, error: null };
+
+            const fullContent = sections
+                .map(s => `## ${s.title}\n\n${s.content}`)
+                .join('\n\n---\n\n');
+
+            // Save to topic
+            const { error } = await supabase
+                .from('topics')
+                .update({ content: fullContent })
+                .eq('id', topicId);
+
+            if (error) throw error;
+            return { content: fullContent, error: null };
+        } catch (e: any) {
+            return { content: null, error: e };
+        }
     }
 };
 
@@ -418,4 +476,5 @@ export interface Topic {
     summary: string;
     tags: string[];
     image_url?: string;
+    content?: string;
 }

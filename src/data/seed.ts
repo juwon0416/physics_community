@@ -61,6 +61,15 @@ export const FIELDS: Field[] = [
         icon: 'zap',
         color: 'from-yellow-500 to-orange-400',
         image: '/images/maxwell.png'
+    },
+    {
+        id: 'mathematical-physics',
+        slug: 'mathematical-physics',
+        name: 'Mathematical Physics',
+        description: 'The application of mathematics to problems in physics and the development of mathematical methods for such applications.',
+        icon: 'sigma', // distinct icon
+        color: 'from-indigo-500 to-violet-400', // distinct color
+        image: '/images/math-physics.png' // placeholder
     }
 ];
 

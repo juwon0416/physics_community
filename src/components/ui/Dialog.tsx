@@ -42,6 +42,11 @@ export const DialogContent = ({ className, children, ...props }: React.HTMLAttri
     const context = React.useContext(DialogContext);
     if (!context) throw new Error("DialogContent must be used within Dialog");
 
+    // Prevent crashes in SSR or environments where document is not fully available yet
+    if (typeof document === 'undefined' || !document.body) {
+        return null;
+    }
+
     return createPortal(
         <AnimatePresence>
             {context.open && (

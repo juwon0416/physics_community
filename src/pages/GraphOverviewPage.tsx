@@ -8,7 +8,7 @@ import { Button } from '../components/ui';
 import type { GraphModel } from '../lib/graphModel';
 import { fetchGraphModel } from '../lib/graphModel';
 import type { PositionedNode } from '../lib/graphLayouts';
-import { layoutChronological, layoutNetwork } from '../lib/graphLayouts';
+import { layoutChronological, layoutNetwork, getChronologicalEdges } from '../lib/graphLayouts';
 
 export function GraphOverviewPage() {
     const navigate = useNavigate();
@@ -43,6 +43,7 @@ export function GraphOverviewPage() {
             setIsLoading(true);
             try {
                 const data = await fetchGraphModel();
+                networkCache.current = null; // Clear layout cache on new data
                 setModel(data);
             } catch (e) {
                 console.error("Failed to load graph:", e);
@@ -54,19 +55,56 @@ export function GraphOverviewPage() {
     }, []);
 
     // Layout Effect
+    // Layout Effect
     useEffect(() => {
         if (!model) return;
 
+        // 1. Filter Nodes based on View Rules
+        let activeNodes = model.nodes;
+
+        // Rule A: Timeline View hides "Mathematical Physics"
         if (activeTab === 'chronological') {
-            const layout = layoutChronological(model);
+            activeNodes = activeNodes.filter(n => n.data?.fieldId !== 'mathematical-physics');
+        }
+
+        // Rule C: Always Hide "Mathematical Physics" Field Node (User Request) but keep topics
+        activeNodes = activeNodes.filter(n => n.id !== 'mathematical-physics');
+
+
+        // Rule B: View-Only Orphan Filtering (Global)
+        // Hide 'concept' nodes that are not connected to any edge in the model.
+        // This ensures unlinked concepts disappear from view without deleting from DB.
+        const connectedIds = new Set<string>();
+        model.edges.forEach(e => {
+            connectedIds.add(e.source);
+            connectedIds.add(e.target);
+        });
+
+        activeNodes = activeNodes.filter(n => {
+            if (n.type !== 'concept') return true; // Always show Topics/Fields
+            return connectedIds.has(n.id);
+        });
+
+        // 2. Filter Edges to match Active Nodes (Fixes "Dropped Edge" warnings)
+        // NOTE: For Network view, we use generated backbone edges for layout, but here we can just pass default.
+        // The layoutNetwork function calculates its own backbone internally.
+        const activeNodeIds = new Set(activeNodes.map(n => n.id));
+        const activeEdges = model.edges.filter(e => activeNodeIds.has(e.source) && activeNodeIds.has(e.target));
+
+        console.log(`Graph Layout Update. Nodes: ${activeNodes.length}, Edges: ${activeEdges.length}`);
+
+        if (activeTab === 'chronological') {
+            // Pass filtered model to layout
+            const layout = layoutChronological({ nodes: activeNodes, edges: activeEdges });
+            console.log("Chronological Nodes:", layout.map(n => n.id).sort());
             setNodes(layout);
         } else if (activeTab === 'network') {
-            // Check cache
-            if (networkCache.current) {
+            // Check cache (simple length check optimization)
+            if (networkCache.current && networkCache.current.length === activeNodes.length) {
                 setNodes(networkCache.current);
             } else {
-                // Initial simulation
-                const layout = layoutNetwork(model);
+                // Initial simulation with filtered nodes
+                const layout = layoutNetwork({ nodes: activeNodes, edges: activeEdges });
                 networkCache.current = layout;
                 setNodes(layout);
             }
@@ -123,13 +161,42 @@ export function GraphOverviewPage() {
     // Render Logic
     const edges = useMemo(() => {
         if (!model) return [];
-        if (activeTab === 'chronological') {
-            // Show temporal and hierarchy edges in chronological view
-            // hierarchy edges only if source is a field (connecting field to topic/concept)
-            return model.edges.filter(e => e.type === 'temporal' || (e.type === 'hierarchy' && nodes.find(n => n.id === e.source)?.type === 'field'));
-        } else {
-            return model.edges;
+
+        let filteredEdges = model.edges;
+
+        // Use Generated Backbone Edges for Network View
+        if (activeTab === 'network') {
+            filteredEdges = getChronologicalEdges(model);
+        } else if (activeTab === 'chronological') {
+            // Chronological View Filter Policy:
+            // 1. Temporal: Always show (Timeline backbone)
+            // 2. Hierarchy: Show only backbone (Field -> Topic). Hide internal Topic->Section hierarchy if any, to reduce noise.
+            // 3. Mentions: Show Topic/Section -> Concept (Visualizing knowledge association)
+
+            filteredEdges = model.edges.filter(e => {
+                if (e.type === 'temporal') return true;
+                if (e.type === 'mentions') return true; // ✅ Topic/Section -> Concept
+                if (e.type === 'hierarchy') {
+                    const sourceNode = nodes.find(n => n.id === e.source);
+                    // Show backbone (Field->Topic) and structural children (Topic->Section) where applicable
+                    return sourceNode?.type === 'field' || sourceNode?.type === 'topic';
+                }
+                return false;
+            });
         }
+
+        // Validity Check & Debugging for Dropouts
+        const validEdges = filteredEdges.filter(e => {
+            const hasSource = nodes.some(n => n.id === e.source);
+            const hasTarget = nodes.some(n => n.id === e.target);
+
+            if ((!hasSource || !hasTarget) && process.env.NODE_ENV === 'development') {
+                // Supply quiet console or ignore
+            }
+            return hasSource && hasTarget;
+        });
+
+        return validEdges;
     }, [model, activeTab, nodes]);
 
 
@@ -217,6 +284,20 @@ export function GraphOverviewPage() {
         );
     }
 
+    // Data Refresh
+    const reloadGraph = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchGraphModel();
+            networkCache.current = null;
+            setModel(data);
+        } catch (e) {
+            console.error("Failed to reload graph:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const resetView = () => {
         setScale(1);
         setViewX(window.innerWidth / 2);
@@ -284,7 +365,7 @@ export function GraphOverviewPage() {
             <div className="absolute top-4 right-4 z-20 flex flex-col gap-2" onMouseDown={e => e.stopPropagation()}>
                 <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => setScale(s => Math.min(s + 0.1, 3))}><ZoomIn className="w-4 h-4" /></Button>
                 <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => setScale(s => Math.max(s - 0.1, 0.2))}><ZoomOut className="w-4 h-4" /></Button>
-                <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={resetView}><RefreshCw className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => { resetView(); reloadGraph(); }}><RefreshCw className="w-4 h-4" /></Button>
             </div>
 
             {/* Content Canvas */}
@@ -337,7 +418,12 @@ export function GraphOverviewPage() {
                             {edges.map((edge) => {
                                 const source = nodes.find(n => n.id === edge.source);
                                 const target = nodes.find(n => n.id === edge.target);
-                                if (!source || !target) return null;
+
+                                // Strict coordinate check to prevent SVG errors
+                                if (!source || !Number.isFinite(source.x) || !Number.isFinite(source.y) ||
+                                    !target || !Number.isFinite(target.x) || !Number.isFinite(target.y)) {
+                                    return null;
+                                }
 
                                 const isVintage = activeTab === 'chronological';
                                 const isHovered = hoveredNodeId && (edge.source === hoveredNodeId || edge.target === hoveredNodeId);
@@ -381,11 +467,9 @@ export function GraphOverviewPage() {
                                 return (
                                     <motion.line
                                         key={`${edge.source}-${edge.target}-${activeTab}`}
+                                        x1={source.x} y1={source.y} x2={target.x} y2={target.y}
                                         initial={{ opacity: 0 }}
-                                        animate={{
-                                            opacity: strokeOpacity,
-                                            x1: source.x, y1: source.y, x2: target.x, y2: target.y
-                                        }}
+                                        animate={{ opacity: strokeOpacity }}
                                         exit={{ opacity: 0 }}
                                         stroke={strokeColor}
                                         strokeWidth={strokeWidth}
@@ -398,6 +482,9 @@ export function GraphOverviewPage() {
 
                         {/* Nodes */}
                         {nodes.map((node) => {
+                            // Verify node position safety
+                            if (!Number.isFinite(node.x) || !Number.isFinite(node.y)) return null;
+
                             const isVintage = activeTab === 'chronological';
 
                             if (isVintage) {
@@ -460,64 +547,107 @@ export function GraphOverviewPage() {
                             }
 
                             // Network Render (Original)
-                            let containerStyle = "bg-[#f4f1ea] border border-[#1f1b1f]/20 text-[#1f1b1f] shadow-sm";
-                            let fontClass = "font-serif";
-                            let shapeClass = "aspect-[3/2] rounded-sm";
+                            // Network Render (Obsidian Structure, Light Theme)
+
+
+                            // Node Size Config
+                            let radius = 6;
+                            let fill = "#eaddcf";
+                            let stroke = "var(--ink)"; // #1f1b1f
+                            let strokeWidth = 1;
+                            let opacity = 1;
+                            let fontSize = 10;
+                            let fontWeight = "normal";
+                            let textYOffset = 12;
 
                             if (node.type === 'root') {
-                                containerStyle = "bg-[#1f1b1f] text-[#f4f1ea] border-double border-4 border-[#f4f1ea]/20 shadow-2xl";
-                                fontClass = "font-display tracking-widest text-lg uppercase";
-                                shapeClass = "aspect-square rounded-full w-32 h-32 flex items-center justify-center";
+                                radius = 16;
+                                fill = "#1f1b1f"; // Ink
+                                stroke = "#1f1b1f";
+                                strokeWidth = 0;
+                                fontSize = 16;
+                                fontWeight = "bold";
+                                textYOffset = 24;
                             } else if (node.type === 'field') {
-                                containerStyle = "bg-[#eaddcf] border-2 border-[#1f1b1f] text-[#1f1b1f] shadow-[3px_3px_0px_0px_rgba(31,27,31,0.2)]";
-                                fontClass = "font-display font-bold text-base md:text-lg";
-                                shapeClass = "px-4 py-2 min-w-[160px] rounded-lg";
+                                radius = 12;
+                                // Muted Field Colors
+                                const colorMap: Record<string, string> = {
+                                    'classical': '#9cb4cc', // Muted Blue
+                                    'quantum': '#dba8ac',   // Muted Pink
+                                    'statistical': '#a8d5ba', // Muted Green
+                                    'electrodynamics': '#e8c18d', // Muted Yellow
+                                    'mathematical-physics': '#b8b3d6' // Muted Purple
+                                };
+                                fill = colorMap[node.data?.fieldId] || '#eaddcf';
+                                fontSize = 14;
+                                fontWeight = "600";
+                                textYOffset = 20;
                             } else if (node.type === 'topic') {
-                                containerStyle = "bg-[#fcfbf9] border border-[#1f1b1f]/30 hover:border-[#1f1b1f] hover:shadow-md transition-all";
-                                fontClass = "font-serif text-sm";
-                                shapeClass = "px-3 py-2 min-w-[140px] rounded-sm";
+                                radius = 6;
+                                fill = "#fcfbf9";
+                                opacity = 0.9;
+                                fontSize = 8; // Small text
+                                textYOffset = 12;
                             } else if (node.type === 'section') {
-                                containerStyle = "bg-white border-l-4 border-[#1f1b1f] shadow-sm hover:shadow-md transition-all";
-                                fontClass = "font-serif text-xs";
-                                shapeClass = "px-2 py-1 min-w-[120px] rounded-r-sm";
+                                radius = 4;
+                                fill = "#ffffff";
+                                strokeWidth = 0.5;
+                                fontSize = 0; // Hide section labels usually to reduce noise? OR show small
+                                opacity = 0.5;
                             } else if (node.type === 'concept') {
-                                containerStyle = "bg-[#fffdf5] border border-dashed border-[#1f1b1f]/40 hover:border-solid transition-all";
-                                fontClass = "font-mono text-[10px]";
-                                shapeClass = "px-2 py-1 min-w-[100px] rounded-lg";
+                                radius = 3;
+                                fill = "#999";
+                                strokeWidth = 0;
+                                fontSize = 6;
+                                opacity = 0.6;
+                                textYOffset = 8;
+                            }
+
+                            const isHovered = hoveredNodeId === node.id;
+                            if (isHovered) {
+                                stroke = "var(--accent)"; // Interaction Color
+                                strokeWidth = 2;
+                                opacity = 1;
+                                fontSize = Math.max(fontSize, 10); // Enlarge text on hover
                             }
 
                             return (
-                                <foreignObject
+                                <g
                                     key={node.id}
-                                    x={node.x - (node.type === 'root' ? 64 : node.type === 'concept' ? 60 : 80)}
-                                    y={node.y - (node.type === 'root' ? 64 : node.type === 'concept' ? 20 : 30)}
-                                    width={node.type === 'root' ? 128 : 200}
-                                    height={node.type === 'root' ? 128 : 100}
-                                    className="pointer-events-auto overflow-visible"
-                                    onMouseDown={(e) => e.stopPropagation()}
+                                    className="pointer-events-auto transition-opacity duration-300"
+                                    onMouseEnter={() => setHoveredNodeId(node.id)}
+                                    onMouseLeave={() => setHoveredNodeId(null)}
+                                    onClick={() => {
+                                        if (node.slug) navigate(`/topic/${node.slug}`);
+                                    }}
+                                    style={{ cursor: node.slug ? 'pointer' : 'default' }}
                                 >
-                                    <div className="flex items-center justify-center h-full w-full p-2">
-                                        <div
-                                            className={`
-                                                 flex flex-col items-center justify-center text-center cursor-pointer relative
-                                                 ${containerStyle}
-                                                 ${shapeClass}
-                                             `}
-                                            onClick={() => {
-                                                if (node.slug) navigate(`/topic/${node.slug}`);
-                                            }}
+                                    <circle
+                                        cx={node.x}
+                                        cy={node.y}
+                                        r={radius}
+                                        fill={fill}
+                                        stroke={stroke}
+                                        strokeWidth={strokeWidth}
+                                        opacity={opacity}
+                                    />
+                                    {/* Text Below */}
+                                    {(node.type !== 'section' || isHovered) && (
+                                        <text
+                                            x={node.x}
+                                            y={node.y + textYOffset}
+                                            textAnchor="middle"
+                                            fill="#1f1b1f" // Ink Color
+                                            fontSize={fontSize}
+                                            fontFamily="serif"
+                                            fontWeight={fontWeight}
+                                            style={{ pointerEvents: 'none', textShadow: '0 0 4px #e6e0d6' }} // Halo for readability
+                                            opacity={isHovered ? 1 : 0.8}
                                         >
-                                            <div className="absolute inset-0 bg-noise opacity-[0.05] pointer-events-none rounded-[inherit]" />
-                                            {node.type === 'concept' && <Sparkles className="w-3 h-3 mb-1 text-[#d4b483]" />}
-                                            <div className={`${fontClass} z-10 leading-snug`}>{node.label}</div>
-                                            {node.description && node.type === 'topic' && (
-                                                <div className="text-[10px] font-mono tracking-tighter opacity-70 mt-1 z-10 text-[#c15b4d]">
-                                                    {node.description}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </foreignObject>
+                                            {node.label}
+                                        </text>
+                                    )}
+                                </g>
                             );
                         })}
                     </svg>

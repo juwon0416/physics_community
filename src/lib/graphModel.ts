@@ -89,20 +89,6 @@ export const fetchGraphModel = async (): Promise<GraphModel> => {
     if (nodeError) throw nodeError;
     if (edgeError) throw edgeError;
 
-    // 2. Build Static Base (for fallback/hybrid)
-    // Ideally user might want ONLY DB if we fully migrated. 
-    // But for now, let's Merge.
-    // If DB has data, prefer DB? 
-    // Strategy: Use Static Model as base, overwrite/append with DB.
-    // However, duplicate IDs?
-    // Let's assume DB nodes MIGHT mirror static nodes if we synced.
-    // If not, we just concat.
-
-    // For this prototype, user is adding "Concepts" which are dynamic.
-    // Topics might be static or dynamic.
-    // Let's simpler: Return DB nodes. If DB is empty, return Static.
-    // Or better: Combine.
-
     const staticModel = buildStaticGraphModel();
 
     // Map DB nodes to GraphNode
@@ -117,26 +103,37 @@ export const fetchGraphModel = async (): Promise<GraphModel> => {
         description: n.data?.description
     }));
 
-    const dynamicEdges: GraphEdge[] = (dbEdges || []).map(e => ({
-        source: e.source,
-        target: e.target,
-        type: (e.label === 'hierarchy' || e.label === 'mentions') ? 'hierarchy' : 'relational' // map label to type
-    }));
+    // strict 1:1 mapping for edge types
+    const dynamicEdges: GraphEdge[] = (dbEdges || []).map(e => {
+        let type: GraphEdge['type'] = 'relational';
+        if (e.label === 'hierarchy') type = 'hierarchy';
+        else if (e.label === 'temporal') type = 'temporal';
+        else if (e.label === 'mentions') type = 'mentions';
+
+        return {
+            source: e.source,
+            target: e.target,
+            type
+        };
+    });
 
     // Deduplication Strategy:
-    // If ID exists in both, prefer DB (it might have positions).
-    // Actually, static model has no positions.
-
     const nodeMap = new Map<string, GraphNode>();
     staticModel.nodes.forEach(n => nodeMap.set(n.id, n));
     dynamicNodes.forEach(n => nodeMap.set(n.id, n)); // Overwrite if exists
 
     // Edges: unique by source-target-type
-    // We can just concat and let the layout/renderer handle it, or dedup.
-    // Simpler to just concat for now.
+    // We combine static and dynamic edges, but simple concat might have duplicates if static edges are also in DB.
+    // For safety, let's use a Set for uniqueness based on "source|target|type"
+    const uniqueEdges = new Map<string, GraphEdge>();
+
+    [...staticModel.edges, ...dynamicEdges].forEach(edge => {
+        const key = `${edge.source}|${edge.target}|${edge.type}`;
+        uniqueEdges.set(key, edge);
+    });
 
     return {
         nodes: Array.from(nodeMap.values()),
-        edges: [...staticModel.edges, ...dynamicEdges]
+        edges: Array.from(uniqueEdges.values())
     };
 };
