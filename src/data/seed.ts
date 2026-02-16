@@ -316,6 +316,62 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
         slug: 'qed',
         summary: 'The relativistic quantum field theory of electrodynamics (Feynman, Schwinger, Tomonaga).',
         tags: ['Quantum', 'Field Theory']
+    },
+
+    // Mathematical Physics
+    {
+        id: 'm1',
+        fieldId: 'mathematical-physics',
+        year: '1807',
+        title: 'Fourier Analysis',
+        slug: 'fourier-analysis',
+        summary: 'The study of the way general functions may be represented or approximated by sums of simpler trigonometric functions.',
+        tags: ['Analysis', 'Signals']
+    },
+    {
+        id: 'm2',
+        fieldId: 'mathematical-physics',
+        year: '1828',
+        title: 'Green\'s Functions',
+        slug: 'greens-functions',
+        summary: 'Impulse response functions used to solve differential equations subject to boundary conditions.',
+        tags: ['Calculus', 'Differential Equations']
+    },
+    {
+        id: 'm3',
+        fieldId: 'mathematical-physics',
+        year: '1854',
+        title: 'Riemannian Geometry',
+        slug: 'riemannian-geometry',
+        summary: 'The branch of differential geometry that studies Riemannian manifolds, essential for General Relativity.',
+        tags: ['Geometry', 'Relativity']
+    },
+    {
+        id: 'm4',
+        fieldId: 'mathematical-physics',
+        year: '1873',
+        title: 'Lie Groups',
+        slug: 'lie-groups',
+        summary: 'Groups that are also smooth manifolds, representing continuous symmetries in physics.',
+        tags: ['Algebra', 'Symmetry']
+    },
+    {
+        id: 'm5',
+        fieldId: 'mathematical-physics',
+        year: '1915',
+        title: 'Noether\'s Theorem',
+        slug: 'noethers-theorem',
+        summary: 'Propounds that every differentiable symmetry of the action of a physical system has a corresponding conservation law.',
+        tags: ['Symmetry', 'Conservation']
+    },
+    {
+        id: 'm6',
+        fieldId: 'mathematical-physics',
+        year: '1940',
+        title: 'Functional Analysis',
+        slug: 'functional-analysis',
+        summary: 'The study of vector spaces endowed with some kind of limit-related structure, crucial for Quantum Mechanics.',
+        tags: ['Math', 'Quantum']
     }
 ];
 

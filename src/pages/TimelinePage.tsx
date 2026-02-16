@@ -350,10 +350,11 @@ export function TimelinePage() {
                     ) : (
                         <div
                             ref={containerRef}
-                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center"
+                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0"
                             style={{ scrollbarWidth: 'none' }}
                         >
-                            <div className="relative flex items-center gap-4 md:gap-8 px-[50%] w-max mx-auto">
+                            <div className="relative flex items-center gap-8 md:gap-12 min-w-full justify-center lg:justify-start lg:px-[50vw]">
+                                {/* Note: lg:px-[50vw] roughly keeps center focus for large screens, but we improve centering logic via scroll below */}
                                 {filteredTopics.map((topic, index) => {
                                     const isActive = index === activeIndex;
                                     return (
@@ -363,7 +364,7 @@ export function TimelinePage() {
                                             onClick={() => setActiveTopicId(topic.id)}
                                             className={`
                                                 flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
-                                                flex flex-col items-center gap-2 group
+                                                flex flex-col items-center gap-3 group select-none snap-center
                                                 ${isActive ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'}
                                             `}
                                         >
@@ -375,9 +376,11 @@ export function TimelinePage() {
                                             `}>
                                                 <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
                                                 {/* Connector Line */}
-                                                <div className={`absolute top-1/2 left-full w-4 md:w-8 h-0.5 -translate-y-1/2 ${isActive ? 'bg-foreground' : 'bg-foreground/20'} ${index === filteredTopics.length - 1 ? 'hidden' : ''}`} />
+                                                {index < filteredTopics.length - 1 && (
+                                                    <div className={`absolute top-1/2 left-full w-8 md:w-12 h-0.5 -translate-y-1/2 ${isActive ? 'bg-foreground' : 'bg-foreground/20'}`} />
+                                                )}
                                             </div>
-                                            <span className={`text-[10px] md:text-xs font-medium max-w-[80px] md:max-w-[120px] text-center truncate px-2 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                            <span className={`text-[10px] md:text-xs font-medium max-w-[100px] md:max-w-[140px] text-center truncate px-2 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                                 {topic.title}
                                             </span>
                                         </div>
