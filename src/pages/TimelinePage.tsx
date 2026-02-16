@@ -368,20 +368,25 @@ export function TimelinePage() {
                                                 ${isActive ? 'z-10 opacity-100' : 'opacity-40 hover:opacity-80'}
                                             `}
                                         >
-                                            {/* Connector Line - Spans centrally to the next node */}
+                                            {/* Connector Line - Gradient for smooth transition */}
                                             {index < filteredTopics.length - 1 && (
-                                                <div className={`
-                                                    absolute top-6 md:top-8 left-1/2 w-full h-0.5 -translate-y-1/2 -z-10
-                                                    ${isActive ? 'bg-foreground' : 'bg-foreground/20'}
-                                                    transition-colors duration-500
-                                                `} />
+                                                <div
+                                                    className={`
+                                                        absolute top-6 md:top-8 left-1/2 w-full h-[2px] -translate-y-1/2 -z-20
+                                                        bg-gradient-to-r transition-all duration-500
+                                                        ${isActive
+                                                            ? 'from-foreground to-foreground/20'
+                                                            : (index + 1 === activeIndex ? 'from-foreground/20 to-foreground' : 'from-foreground/20 to-foreground/20')
+                                                        }
+                                                    `}
+                                                />
                                             )}
 
                                             <div className={`
-                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background
+                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-500
                                                 ${isActive
-                                                    ? 'text-background border-foreground shadow-md scale-125 bg-foreground'
-                                                    : 'border-foreground/30 text-muted-foreground group-hover:border-foreground/60 scale-90'}
+                                                    ? 'bg-foreground text-background border-foreground shadow-[0_0_20px_rgba(var(--foreground),0.3)] scale-110'
+                                                    : 'bg-background/80 backdrop-blur-sm border-foreground/20 text-muted-foreground group-hover:border-foreground/40 scale-90'}
                                             `}>
                                                 <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
                                             </div>
