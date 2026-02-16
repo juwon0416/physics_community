@@ -6,7 +6,7 @@ import { ZoomIn, ZoomOut, RefreshCw, Calendar, Share2, Loader2 } from 'lucide-re
 import { Button } from '../components/ui';
 
 import type { GraphModel } from '../lib/graphModel';
-import { fetchGraphModel } from '../lib/graphModel';
+import { fetchGraphModel, buildStaticGraphModel } from '../lib/graphModel';
 import type { PositionedNode } from '../lib/graphLayouts';
 import { layoutChronological, layoutNetwork, getChronologicalEdges } from '../lib/graphLayouts';
 
@@ -46,7 +46,10 @@ export function GraphOverviewPage() {
                 networkCache.current = null; // Clear layout cache on new data
                 setModel(data);
             } catch (e) {
-                console.error("Failed to load graph:", e);
+                console.error("Failed to load graph from DB, falling back to static model:", e);
+                // Fallback to static model
+                const staticData = buildStaticGraphModel();
+                setModel(staticData);
             } finally {
                 setIsLoading(false);
             }
@@ -57,7 +60,12 @@ export function GraphOverviewPage() {
     // Layout Effect
     // Layout Effect
     useEffect(() => {
-        if (!model) return;
+        if (!model) {
+            console.log("GraphOverviewPage: No model loaded yet.");
+            return;
+        }
+
+        console.log("GraphOverviewPage: Model loaded", { nodes: model.nodes.length, edges: model.edges.length });
 
         // 1. Filter Nodes based on View Rules
         let activeNodes = model.nodes;
@@ -96,15 +104,18 @@ export function GraphOverviewPage() {
         if (activeTab === 'chronological') {
             // Pass filtered model to layout
             const layout = layoutChronological({ nodes: activeNodes, edges: activeEdges });
-            console.log("Chronological Nodes:", layout.map(n => n.id).sort());
+            console.log("Chronological Nodes Layout Result:", layout.length, layout[0]);
             setNodes(layout);
         } else if (activeTab === 'network') {
             // Check cache (simple length check optimization)
             if (networkCache.current && networkCache.current.length === activeNodes.length) {
+                console.log("Using cached network layout");
                 setNodes(networkCache.current);
             } else {
+                console.log("Running network simulation...");
                 // Initial simulation with filtered nodes
                 const layout = layoutNetwork({ nodes: activeNodes, edges: activeEdges });
+                console.log("Network Simulation Result:", layout.length, layout[0]);
                 networkCache.current = layout;
                 setNodes(layout);
             }

@@ -32,6 +32,7 @@ export interface PositionedNode extends GraphNode {
 // CHRONOLOGICAL LAYOUT
 // ---------------------------------------------------------------------------
 export const layoutChronological = (model: GraphModel, width: number = 2000): PositionedNode[] => {
+    console.log("layoutChronological called with", model.nodes.length, "nodes");
     const MIN_YEAR = 1600;
     const MAX_YEAR = 2030;
     const YEAR_RANGE = MAX_YEAR - MIN_YEAR;
@@ -117,13 +118,12 @@ export const runForceSimulation = (
     iterations: number = 300,
     nodeDataMap: Map<string, unknown>
 ): SimulationNode[] => {
+    console.log(`Starting Force Simulation with ${nodes.length} nodes and ${edges.length} edges`);
 
     // Initialize velocities
     nodes.forEach(n => { n.vx = n.vx || 0; n.vy = n.vy || 0; });
     const nodeIdMap = new Map(nodes.map(n => [n.id, n]));
     const nodeCount = nodes.length;
-
-
 
     // Mathematical Physics Special Handling
     // We want Math Physics to be a "Star" - central node with children radiating
@@ -228,6 +228,7 @@ export const runForceSimulation = (
         });
     }
 
+    console.log("Force Simulation Complete. First Node Stats:", nodes[0]);
     return nodes;
 };
 
@@ -281,6 +282,7 @@ export const layoutNetwork = (
     model: GraphModel,
     previousPositions: Record<string, { x: number, y: number }> = {}
 ): PositionedNode[] => {
+    console.log("layoutNetwork called");
 
     const nodeDataMap = new Map(model.nodes.map(n => [n.id, n.data]));
 
