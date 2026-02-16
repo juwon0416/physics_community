@@ -6,7 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
-import { FIELDS } from '../data/seed';
+import { FIELDS, TIMELINE_TOPICS, KEYWORD_SECTIONS } from '../data/seed';
 import { storage, type Question, type Topic } from '../data/storage';
 import { useAuth } from '../lib/auth';
 import { Button, Input, Badge, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
@@ -47,22 +47,42 @@ export function TopicPage() {
     useEffect(() => {
         if (!topicSlug) return;
         const load = async () => {
-            const data = await storage.getTopicBySlug(topicSlug);
+            let data = await storage.getTopicBySlug(topicSlug);
 
-            // If DB miss, fallback to seed logic handled in storage, but we typically expect data.
-            // If data exists, check content.
-            if (data) {
-                // Auto-Migration Check: If no content but sections exist (from old schema used in DB)
-                if (!data.content || data.content.trim() === '') {
-                    // Ideally we check if sections exist. 
-                    // We'll treat this as "Need Migration" or "Empty".
-                    // Let's rely on manual migration button for safety or just lazy load.
-                    // Or clearer: if existing, use it.
+            // Fallback: If DB returns null, try to find in SEED data
+            if (!data) {
+                const seedTopic = TIMELINE_TOPICS.find(t => t.slug === topicSlug);
+                if (seedTopic) {
+                    console.log("Topic not found in DB, falling back to SEED:", seedTopic.title);
 
-                    // For now, set topic.
+                    // Generate Content from Sections
+                    const sections = KEYWORD_SECTIONS.filter(k => k.topicId === seedTopic.id);
+                    let generatedContent = seedTopic.summary + "\n\n";
+                    if (sections.length > 0) {
+                        generatedContent += sections.map(s => `## ${s.title}\n\n${s.content}`).join("\n\n");
+                    } else {
+                        generatedContent += "## Overview\n\nNo detailed sections available for this topic in the archives.";
+                    }
+
+                    // Mock a Topic object
+                    data = {
+                        id: seedTopic.id,
+                        field_id: seedTopic.fieldId,
+                        year: seedTopic.year,
+                        title: seedTopic.title,
+                        slug: seedTopic.slug,
+                        summary: seedTopic.summary,
+                        tags: seedTopic.tags,
+                        content: generatedContent
+                    };
                 }
+            }
+
+            if (data) {
                 setTopic(data);
                 setEditContent(data.content || '');
+            } else {
+                console.error("Topic not found:", topicSlug);
             }
         };
         load();
@@ -302,6 +322,31 @@ export function TopicPage() {
                                 </ReactMarkdown>
                             )}
                         </article>
+                    )}
+
+                    {/* Related Topics / Context */}
+                    {topic && (
+                        <div className="pt-8 border-t border-border/50">
+                            <h3 className="text-xl font-bold font-display mb-4">Related Topics in {field?.name}</h3>
+                            <div className="flex flex-wrap gap-4">
+                                {TIMELINE_TOPICS
+                                    .filter(t => t.fieldId === topic.field_id && t.id !== topic.id)
+                                    // Simple logic: same field, limit to 3 prev/next
+                                    .sort((a, b) => Math.abs(parseInt(a.year) - parseInt(topic.year)) - Math.abs(parseInt(b.year) - parseInt(topic.year)))
+                                    .slice(0, 4)
+                                    .map(rel => (
+                                        <a key={rel.id} href={`/topic/${rel.slug}`} className="block group">
+                                            <Card className="w-[200px] h-full hover:border-primary/50 transition-colors bg-secondary/5">
+                                                <CardContent className="p-4 space-y-2">
+                                                    <Badge variant="outline" className="text-xs">{rel.year}</Badge>
+                                                    <h4 className="font-bold text-sm leading-tight group-hover:text-primary transition-colors">{rel.title}</h4>
+                                                </CardContent>
+                                            </Card>
+                                        </a>
+                                    ))
+                                }
+                            </div>
+                        </div>
                     )}
 
                     {/* QnA Section */}

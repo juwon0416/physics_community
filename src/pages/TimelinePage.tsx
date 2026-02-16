@@ -350,11 +350,10 @@ export function TimelinePage() {
                     ) : (
                         <div
                             ref={containerRef}
-                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0"
+                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0 py-24" // Added py-24 to prevent clipping
                             style={{ scrollbarWidth: 'none' }}
                         >
                             <div className="relative flex items-center gap-8 md:gap-12 min-w-full justify-center lg:justify-start lg:px-[50vw]">
-                                {/* Note: lg:px-[50vw] roughly keeps center focus for large screens, but we improve centering logic via scroll below */}
                                 {filteredTopics.map((topic, index) => {
                                     const isActive = index === activeIndex;
                                     return (
@@ -364,23 +363,31 @@ export function TimelinePage() {
                                             onClick={() => setActiveTopicId(topic.id)}
                                             className={`
                                                 flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
-                                                flex flex-col items-center gap-3 group select-none snap-center
-                                                ${isActive ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'}
+                                                flex flex-col items-center gap-3 group select-none snap-center relative
+                                                ${isActive ? 'z-10 opacity-100' : 'opacity-40 hover:opacity-80'}
                                             `}
                                         >
+                                            {/* Connector Line - Moved outside scaled container to maintain connection */}
+                                            {index < filteredTopics.length - 1 && (
+                                                <div className={`
+                                                    absolute top-1/2 left-[50%] w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] h-0.5 -translate-y-full -z-10
+                                                    ${isActive ? 'bg-foreground' : 'bg-foreground/20'}
+                                                    transition-colors duration-500
+                                                `} />
+                                            )}
+
                                             <div className={`
                                                 relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300
                                                 ${isActive
-                                                    ? 'bg-foreground text-background border-foreground shadow-md scale-110'
-                                                    : 'bg-background border-foreground/30 text-muted-foreground group-hover:border-foreground/60'}
+                                                    ? 'bg-foreground text-background border-foreground shadow-md scale-125' // Scale moved here
+                                                    : 'bg-background border-foreground/30 text-muted-foreground group-hover:border-foreground/60 scale-90'}
                                             `}>
                                                 <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
-                                                {/* Connector Line */}
-                                                {index < filteredTopics.length - 1 && (
-                                                    <div className={`absolute top-1/2 left-full w-8 md:w-12 h-0.5 -translate-y-1/2 ${isActive ? 'bg-foreground' : 'bg-foreground/20'}`} />
-                                                )}
                                             </div>
-                                            <span className={`text-[10px] md:text-xs font-medium max-w-[100px] md:max-w-[140px] text-center truncate px-2 transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                            <span className={`
+                                                text-[10px] md:text-xs font-medium max-w-[100px] md:max-w-[140px] text-center truncate px-2 transition-all duration-300
+                                                ${isActive ? 'text-foreground scale-110 font-bold' : 'text-muted-foreground scale-90'}
+                                            `}>
                                                 {topic.title}
                                             </span>
                                         </div>
