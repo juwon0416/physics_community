@@ -192,10 +192,10 @@ export function GraphOverviewPage() {
 
     // Background Layers
     const renderBackground = () => {
-        const isVintage = activeTab === 'chronological';
+        const isTimeline = activeTab === 'chronological';
         const strokeWidth = 1 / scale;
 
-        if (isVintage) {
+        if (isTimeline) {
             // Constants must match graphLayouts
             const PADDING_X = 400; // Matches TIMELINE_X0 in layout
             const AVAILABLE_WIDTH = 2000 - PADDING_X - 50;
@@ -217,15 +217,17 @@ export function GraphOverviewPage() {
                     majorTicks.push(
                         <line
                             key={`maj-${year}`} x1={x} y1={-50} x2={x} y2={600}
-                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.8}
+                            stroke="currentColor" strokeWidth={strokeWidth} strokeOpacity={0.2}
                             strokeDasharray={`${4 / scale} ${4 / scale}`}
+                            className="text-muted-foreground"
                         />
                     );
                     labels.push(
                         <text
                             key={`lbl-${year}`} x={x + 5} y={-60}
-                            fill="var(--muted)"
-                            fontSize={12 / scale} fontFamily="serif"
+                            fill="currentColor"
+                            fontSize={12 / scale} fontFamily="var(--font-mono)" // Modern Mono
+                            className="text-muted-foreground"
                             style={{ fontVariantNumeric: 'tabular-nums' }}
                         >
                             {year}
@@ -235,7 +237,8 @@ export function GraphOverviewPage() {
                     minorTicks.push(
                         <line
                             key={`min-${year}`} x1={x} y1={-20} x2={x} y2={600}
-                            stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.3}
+                            stroke="currentColor" strokeWidth={strokeWidth} strokeOpacity={0.1}
+                            className="text-border"
                         />
                     );
                 }
@@ -257,7 +260,8 @@ export function GraphOverviewPage() {
                                     <line
                                         key={`lane-${field}`}
                                         x1={PADDING_X} y1={y} x2={2000} y2={y}
-                                        stroke="var(--grid)" strokeWidth={strokeWidth} strokeOpacity={0.2}
+                                        stroke="currentColor" strokeWidth={strokeWidth} strokeOpacity={0.05}
+                                        className="text-primary"
                                     />
                                 );
                             })}
@@ -267,9 +271,10 @@ export function GraphOverviewPage() {
             )
         }
 
+        // Network Background (Subtle Dot Grid)
         return (
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                style={{ backgroundImage: 'radial-gradient(#1f1b1f 1px, transparent 1px)', backgroundSize: '30px 30px' }}
+            <div className="absolute inset-0 opacity-[0.1] pointer-events-none text-muted-foreground"
+                style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }}
             />
         );
     }
@@ -298,7 +303,7 @@ export function GraphOverviewPage() {
         <div
             ref={containerRef}
             className={`w-full h-[calc(100dvh-64px)] relative overflow-hidden select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} 
-                ${activeTab === 'chronological' ? 'timeline-vintage bg-[var(--paper)] text-[var(--ink)]' : 'bg-[#e6e0d6]'}`}
+                bg-transparent text-foreground`} // Key Fix: Transparent background
             onMouseDown={() => setIsDragging(true)}
             onMouseUp={() => setIsDragging(false)}
             onMouseLeave={() => setIsDragging(false)}
@@ -330,12 +335,12 @@ export function GraphOverviewPage() {
 
             {/* UI Controls */}
             <div className="absolute top-4 left-4 z-20 flex gap-2" onMouseDown={e => e.stopPropagation()}>
-                <div className="bg-white/80 backdrop-blur p-1 rounded-lg border border-black/10 shadow-sm flex gap-1">
+                <div className="glass p-1 rounded-lg flex gap-1">
                     <Button
                         variant={activeTab === 'chronological' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => { setActiveTab('chronological'); resetView(); }}
-                        className="text-xs font-serif"
+                        className="text-xs"
                     >
                         <Calendar className="w-3 h-3 mr-2" />
                         Timeline
@@ -344,7 +349,7 @@ export function GraphOverviewPage() {
                         variant={activeTab === 'network' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => { setActiveTab('network'); resetView(); }}
-                        className="text-xs font-serif"
+                        className="text-xs"
                     >
                         <Share2 className="w-3 h-3 mr-2" />
                         Network
@@ -353,9 +358,9 @@ export function GraphOverviewPage() {
             </div>
 
             <div className="absolute top-4 right-4 z-20 flex flex-col gap-2" onMouseDown={e => e.stopPropagation()}>
-                <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => setScale(s => Math.min(s + 0.1, 3))}><ZoomIn className="w-4 h-4" /></Button>
-                <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => setScale(s => Math.max(s - 0.1, 0.2))}><ZoomOut className="w-4 h-4" /></Button>
-                <Button variant="outline" size="icon" className="bg-[#e6e0d6]" onClick={() => { resetView(); reloadGraph(); }}><RefreshCw className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" className="glass hover:bg-white/20" onClick={() => setScale(s => Math.min(s + 0.1, 3))}><ZoomIn className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" className="glass hover:bg-white/20" onClick={() => setScale(s => Math.max(s - 0.1, 0.2))}><ZoomOut className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" className="glass hover:bg-white/20" onClick={() => { resetView(); reloadGraph(); }}><RefreshCw className="w-4 h-4" /></Button>
             </div>
 
             {/* Content Canvas */}
@@ -377,7 +382,7 @@ export function GraphOverviewPage() {
                                 markerHeight="6"
                                 orient="auto-start-reverse"
                             >
-                                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" opacity="0.5" />
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" className="text-muted-foreground" opacity="0.5" />
                             </marker>
                             <marker
                                 id="arrow-network"
@@ -388,7 +393,7 @@ export function GraphOverviewPage() {
                                 markerHeight="5"
                                 orient="auto-start-reverse"
                             >
-                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f1b1f" opacity="0.3" />
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" className="text-muted-foreground" opacity="0.3" />
                             </marker>
                             <marker
                                 id="arrow-network-hover"
@@ -399,7 +404,7 @@ export function GraphOverviewPage() {
                                 markerHeight="6"
                                 orient="auto-start-reverse"
                             >
-                                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" opacity="1" />
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" className="text-primary" opacity="1" />
                             </marker>
                         </defs>
 
@@ -415,40 +420,39 @@ export function GraphOverviewPage() {
                                     return null;
                                 }
 
-                                const isVintage = activeTab === 'chronological';
+                                const isTimeline = activeTab === 'chronological';
                                 const isHovered = hoveredNodeId && (edge.source === hoveredNodeId || edge.target === hoveredNodeId);
 
-                                let strokeColor = "#1f1b1f";
                                 let strokeOpacity = 0.2;
                                 let strokeWidth = 1.5;
                                 let markerEnd = "";
+                                let className = "text-muted-foreground";
 
-                                if (isVintage) {
-                                    strokeColor = "var(--grid)";
+                                if (isTimeline) {
+                                    className = "text-border";
                                     strokeOpacity = 0.3;
                                     strokeWidth = 1 / scale;
 
                                     if (source.type === 'root' || target.type === 'root') {
-                                        strokeColor = "var(--ink)";
+                                        className = "text-foreground";
                                         strokeOpacity = 0.6;
                                         strokeWidth = 1.5 / scale;
                                     }
 
                                     if (isHovered) {
-                                        strokeColor = "var(--accent)";
+                                        className = "text-primary";
                                         strokeOpacity = 1;
                                         strokeWidth = 2.5 / scale;
                                     }
                                 } else {
                                     // Network Style
                                     strokeOpacity = 0.2;
-                                    // Arrows for hierarchy/mentions
                                     if (edge.type === 'hierarchy' || edge.type === 'mentions') {
                                         markerEnd = isHovered ? "url(#arrow-network-hover)" : "url(#arrow-network)";
                                     }
 
                                     if (isHovered) {
-                                        strokeColor = "var(--accent)"; // Or a dark color
+                                        className = "text-primary";
                                         strokeOpacity = 0.8;
                                         strokeWidth = 2;
                                     }
@@ -461,7 +465,8 @@ export function GraphOverviewPage() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: strokeOpacity }}
                                         exit={{ opacity: 0 }}
-                                        stroke={strokeColor}
+                                        stroke="currentColor"
+                                        className={className}
                                         strokeWidth={strokeWidth}
                                         strokeLinecap="round"
                                         markerEnd={markerEnd}
@@ -475,29 +480,31 @@ export function GraphOverviewPage() {
                             // Verify node position safety
                             if (!Number.isFinite(node.x) || !Number.isFinite(node.y)) return null;
 
-                            const isVintage = activeTab === 'chronological';
+                            const isTimeline = activeTab === 'chronological';
 
-                            if (isVintage) {
+                            if (isTimeline) {
                                 const isRoot = node.type === 'root';
                                 const isField = node.type === 'field';
 
-                                let containerStyle = "bg-[var(--paper)] border border-[var(--muted)] text-[var(--ink)] shadow-sm transition-all";
-                                let fontClass = "font-serif text-[10px] leading-tight";
-                                let shapeClass = "px-2 py-1 min-w-[100px] max-w-[110px] min-h-[50px] rounded-sm";
+                                // Glassmorphism Node Style
+                                let containerStyle = "glass-card border border-white/20 text-foreground flex flex-col items-center justify-center text-center p-2 backdrop-blur-md";
+                                let fontClass = "font-sans text-[10px] leading-tight";
+                                let shapeClass = "min-w-[100px] max-w-[120px] min-h-[50px] rounded-xl";
 
                                 if (isRoot) {
-                                    containerStyle = "bg-[var(--ink)] text-[var(--paper)] border-4 border-double border-[var(--paper)] z-20";
-                                    fontClass = "font-display text-base uppercase tracking-widest";
+                                    containerStyle = "bg-foreground text-background border-4 border-primary z-20 shadow-xl";
+                                    fontClass = "font-display text-base uppercase tracking-widest font-bold";
                                     shapeClass = "aspect-square rounded-full w-24 h-24 flex items-center justify-center";
                                 } else if (isField) {
-                                    containerStyle = "bg-[var(--paper)] border-2 border-[var(--ink)] text-[var(--ink)] z-10";
+                                    // Field badges in timeline
+                                    containerStyle = "bg-primary/20 border border-primary/30 text-primary-foreground z-10 backdrop-blur-sm";
                                     fontClass = "font-display font-bold text-xs uppercase tracking-wider";
                                     shapeClass = "px-3 py-1 min-w-[100px] text-center rounded-lg";
                                 }
 
                                 const isHovered = hoveredNodeId === node.id;
                                 if (isHovered && !isRoot) {
-                                    containerStyle += " border-[var(--accent)] ring-1 ring-[var(--accent)] z-30";
+                                    containerStyle += " shadow-2xl scale-105 border-primary z-30 bg-white/20";
                                 }
 
                                 return (
@@ -506,7 +513,7 @@ export function GraphOverviewPage() {
                                         x={node.x - (isRoot ? 48 : 50)}
                                         y={node.y - (isRoot ? 48 : 25)}
                                         width={isRoot ? 96 : 100}
-                                        height={isRoot ? 96 : 80}
+                                        height={isRoot ? 96 : 60} // Adjusted height
                                         className="pointer-events-auto overflow-visible"
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onMouseEnter={() => setHoveredNodeId(node.id)}
@@ -515,7 +522,7 @@ export function GraphOverviewPage() {
                                         <div className="flex items-center justify-center h-full w-full p-1">
                                             <div
                                                 className={`
-                                                     flex flex-col items-center justify-center text-center cursor-pointer relative group
+                                                     cursor-pointer transition-all duration-300
                                                      ${containerStyle}
                                                      ${shapeClass}
                                                  `}
@@ -524,7 +531,7 @@ export function GraphOverviewPage() {
                                                 }}
                                             >
                                                 {!isRoot && !isField && (node.data as any)?.year && (
-                                                    <div className="absolute top-0.5 right-1.5 text-[8px] font-mono opacity-60 text-[var(--muted)]">
+                                                    <div className="absolute -top-2 -right-2 bg-background border border-border px-1 rounded text-[9px] font-mono text-muted-foreground shadow-sm">
                                                         {(node.data as any).year}
                                                     </div>
                                                 )}
@@ -536,75 +543,69 @@ export function GraphOverviewPage() {
                                 );
                             }
 
-                            // Network Render (Original)
-                            // Network Render (Obsidian Structure, Light Theme)
-
-
+                            // Network Render (Modern Dots)
                             // Node Size Config
                             let radius = 6;
-                            let fill = "#eaddcf";
-                            let stroke = "var(--ink)"; // #1f1b1f
-                            let strokeWidth = 1;
-                            let opacity = 1;
+                            let className = "text-muted";
+                            let stroke = "none";
+                            let strokeWidth = 0;
+                            let opacity = 0.8;
                             let fontSize = 10;
                             let fontWeight = "normal";
                             let textYOffset = 12;
 
                             if (node.type === 'root') {
-                                radius = 16;
-                                fill = "#1f1b1f"; // Ink
-                                stroke = "#1f1b1f";
-                                strokeWidth = 0;
+                                radius = 20;
+                                className = "text-foreground";
                                 fontSize = 16;
                                 fontWeight = "bold";
-                                textYOffset = 24;
+                                textYOffset = 30;
                             } else if (node.type === 'field') {
-                                radius = 12;
-                                // Muted Field Colors
+                                radius = 14;
+                                // Field Colors
                                 const colorMap: Record<string, string> = {
-                                    'classical': '#9cb4cc', // Muted Blue
-                                    'quantum': '#dba8ac',   // Muted Pink
-                                    'statistical': '#a8d5ba', // Muted Green
-                                    'electrodynamics': '#e8c18d', // Muted Yellow
-                                    'mathematical-physics': '#b8b3d6' // Muted Purple
+                                    'classical': 'text-blue-400',
+                                    'quantum': 'text-pink-400',
+                                    'statistical': 'text-green-400',
+                                    'electrodynamics': 'text-yellow-400',
+                                    'mathematical-physics': 'text-purple-400'
                                 };
-                                fill = colorMap[(node.data as any)?.fieldId as string] || '#eaddcf';
+                                className = colorMap[(node.data as any)?.fieldId as string] || 'text-muted';
                                 fontSize = 14;
                                 fontWeight = "600";
-                                textYOffset = 20;
+                                textYOffset = 22;
+                                opacity = 1;
                             } else if (node.type === 'topic') {
                                 radius = 6;
-                                fill = "#fcfbf9";
+                                className = "text-foreground";
                                 opacity = 0.9;
-                                fontSize = 8; // Small text
-                                textYOffset = 12;
+                                fontSize = 10;
+                                textYOffset = 14;
                             } else if (node.type === 'section') {
                                 radius = 4;
-                                fill = "#ffffff";
-                                strokeWidth = 0.5;
-                                fontSize = 0; // Hide section labels usually to reduce noise? OR show small
+                                className = "text-muted-foreground";
+                                fontSize = 0; // Hide
                                 opacity = 0.5;
                             } else if (node.type === 'concept') {
                                 radius = 3;
-                                fill = "#999";
-                                strokeWidth = 0;
-                                fontSize = 6;
+                                className = "text-muted";
+                                fontSize = 8;
                                 opacity = 0.6;
                                 textYOffset = 8;
                             }
 
                             const isHovered = hoveredNodeId === node.id;
                             if (isHovered) {
-                                stroke = "var(--accent)"; // Interaction Color
-                                strokeWidth = 2;
+                                className = "text-primary";
+                                radius *= 1.2;
                                 opacity = 1;
-                                fontSize = Math.max(fontSize, 10); // Enlarge text on hover
+                                fontSize = Math.max(fontSize, 10);
                             }
 
                             return (
                                 <g
                                     key={node.id}
-                                    className="pointer-events-auto transition-opacity duration-300"
+                                    className={`pointer-events-auto transition-all duration-300 ${className}`}
                                     onMouseEnter={() => setHoveredNodeId(node.id)}
                                     onMouseLeave={() => setHoveredNodeId(null)}
                                     onClick={() => {
@@ -616,22 +617,37 @@ export function GraphOverviewPage() {
                                         cx={node.x}
                                         cy={node.y}
                                         r={radius}
-                                        fill={fill}
+                                        fill="currentColor"
                                         stroke={stroke}
                                         strokeWidth={strokeWidth}
                                         opacity={opacity}
+                                        className="shadow-sm"
                                     />
+                                    {/* Halo on Hover */}
+                                    {isHovered && (
+                                        <circle
+                                            cx={node.x}
+                                            cy={node.y}
+                                            r={radius + 4}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={1}
+                                            opacity={0.5}
+                                        />
+                                    )}
+
                                     {/* Text Below */}
                                     {(node.type !== 'section' || isHovered) && (
                                         <text
                                             x={node.x}
                                             y={node.y + textYOffset}
                                             textAnchor="middle"
-                                            fill="#1f1b1f" // Ink Color
+                                            fill="currentColor"
                                             fontSize={fontSize}
-                                            fontFamily="serif"
+                                            fontFamily="var(--font-sans)"
                                             fontWeight={fontWeight}
-                                            style={{ pointerEvents: 'none', textShadow: '0 0 4px #e6e0d6' }} // Halo for readability
+                                            className="text-foreground pointer-events-none drop-shadow-md"
+                                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
                                             opacity={isHovered ? 1 : 0.8}
                                         >
                                             {node.label}
