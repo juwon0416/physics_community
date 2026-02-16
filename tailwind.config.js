@@ -48,9 +48,9 @@ export default {
                 sm: "calc(var(--radius) - 4px)",
             },
             fontFamily: {
-                sans: ['Lato', 'sans-serif'],
-                display: ['"Crimson Text"', 'serif'], // Vintage Headers
-                mono: ['"IBM Plex Mono"', 'monospace'], // Technical/Code
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                display: ['Outfit', 'Inter', 'sans-serif'], // Trendy Headings
+                mono: ['"JetBrains Mono"', 'monospace'], // Modern Code
             },
             keyframes: {
                 "accordion-down": {
@@ -61,10 +61,25 @@ export default {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: "0" },
                 },
+                "blob": {
+                    "0%": {
+                        transform: "translate(0px, 0px) scale(1)",
+                    },
+                    "33%": {
+                        transform: "translate(30px, -50px) scale(1.1)",
+                    },
+                    "66%": {
+                        transform: "translate(-20px, 20px) scale(0.9)",
+                    },
+                    "100%": {
+                        transform: "translate(0px, 0px) scale(1)",
+                    },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                "blob": "blob 7s infinite",
             },
         },
     },

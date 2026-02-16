@@ -107,6 +107,10 @@ export const layoutChronological = (model: GraphModel, width: number = 2000): Po
 // NETWORK LAYOUT (STRICT SECTOR PHYSICS)
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// NETWORK LAYOUT (RADIAL / STARBURST PHYSICS)
+// ---------------------------------------------------------------------------
+
 export const runForceSimulation = (
     nodes: SimulationNode[],
     edges: { source: string; target: string; type?: string }[],
@@ -119,8 +123,13 @@ export const runForceSimulation = (
     const nodeIdMap = new Map(nodes.map(n => [n.id, n]));
     const nodeCount = nodes.length;
 
+
+
+    // Mathematical Physics Special Handling
+    // We want Math Physics to be a "Star" - central node with children radiating
+
     for (let i = 0; i < iterations; i++) {
-        // 1. Repulsion
+        // 1. Repulsion (Global)
         for (let j = 0; j < nodeCount; j++) {
             const nodeA = nodes[j];
             for (let k = j + 1; k < nodeCount; k++) {
@@ -130,7 +139,8 @@ export const runForceSimulation = (
                 let distSq = dx * dx + dy * dy;
                 if (distSq === 0) distSq = 0.1;
 
-                const force = PHYSICS.REPULSION / (distSq + 500);
+                // Stronger repulsion to separate clusters
+                const force = (PHYSICS.REPULSION * 1.5) / (distSq + 200);
                 const dist = Math.sqrt(distSq);
                 const fx = (dx / dist) * force;
                 const fy = (dy / dist) * force;
@@ -140,7 +150,7 @@ export const runForceSimulation = (
             }
         }
 
-        // 2. Spring Attraction
+        // 2. Spring Attraction (Edges)
         edges.forEach(edge => {
             const source = nodeIdMap.get(edge.source);
             const target = nodeIdMap.get(edge.target);
@@ -150,12 +160,16 @@ export const runForceSimulation = (
             const dy = target.y - source.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-            // Adjust length based on edge type or hierarchy
             let length = PHYSICS.SPRING_LENGTH;
-            // Shorten implicit chains
-            if (edge.type === 'run' || edge.type === 'hierarchy') length = 50;
+            // Tighter springs for hierarchy to keep children close to parents (Starburst)
+            if (edge.type === 'hierarchy' || edge.type === 'run') length = 40;
 
-            const strength = PHYSICS.SPRING_STRENGTH;
+            // Mathematical Physics children: Allow slightly more spread but strict radial pull
+            if (source.id === 'mathematical-physics' || target.id === 'mathematical-physics') {
+                length = 100;
+            }
+
+            const strength = PHYSICS.SPRING_STRENGTH * 1.2; // Stiffer springs
 
             const force = (dist - length) * strength;
             const fx = (dx / dist) * force;
@@ -165,44 +179,46 @@ export const runForceSimulation = (
             if (target.fx === undefined) { target.vx! -= fx; target.vy! -= fy; }
         });
 
-        // 3. Sector Restoration Force (The Wall)
+        // 3. Radial / Sector Forces
         nodes.forEach(node => {
             if (node.fx !== undefined) return;
 
-            // Identify Sector
+            // Root Gravity (Pull to center)
+            const distToCenter = Math.sqrt(node.x * node.x + node.y * node.y) || 1;
+            const gravityStrength = 0.02;
+            node.vx! -= (node.x / distToCenter) * gravityStrength * distToCenter;
+            node.vy! -= (node.y / distToCenter) * gravityStrength * distToCenter;
+
+            // Identify Sector Preference
             const data = nodeDataMap.get(node.id) as { fieldId?: string } | undefined;
             let targetAngle: number | undefined;
 
-            if (node.type === 'field') {
+            if (node.type === 'field' && FIELD_ANGLES[node.id] !== undefined) {
                 targetAngle = FIELD_ANGLES[node.id];
             } else if (data?.fieldId && FIELD_ANGLES[data.fieldId] !== undefined) {
                 targetAngle = FIELD_ANGLES[data.fieldId];
+            } else if (node.id === 'root') {
+                // Root stays at 0,0
             }
 
             if (targetAngle !== undefined) {
-                // Calculate current angle
                 const currentAngle = Math.atan2(node.y, node.x);
                 let diff = targetAngle - currentAngle;
-                // Normalize diff to -PI, PI
                 while (diff <= -Math.PI) diff += Math.PI * 2;
                 while (diff > Math.PI) diff -= Math.PI * 2;
 
-                // Apply tangential force to correct angle
-                const distToCenter = Math.sqrt(node.x * node.x + node.y * node.y) || 1;
+                const restoreForce = diff * PHYSICS.SECTOR_STRENGTH * 2.0; // Stronger sector enforcement
 
-                // Force increases if deviation is high
-                const restoreForce = diff * PHYSICS.SECTOR_STRENGTH * distToCenter;
-
-                // Tangential unit vectors from (x,y): (-y, x) is +90deg (CCW)
+                // Tangential force
                 const tx = -node.y / distToCenter;
                 const ty = node.x / distToCenter;
 
-                node.vx! += tx * restoreForce * 0.1;
-                node.vy! += ty * restoreForce * 0.1;
+                node.vx! += tx * restoreForce;
+                node.vy! += ty * restoreForce;
             }
         });
 
-        // 4. Update
+        // 4. Update Positions
         nodes.forEach(node => {
             if (node.fx !== undefined) return;
             node.vx! *= PHYSICS.DAMPING;
@@ -216,36 +232,25 @@ export const runForceSimulation = (
 };
 
 export const getChronologicalEdges = (model: GraphModel) => {
+    // 1. Keep non-topic/non-hierarchical edges (like mentions that cross fields)
     const otherEdges = model.edges.filter(e => {
         const sourceNode = model.nodes.find(n => n.id === e.source);
         const targetNode = model.nodes.find(n => n.id === e.target);
-
         if (!sourceNode || !targetNode) return false;
 
-        // 1. Remove explicit Field -> Topic edges (we replace them with our single link)
-        const isFieldTopic = sourceNode.type === 'field' && targetNode.type === 'topic';
+        // Remove standard hierarchy edges that we will re-generate as a chain
+        if (sourceNode.type === 'field' && targetNode.type === 'topic') return false;
+        if (sourceNode.type === 'topic' && targetNode.type === 'topic' &&
+            sourceNode.data?.fieldId === targetNode.data?.fieldId &&
+            sourceNode.data?.year && targetNode.data?.year) return false;
 
-        // 2. Remove explicit Topic -> Topic edges (we replace them with chronological chain)
-        // FIX: Only remove if BOTH are part of the backbone (have years) AND belong to the SAME Field.
-        // - Same Field + Years: The backbone already connects them A->B->C. Explicit A->C creates a triangle. Remove it.
-        // - Different Fields: This is a cross-reference (e.g. Quantum -> Classical). Keep it.
-        // - Missing Years: This is a floating topic attached to a parent. Keep it.
-        const isTopicTopic = sourceNode.type === 'topic' && targetNode.type === 'topic';
-        if (isTopicTopic) {
-            const bothHaveYears = sourceNode.data?.year && targetNode.data?.year;
-            // Use loose comparison or strict? data.fieldId should be string.
-            const sameField = sourceNode.data?.fieldId && targetNode.data?.fieldId &&
-                (sourceNode.data.fieldId === targetNode.data.fieldId);
-
-            if (bothHaveYears && sameField) return false;
-            return true;
-        }
-
-        return !isFieldTopic;
+        return true;
     });
 
     const chainEdges: { source: string; target: string; type: 'temporal' | 'hierarchy' }[] = [];
     const topics = model.nodes.filter(n => n.type === 'topic' && n.data?.fieldId && n.data?.year);
+
+    // Group by field
     const topicsByField: Record<string, typeof topics> = {};
     topics.forEach(t => {
         const fid = t.data!.fieldId as string;
@@ -253,11 +258,17 @@ export const getChronologicalEdges = (model: GraphModel) => {
         topicsByField[fid].push(t);
     });
 
+    // Create Chain: Field -> Topic (Year 1) -> Topic (Year 2) -> ...
     Object.entries(topicsByField).forEach(([fieldId, fieldTopics]) => {
+        // Sort effectively by year
         fieldTopics.sort((a, b) => parseInt(a.data!.year as string) - parseInt(b.data!.year as string));
+
         if (fieldTopics.length > 0) {
+            // Connect Field to First Topic
             chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'hierarchy' });
         }
+
+        // Connect Topic i to Topic i+1
         for (let i = 0; i < fieldTopics.length - 1; i++) {
             chainEdges.push({ source: fieldTopics[i].id, target: fieldTopics[i + 1].id, type: 'temporal' });
         }
@@ -273,54 +284,48 @@ export const layoutNetwork = (
 
     const nodeDataMap = new Map(model.nodes.map(n => [n.id, n.data]));
 
+    // Initialize nodes with radial preference
     const simNodes: SimulationNode[] = model.nodes.map(n => {
         const prev = previousPositions[n.id];
         let x = 0; let y = 0;
         let fx = undefined; let fy = undefined;
 
-        // Initialization Logic for Sector Separation
         if (n.id === 'root') {
             fx = 0; fy = 0;
         } else {
+            // Start with a rough radial layout
             let angle = Math.random() * Math.PI * 2;
-            let radius = 200 + Math.random() * 200;
+            let radius = 100 + Math.random() * 300;
 
-            const fieldId = n.data?.fieldId as string;
+            const fieldId = (n.data as any)?.fieldId;
             if (n.type === 'field' && FIELD_ANGLES[n.id] !== undefined) {
                 angle = FIELD_ANGLES[n.id];
-                radius = 300;
-                fx = Math.cos(angle) * radius; // Anchor fields strictly
-                fy = Math.sin(angle) * radius;
+                radius = 250;
             } else if (fieldId && FIELD_ANGLES[fieldId] !== undefined) {
                 angle = FIELD_ANGLES[fieldId];
-                if (n.type === 'topic') {
-                    // Spread topics out along the ray
-                    const year = parseInt((n.data?.year as string) || '1900');
-                    const offset = (year - 1600) / 400; // 0..1
-                    radius = 350 + offset * 600;
-                } else {
-                    radius = 400 + Math.random() * 200; // Concepts further out
+                // Math Physics Starburst initialization
+                if (fieldId === 'mathematical-physics') {
+                    // Random scatter around the angle for "burst" look
+                    const jitter = (Math.random() - 0.5) * 1.5;
+                    angle += jitter;
+                    radius = 400 + Math.random() * 200;
                 }
-                const jitter = (Math.random() - 0.5) * 50;
-                x = Math.cos(angle) * radius - Math.sin(angle) * jitter;
-                y = Math.sin(angle) * radius + Math.cos(angle) * jitter;
-            } else {
-                x = (Math.random() - 0.5) * 1000;
-                y = (Math.random() - 0.5) * 1000;
             }
+
+            x = Math.cos(angle) * radius;
+            y = Math.sin(angle) * radius;
         }
 
         if (fx === undefined && prev) { x = prev.x; y = prev.y; }
         if (fx !== undefined && fy !== undefined) { x = fx; y = fy; }
 
-        // Explicitly cast to internal simulation type or unknown
         const sn: SimulationNode = { id: n.id, x, y, fx, fy, vx: 0, vy: 0, type: n.type };
         return sn;
     });
 
+    // Use our chain edges for the simulation structure
     const simulationEdges = getChronologicalEdges(model);
 
-    // Pass nodeDataMap to simulation for sector lookup
     runForceSimulation(simNodes, simulationEdges, 500, nodeDataMap);
 
     return model.nodes.map(n => {

@@ -166,23 +166,13 @@ export function GraphOverviewPage() {
 
         // Use Generated Backbone Edges for Network View
         if (activeTab === 'network') {
-            filteredEdges = getChronologicalEdges(model);
+            // Network view uses semantic edges (filtered if needed)
+            // But layoutNetwork uses the chain for physics.
+            // Let's show the semantic edges for visual clarity of relationships.
+            filteredEdges = model.edges;
         } else if (activeTab === 'chronological') {
-            // Chronological View Filter Policy:
-            // 1. Temporal: Always show (Timeline backbone)
-            // 2. Hierarchy: Show only backbone (Field -> Topic). Hide internal Topic->Section hierarchy if any, to reduce noise.
-            // 3. Mentions: Show Topic/Section -> Concept (Visualizing knowledge association)
-
-            filteredEdges = model.edges.filter(e => {
-                if (e.type === 'temporal') return true;
-                if (e.type === 'mentions') return true; // ✅ Topic/Section -> Concept
-                if (e.type === 'hierarchy') {
-                    const sourceNode = nodes.find(n => n.id === e.source);
-                    // Show backbone (Field->Topic) and structural children (Topic->Section) where applicable
-                    return sourceNode?.type === 'field' || sourceNode?.type === 'topic';
-                }
-                return false;
-            });
+            // Chronological View uses the backbone chain (Field -> Year 1 -> Year 2)
+            filteredEdges = getChronologicalEdges(model);
         }
 
         // Validity Check & Debugging for Dropouts
