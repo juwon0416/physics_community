@@ -350,10 +350,10 @@ export function TimelinePage() {
                     ) : (
                         <div
                             ref={containerRef}
-                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0 py-24" // Added py-24 to prevent clipping
+                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0 py-24"
                             style={{ scrollbarWidth: 'none' }}
                         >
-                            <div className="relative flex items-center gap-8 md:gap-12 min-w-full justify-center lg:justify-start lg:px-[50vw]">
+                            <div className="relative flex items-center gap-0 min-w-full justify-center lg:justify-start lg:px-[50vw]">
                                 {filteredTopics.map((topic, index) => {
                                     const isActive = index === activeIndex;
                                     return (
@@ -363,29 +363,30 @@ export function TimelinePage() {
                                             onClick={() => setActiveTopicId(topic.id)}
                                             className={`
                                                 flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
-                                                flex flex-col items-center gap-3 group select-none snap-center relative
+                                                flex flex-col items-center gap-4 group select-none snap-center relative
+                                                w-[140px] md:w-[220px] 
                                                 ${isActive ? 'z-10 opacity-100' : 'opacity-40 hover:opacity-80'}
                                             `}
                                         >
-                                            {/* Connector Line - Moved outside scaled container to maintain connection */}
+                                            {/* Connector Line - Spans centrally to the next node */}
                                             {index < filteredTopics.length - 1 && (
                                                 <div className={`
-                                                    absolute top-1/2 left-[50%] w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] h-0.5 -translate-y-full -z-10
+                                                    absolute top-6 md:top-8 left-1/2 w-full h-0.5 -translate-y-1/2 -z-10
                                                     ${isActive ? 'bg-foreground' : 'bg-foreground/20'}
                                                     transition-colors duration-500
                                                 `} />
                                             )}
 
                                             <div className={`
-                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background
                                                 ${isActive
-                                                    ? 'bg-foreground text-background border-foreground shadow-md scale-125' // Scale moved here
-                                                    : 'bg-background border-foreground/30 text-muted-foreground group-hover:border-foreground/60 scale-90'}
+                                                    ? 'text-background border-foreground shadow-md scale-125 bg-foreground'
+                                                    : 'border-foreground/30 text-muted-foreground group-hover:border-foreground/60 scale-90'}
                                             `}>
                                                 <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
                                             </div>
                                             <span className={`
-                                                text-[10px] md:text-xs font-medium max-w-[100px] md:max-w-[140px] text-center truncate px-2 transition-all duration-300
+                                                text-[10px] md:text-xs font-medium max-w-full text-center truncate px-2 transition-all duration-300
                                                 ${isActive ? 'text-foreground scale-110 font-bold' : 'text-muted-foreground scale-90'}
                                             `}>
                                                 {topic.title}
