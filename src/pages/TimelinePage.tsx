@@ -15,7 +15,6 @@ export function TimelinePage() {
     const isEditor = true;
 
     const [search, setSearch] = useState('');
-    const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
     const [topics, setTopics] = useState<Topic[]>([]);
@@ -30,16 +29,17 @@ export function TimelinePage() {
     const field = FIELDS.find(f => f.slug === fieldSlug);
 
     // Load Data
-    const loadTopics = async () => {
+    const loadTopics = React.useCallback(async () => {
         if (!field) return;
         const loaded = await storage.getTopics(field.id);
         setTopics(loaded);
         // setLoading(false);
-    };
+    }, [field]);
 
     useEffect(() => {
+        // eslint-disable-next-line
         loadTopics();
-    }, [fieldSlug]);
+    }, [loadTopics]);
 
     const isDictionaryMode = field?.slug === 'mathematical-physics';
 
@@ -58,25 +58,24 @@ export function TimelinePage() {
     }, [topics, search, isDictionaryMode]);
 
     // Active Topic Management
-    const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+    const [userSelectedTopicId, setUserSelectedTopicId] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (filteredTopics.length > 0 && !activeTopicId) {
-            setActiveTopicId(filteredTopics[0].id);
+    const activeTopic = useMemo(() => {
+        if (userSelectedTopicId) {
+            const found = filteredTopics.find(t => t.id === userSelectedTopicId);
+            if (found) return found;
         }
-    }, [filteredTopics, activeTopicId]);
+        return filteredTopics[0];
+    }, [filteredTopics, userSelectedTopicId]);
 
-    const activeTopic = useMemo(() =>
-        filteredTopics.find(t => t.id === activeTopicId) || filteredTopics[0],
-        [filteredTopics, activeTopicId]
-    );
-
-    useEffect(() => {
-        if (activeTopic) {
-            const index = filteredTopics.findIndex(t => t.id === activeTopic.id);
-            setActiveIndex(index >= 0 ? index : 0);
-        }
+    const activeIndex = useMemo(() => {
+        if (!activeTopic) return 0;
+        const index = filteredTopics.findIndex(t => t.id === activeTopic.id);
+        return index >= 0 ? index : 0;
     }, [activeTopic, filteredTopics]);
+
+    // Alias for compatibility with existing handlers
+    const setActiveTopicId = setUserSelectedTopicId;
 
     // Scroll Logic
     useEffect(() => {
@@ -325,7 +324,7 @@ export function TimelinePage() {
                         <div className="flex-1 overflow-y-auto min-h-0 pr-2">
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-12">
                                 {filteredTopics.map((topic) => {
-                                    const isActive = topic.id === activeTopicId;
+                                    const isActive = topic.id === activeTopic?.id;
                                     return (
                                         <div
                                             key={topic.id}

@@ -241,7 +241,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
                                     macros: PHYSICS_MACROS
                                 }]]}
                                 components={{
-                                    img: ({ node, ...props }) => (
+                                    img: ({ ...props }) => (
                                         <img {...props} className="rounded-lg border border-border/50 my-4 max-h-[500px] object-contain bg-black/20" />
                                     ),
                                     a: MarkdownLink

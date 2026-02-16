@@ -47,12 +47,16 @@ export function Badge({ className, variant = 'default', ...props }: BadgeProps) 
 }
 
 // BUTTON COMPONENT
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './Button';
 
 // INPUT COMPONENT
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './Input';
 
 // DIALOG COMPONENTS
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './Dialog';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './ImageUpload';

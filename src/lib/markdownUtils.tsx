@@ -5,6 +5,7 @@ import { conceptAPI } from './concepts';
  * Replaces [[Concept]] patterns with markdown links [Concept](/concept/Concept)
  * Handles multiline content safely.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function processConceptLinks(content: string | undefined | null): string {
     if (!content) return '';
     return content.replace(/\[\[([\s\S]*?)\]\]/g, (_, term) => {
@@ -18,7 +19,7 @@ export function processConceptLinks(content: string | undefined | null): string 
  * Custom renderer for markdown links to handle concept navigation.
  * Usage: <ReactMarkdown components={{ a: MarkdownLink }} ... />
  */
-export const MarkdownLink = ({ href, children, ...props }: any) => {
+export const MarkdownLink = ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
     const navigate = useNavigate();
 
     // Handle Concept Links

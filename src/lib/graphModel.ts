@@ -9,7 +9,7 @@ export interface GraphNode {
     color?: string;
     description?: string;
     slug?: string;
-    data?: any; // For flexible extra data (e.g. year)
+    data?: Record<string, unknown>; // For flexible extra data (e.g. year)
     x?: number; // Optional from DB
     y?: number;
 }
@@ -94,7 +94,7 @@ export const fetchGraphModel = async (): Promise<GraphModel> => {
     // Map DB nodes to GraphNode
     const dynamicNodes: GraphNode[] = (dbNodes || []).map(n => ({
         id: n.id,
-        type: n.type as any,
+        type: n.type as GraphNode['type'],
         label: n.label,
         x: n.x,
         y: n.y,

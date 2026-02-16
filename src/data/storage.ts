@@ -52,7 +52,8 @@ export const storage = {
             }
 
             return { data: data as Question, error: null };
-        } catch (e: any) {
+            return { data: data as Question, error: null };
+        } catch (e) {
             console.error("Exception saving question:", e);
             return { data: null, error: e instanceof Error ? e : new Error('Unknown error occurred') };
         }
@@ -68,7 +69,7 @@ export const storage = {
 
             if (error) return null;
             return data as TopicSection;
-        } catch (e) {
+        } catch {
             return null;
         }
     },
@@ -120,8 +121,8 @@ export const storage = {
             ).catch(console.error);
 
             return { data: data as TopicSection, error: null };
-        } catch (e: any) {
-            return { data: null, error: new Error(e.message) };
+        } catch (e) {
+            return { data: null, error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -146,7 +147,7 @@ export const storage = {
             }
 
             return { error: null };
-        } catch (e: any) {
+        } catch (e) {
             return { error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
@@ -160,7 +161,7 @@ export const storage = {
 
             if (error) return { error: new Error(error.message) };
             return { error: null };
-        } catch (e: any) {
+        } catch (e) {
             return { error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
@@ -203,7 +204,7 @@ export const storage = {
             } else {
                 return sortedTopics.sort((a, b) => parseInt(a.year || '0') - parseInt(b.year || '0'));
             }
-        } catch (e) {
+        } catch {
             // Fallback completely to seed
             const seed = SEED_TOPICS
                 .filter(t => t.fieldId === fieldId)
@@ -228,7 +229,7 @@ export const storage = {
         try {
             const { data } = await supabase.from('topics').select('*').eq('id', id).single();
             if (data) return data as Topic;
-        } catch { }
+        } catch { /* ignore */ }
 
         const seed = SEED_TOPICS.find(t => t.id === id);
         if (seed) {
@@ -249,7 +250,7 @@ export const storage = {
         try {
             const { data } = await supabase.from('topics').select('*').eq('slug', slug).single();
             if (data) return data as Topic;
-        } catch { }
+        } catch { /* ignore */ }
 
         const seed = SEED_TOPICS.find(t => t.slug === slug);
         if (seed) {
@@ -296,8 +297,8 @@ export const storage = {
             ).catch(console.error);
 
             return { data: data as Topic, error: null };
-        } catch (e: any) {
-            return { data: null, error: e };
+        } catch (e) {
+            return { data: null, error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -322,8 +323,8 @@ export const storage = {
             }
 
             return { error: null };
-        } catch (e: any) {
-            return { error: e };
+        } catch (e) {
+            return { error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -336,8 +337,8 @@ export const storage = {
 
             if (error) return { error: new Error(error.message) };
             return { error: null };
-        } catch (e: any) {
-            return { error: e };
+        } catch (e) {
+            return { error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -369,13 +370,13 @@ export const storage = {
                 .getPublicUrl(filePath);
 
             return { url: data.publicUrl, error: null };
-        } catch (e: any) {
+        } catch (e) {
             return { url: null, error: e instanceof Error ? e : new Error('Unknown upload error') };
         }
     },
 
     // Graph Data
-    getGraphData: async (): Promise<{ nodes: any[]; edges: any[]; error: Error | null }> => {
+    getGraphData: async (): Promise<{ nodes: Record<string, unknown>[]; edges: Record<string, unknown>[]; error: Error | null }> => {
         try {
             const { data: nodes, error: nError } = await supabase.from('graph_nodes').select('*');
             const { data: edges, error: eError } = await supabase.from('graph_edges').select('*');
@@ -384,8 +385,8 @@ export const storage = {
             if (eError) throw eError;
 
             return { nodes: nodes || [], edges: edges || [], error: null };
-        } catch (e: any) {
-            return { nodes: [], edges: [], error: e };
+        } catch (e) {
+            return { nodes: [], edges: [], error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -411,7 +412,7 @@ export const storage = {
         }
     },
 
-    saveGraphData: async (nodes: any[], edges: any[]): Promise<{ error: Error | null }> => {
+    saveGraphData: async (nodes: Record<string, unknown>[], edges: Record<string, unknown>[]): Promise<{ error: Error | null }> => {
         try {
             // Transaction-like: Delete all and insert all (Simplest for "Sync")
             // Note: Postgres RLS might block delete all if not admin.
@@ -428,8 +429,8 @@ export const storage = {
             if (i2) throw i2;
 
             return { error: null };
-        } catch (e: any) {
-            return { error: e };
+        } catch (e) {
+            return { error: e instanceof Error ? e : new Error('Unknown error') };
         }
     },
 
@@ -451,8 +452,8 @@ export const storage = {
 
             if (error) throw error;
             return { content: fullContent, error: null };
-        } catch (e: any) {
-            return { content: null, error: e };
+        } catch (e) {
+            return { content: null, error: e instanceof Error ? e : new Error('Unknown error') };
         }
     }
 };

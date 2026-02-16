@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Clock, MessageCircle, Send, Database, BookOpen, Layers, Edit2, Save } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -47,7 +47,7 @@ export function TopicPage() {
     useEffect(() => {
         if (!topicSlug) return;
         const load = async () => {
-            let data = await storage.getTopicBySlug(topicSlug);
+            const data = await storage.getTopicBySlug(topicSlug);
 
             // If DB miss, fallback to seed logic handled in storage, but we typically expect data.
             // If data exists, check content.
@@ -68,17 +68,18 @@ export function TopicPage() {
         load();
     }, [topicSlug]);
 
-    useEffect(() => {
-        if (topic) {
-            loadQuestions();
-        }
-    }, [topic?.id]);
-
-    const loadQuestions = async () => {
+    const loadQuestions = React.useCallback(async () => {
         if (!topic) return;
         const qData = await storage.getQuestions(topic.id);
         setQuestions(qData);
-    };
+    }, [topic]);
+
+    useEffect(() => {
+        if (topic) {
+            // eslint-disable-next-line
+            loadQuestions();
+        }
+    }, [topic, loadQuestions]);
 
     const handleMigrateFromSections = async () => {
         if (!topic) return;
@@ -161,7 +162,7 @@ export function TopicPage() {
     const processedContent = useMemo(() => {
         if (!topic?.content) return '';
         return processConceptLinks(topic.content);
-    }, [topic?.content]);
+    }, [topic]);
 
 
     if (!topic) {
@@ -284,16 +285,16 @@ export function TopicPage() {
                                     remarkPlugins={[remarkMath]}
                                     rehypePlugins={[[rehypeKatex, { macros: PHYSICS_MACROS }]]}
                                     components={{
-                                        img: ({ node, ...props }) => (
+                                        img: ({ ...props }) => (
                                             <figure className="my-8">
                                                 <img {...props} className="rounded-xl border border-border/50 w-full max-h-[500px] object-contain bg-black/5" />
                                                 {props.alt && <figcaption className="text-center text-sm text-muted-foreground mt-2 font-sans">{props.alt}</figcaption>}
                                             </figure>
                                         ),
-                                        h1: ({ node, ...props }) => <h3 className="text-2xl font-bold mt-8 mb-4" {...props} />,
-                                        h2: ({ node, ...props }) => <h4 className="text-xl font-bold mt-6 mb-3" {...props} />,
-                                        p: ({ node, ...props }) => <p className="mb-6 whitespace-pre-wrap" {...props} />,
-                                        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#c15b4d]/50 pl-6 italic my-8 text-muted-foreground bg-muted/10 p-4 rounded-r-lg" {...props} />,
+                                        h1: ({ ...props }) => <h3 className="text-2xl font-bold mt-8 mb-4" {...props} />,
+                                        h2: ({ ...props }) => <h4 className="text-xl font-bold mt-6 mb-3" {...props} />,
+                                        p: ({ ...props }) => <p className="mb-6 whitespace-pre-wrap" {...props} />,
+                                        blockquote: ({ ...props }) => <blockquote className="border-l-4 border-[#c15b4d]/50 pl-6 italic my-8 text-muted-foreground bg-muted/10 p-4 rounded-r-lg" {...props} />,
                                         a: MarkdownLink
                                     }}
                                 >

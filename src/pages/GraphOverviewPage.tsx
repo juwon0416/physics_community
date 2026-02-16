@@ -533,9 +533,9 @@ export function GraphOverviewPage() {
                                                     if (node.slug) navigate(`/topic/${node.slug}`);
                                                 }}
                                             >
-                                                {!isRoot && !isField && node.data?.year && (
+                                                {!isRoot && !isField && (node.data as any)?.year && (
                                                     <div className="absolute top-0.5 right-1.5 text-[8px] font-mono opacity-60 text-[var(--muted)]">
-                                                        {node.data.year}
+                                                        {(node.data as any).year}
                                                     </div>
                                                 )}
 
@@ -578,7 +578,7 @@ export function GraphOverviewPage() {
                                     'electrodynamics': '#e8c18d', // Muted Yellow
                                     'mathematical-physics': '#b8b3d6' // Muted Purple
                                 };
-                                fill = colorMap[node.data?.fieldId] || '#eaddcf';
+                                fill = colorMap[(node.data as any)?.fieldId as string] || '#eaddcf';
                                 fontSize = 14;
                                 fontWeight = "600";
                                 textYOffset = 20;

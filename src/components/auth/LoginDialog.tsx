@@ -32,9 +32,9 @@ export function LoginDialog() {
                 if (error) throw error;
             }
             setIsOpen(false);
-        } catch (err: any) {
+        } catch (err) {
             // Aggressively mask "Email" related errors to hide implementation details from user
-            let errorMessage = err.message;
+            let errorMessage = (err as Error).message || 'Unknown error';
             if (errorMessage.toLowerCase().includes('email') || errorMessage.includes('@')) {
                 errorMessage = "Unable to verify ID. Please try a different ID.";
             } else if (errorMessage === 'Invalid login credentials') {

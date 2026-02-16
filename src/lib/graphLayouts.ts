@@ -56,10 +56,10 @@ export const layoutChronological = (model: GraphModel, width: number = 2000): Po
                 y = fieldIndex * LANE_HEIGHT;
             }
         } else if (node.type === 'topic') {
-            const fieldId = node.data?.fieldId;
+            const fieldId = node.data?.fieldId as string;
             const fieldIndex = FIELD_ORDER.indexOf(fieldId);
             const laneY = fieldIndex !== -1 ? fieldIndex * LANE_HEIGHT : 0;
-            const year = node.data?.year;
+            const year = node.data?.year as number;
             if (year) {
                 x = TIMELINE_X0 + (year - MIN_YEAR) * PX_PER_YEAR;
                 const key = `${fieldId}-${year}`;
@@ -111,7 +111,7 @@ export const runForceSimulation = (
     nodes: SimulationNode[],
     edges: { source: string; target: string; type?: string }[],
     iterations: number = 300,
-    nodeDataMap: Map<string, any>
+    nodeDataMap: Map<string, unknown>
 ): SimulationNode[] => {
 
     // Initialize velocities
@@ -155,7 +155,7 @@ export const runForceSimulation = (
             // Shorten implicit chains
             if (edge.type === 'run' || edge.type === 'hierarchy') length = 50;
 
-            let strength = PHYSICS.SPRING_STRENGTH;
+            const strength = PHYSICS.SPRING_STRENGTH;
 
             const force = (dist - length) * strength;
             const fx = (dx / dist) * force;
@@ -170,7 +170,7 @@ export const runForceSimulation = (
             if (node.fx !== undefined) return;
 
             // Identify Sector
-            const data = nodeDataMap.get(node.id);
+            const data = nodeDataMap.get(node.id) as { fieldId?: string } | undefined;
             let targetAngle: number | undefined;
 
             if (node.type === 'field') {
@@ -248,13 +248,13 @@ export const getChronologicalEdges = (model: GraphModel) => {
     const topics = model.nodes.filter(n => n.type === 'topic' && n.data?.fieldId && n.data?.year);
     const topicsByField: Record<string, typeof topics> = {};
     topics.forEach(t => {
-        const fid = t.data!.fieldId!;
+        const fid = t.data!.fieldId as string;
         if (!topicsByField[fid]) topicsByField[fid] = [];
         topicsByField[fid].push(t);
     });
 
     Object.entries(topicsByField).forEach(([fieldId, fieldTopics]) => {
-        fieldTopics.sort((a, b) => parseInt(a.data!.year!) - parseInt(b.data!.year!));
+        fieldTopics.sort((a, b) => parseInt(a.data!.year as string) - parseInt(b.data!.year as string));
         if (fieldTopics.length > 0) {
             chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'hierarchy' });
         }
@@ -285,7 +285,7 @@ export const layoutNetwork = (
             let angle = Math.random() * Math.PI * 2;
             let radius = 200 + Math.random() * 200;
 
-            const fieldId = n.data?.fieldId;
+            const fieldId = n.data?.fieldId as string;
             if (n.type === 'field' && FIELD_ANGLES[n.id] !== undefined) {
                 angle = FIELD_ANGLES[n.id];
                 radius = 300;
@@ -295,7 +295,7 @@ export const layoutNetwork = (
                 angle = FIELD_ANGLES[fieldId];
                 if (n.type === 'topic') {
                     // Spread topics out along the ray
-                    const year = parseInt(n.data?.year || '1900');
+                    const year = parseInt((n.data?.year as string) || '1900');
                     const offset = (year - 1600) / 400; // 0..1
                     radius = 350 + offset * 600;
                 } else {
@@ -313,8 +313,8 @@ export const layoutNetwork = (
         if (fx === undefined && prev) { x = prev.x; y = prev.y; }
         if (fx !== undefined && fy !== undefined) { x = fx; y = fy; }
 
-        const sn: any = { id: n.id, x, y, fx, fy, vx: 0, vy: 0 };
-        sn.type = n.type;
+        // Explicitly cast to internal simulation type or unknown
+        const sn: SimulationNode = { id: n.id, x, y, fx, fy, vx: 0, vy: 0, type: n.type };
         return sn;
     });
 

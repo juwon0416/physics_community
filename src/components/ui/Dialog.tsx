@@ -14,17 +14,17 @@ export const Dialog = ({ open, onOpenChange, children }: { open: boolean; onOpen
     );
 };
 
-export const DialogTrigger = ({ asChild, children, ...props }: any) => {
+export const DialogTrigger = ({ asChild, children, ...props }: React.ComponentPropsWithoutRef<"button"> & { asChild?: boolean }) => {
     const context = React.useContext(DialogContext);
     if (!context) throw new Error("DialogTrigger must be used within Dialog");
 
     // If asChild is true, we should clone the child and add onClick. 
     // Simplified: just wrap in a clone or div.
     if (asChild && React.isValidElement(children)) {
-        return React.cloneElement(children as React.ReactElement<any>, {
-            onClick: (e: any) => {
+        return React.cloneElement(children as React.ReactElement, {
+            onClick: (e: React.MouseEvent) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (children.props as any).onClick?.(e);
+                (children as any).props.onClick?.(e);
                 context.onOpenChange(true);
             },
             ...props
@@ -71,6 +71,7 @@ export const DialogContent = ({ className, children, ...props }: React.HTMLAttri
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
                             className="w-full"
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             {...props as any}
                         >
                             {children}
