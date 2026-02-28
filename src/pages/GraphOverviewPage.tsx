@@ -168,12 +168,11 @@ export function GraphOverviewPage() {
         // 2. Filter Edges to match Active Nodes (Fixes "Dropped Edge" warnings)
         const activeNodeIds = new Set(activeNodes.map(n => n.id));
 
-        // If we are looking at a specific Subgraph Field, we want a strict Chronological chain (A -> B -> C)
-        // instead of a messy Star graph (Field -> A, Field -> B) which is created by 'hierarchy' links.
+        // Instead of star-burst layouts, we want all 3D Network graphs to snake chronologically.
         let activeEdges = model.edges.filter(e => activeNodeIds.has(e.source) && activeNodeIds.has(e.target));
 
-        if (activeFieldFilter !== 'all' && activeTab === 'network') {
-            // Force strict chronological backbone for the specific filtered field
+        if (activeTab === 'network') {
+            // Force strict chronological backbone for BOTH all fields and individual subgraphs
             activeEdges = getChronologicalEdges({ nodes: activeNodes, edges: activeEdges });
         }
 

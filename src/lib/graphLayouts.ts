@@ -333,8 +333,8 @@ export const getChronologicalEdges = (model: GraphModel) => {
         });
 
         if (fieldTopics.length > 0) {
-            // Connect Field to First Topic
-            chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'hierarchy' });
+            // Connect Field to First Topic (using 'temporal' so it survives subgraph filtering)
+            chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'temporal' });
         }
 
         // Connect Topic i to Topic i+1
