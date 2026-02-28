@@ -418,12 +418,11 @@ export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: Posit
     // 1. Core anchors constraints: 
     // root at (0,0,0)
     // 4 fields form a bounding tetrahedron.
-    // Mathematical vertices for a tetrahedron inscribed in a sphere of radius R:
     // v1 = ( R,  R,  R)
     // v2 = ( R, -R, -R)
     // v3 = (-R,  R, -R)
     // v4 = (-R, -R,  R)
-    const R = 60; // Reduced distance to keep field nodes closer to the central physics root
+    const R = 300; // Large distance to keep field branches physically separated and prevent intertwining
 
     const nodes3D: PositionedNode3D[] = model.nodes.map(n => {
         const node3D: PositionedNode3D = { ...n, x: 0, y: 0, z: 0 };

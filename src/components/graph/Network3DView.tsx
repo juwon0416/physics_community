@@ -50,7 +50,7 @@ export default function Network3DView({ model }: Network3DViewProps) {
                 if (link.type === 'temporal') return 0.05;
                 return 1;
             });
-            fg.d3Force('charge')?.strength(-40); // Less repulsion for tighter clusters
+            fg.d3Force('charge')?.strength(-150); // High repulsion to keep chronological chains physically separated from each other
         }
     }, [nodes, links]);
 

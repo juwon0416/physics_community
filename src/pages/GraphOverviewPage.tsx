@@ -99,70 +99,60 @@ export function GraphOverviewPage() {
             }
         });
 
-        const keptNonConcepts = new Set<string>();
+        // 1. Identify core nodes of the active subgraph
+        const coreFieldNodeIds = new Set<string>();
+        if (activeFieldFilter !== 'all') {
+            coreFieldNodeIds.add(activeFieldFilter);
+            model.nodes.forEach(n => {
+                if (n.data?.fieldId === activeFieldFilter) {
+                    coreFieldNodeIds.add(n.id);
+                }
+            });
+        }
 
-        // Pass 1: Filter and establish core Field & Topic structure
+        // 2. Identify all nodes directly connected to the core
+        const linkedToCoreIds = new Set<string>();
+        if (activeFieldFilter !== 'all') {
+            model.edges.forEach(e => {
+                if (coreFieldNodeIds.has(e.source)) linkedToCoreIds.add(e.target);
+                if (coreFieldNodeIds.has(e.target)) linkedToCoreIds.add(e.source);
+            });
+        }
+
         activeNodes = activeNodes.filter(n => {
-            // RULE: The Mathematical Physics main field node itself is NEVER shown in any view.
-            if (n.id === 'mathematical-physics') {
-                return false;
-            }
+            // RULE 1: Never show mathematical-physics main node
+            if (n.id === 'mathematical-physics') return false;
 
-            // RULE: For child topics of Mathematical Physics, only show in Network View IF explicitly mentioned.
-            if (n.data?.fieldId === 'mathematical-physics') {
-                if (activeTab === 'chronological') return false;
-                const keep = mentionsIds.has(n.id);
-                if (keep) keptNonConcepts.add(n.id);
-                return keep;
-            }
-
-            // KEEP concepts alive in Pass 1, we decide on them in Pass 2
-            if (n.type === 'concept') {
-                return true;
-            }
-
-            // Field Filter Logic
             if (activeFieldFilter !== 'all') {
-                // DROP root so the graph is completely isolated to the field
+                // In Subgraph view:
                 if (n.id === 'root') return false;
 
-                // Keep the selected Field node itself
-                if (n.id === activeFieldFilter) {
-                    keptNonConcepts.add(n.id);
+                // Keep if it's a core node (topic or field) of the current subgraph
+                if (coreFieldNodeIds.has(n.id)) return true;
+
+                // Keep Concepts OR Mathematical-Physics topics ONLY if directly connected to the core subgraph
+                const isConcept = n.type === 'concept';
+                const isMathPhysicsTopic = n.data?.fieldId === 'mathematical-physics';
+
+                if ((isConcept || isMathPhysicsTopic) && linkedToCoreIds.has(n.id)) {
                     return true;
                 }
 
-                // Keep children of the selected field
-                if (n.data?.fieldId === activeFieldFilter) {
-                    keptNonConcepts.add(n.id);
-                    return true;
-                }
-
-                // If it doesn't match the active field tree, toss it out
+                // Discard everything else (topics from other fields, unconnected concepts, etc)
                 return false;
-            }
-
-            keptNonConcepts.add(n.id);
-            return true; // Always show other Topics/Fields regardless of connection
-        });
-
-        // Pass 2: Filter concepts strictly based on whether they attach to a Kept node
-        activeNodes = activeNodes.filter(n => {
-            if (n.type === 'concept') {
-                // Must be connected at all
-                if (!connectedIds.has(n.id)) return false;
-
-                // Must be connected to THIS specific subgraph's nodes
-                if (activeFieldFilter !== 'all') {
-                    // Check if there is ANY edge connecting this concept to a kept non-concept topic/field
-                    const isLinkedToField = model.edges.some(e =>
-                        (e.source === n.id && keptNonConcepts.has(e.target)) ||
-                        (e.target === n.id && keptNonConcepts.has(e.source))
-                    );
-                    return isLinkedToField;
+            } else {
+                // In All Fields view:
+                // Math physics topics must be explicitly mentioned to be visible
+                if (n.data?.fieldId === 'mathematical-physics') {
+                    if (activeTab === 'chronological') return false;
+                    return mentionsIds.has(n.id);
                 }
+
+                // Concepts must be connected to ANY node to be visible
+                if (n.type === 'concept') return connectedIds.has(n.id);
+
+                return true; // Keep everything else (Root, Fields, generic Topics)
             }
-            return true;
         });
 
         // 2. Filter Edges to match Active Nodes (Fixes "Dropped Edge" warnings)
