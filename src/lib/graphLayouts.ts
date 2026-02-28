@@ -422,7 +422,7 @@ export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: Posit
     // v2 = ( R, -R, -R)
     // v3 = (-R,  R, -R)
     // v4 = (-R, -R,  R)
-    const R = 300; // Large distance to keep field branches physically separated and prevent intertwining
+    const R = 180; // Balanced distance to keep field branches physically separated without being too far from the physics root
 
     const nodes3D: PositionedNode3D[] = model.nodes.map(n => {
         const node3D: PositionedNode3D = { ...n, x: 0, y: 0, z: 0 };
