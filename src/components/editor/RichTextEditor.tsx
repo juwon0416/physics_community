@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
 import { PHYSICS_MACROS } from '../../lib/latexMacros';
 import { processConceptLinks, MarkdownLink } from '../../lib/markdownUtils';
+import { FIELDS, TIMELINE_TOPICS } from '../../data/seed';
 
 interface RichTextEditorProps {
     value: string;
@@ -56,6 +57,9 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
     const [conceptDesc, setConceptDesc] = useState('');
     const [isCreatingConcept, setIsCreatingConcept] = useState(false);
     const [conceptStatus, setConceptStatus] = useState<'idle' | 'checking' | 'exists' | 'new'>('idle');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [expandedFolders, setExpandedFolders] = useState<string[]>([]); // Track which accordion open
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Macros Menu State
     const [showMacroDialog, setShowMacroDialog] = useState(false);
@@ -98,49 +102,73 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
         setConceptDesc('');
         setConceptStatus('idle');
         setShowConceptDialog(true);
+        setSearchResults([]);
 
-        if (selection) {
-            checkConcept(selection);
-        }
+        // Auto-search if text was highlighted, or fetch latest overall
+        checkConcept(selection || '');
     };
 
-    const checkConcept = async (term: string) => {
-        if (!term) return;
+    const checkConcept = async (query: string) => {
         setConceptStatus('checking');
+
         try {
-            const existing = await conceptAPI.getByLabel(term);
-            setConceptStatus(existing?.data ? 'exists' : 'new');
-            if (existing?.data?.description) {
-                setConceptDesc(existing.data.description);
+            // Get search suggestions list
+            const results = await conceptAPI.search(query || '');
+            setSearchResults(results || []);
+
+            if (query.trim() === '') {
+                setConceptStatus('idle');
+                return;
+            }
+
+            // Check if exact match exists for the specific query
+            const exactMatch = results.find(r => r.label.toLowerCase() === query.trim().toLowerCase());
+
+            if (exactMatch) {
+                setConceptStatus('exists');
+                if (exactMatch.data?.description) setConceptDesc(exactMatch.data.description);
+            } else {
+                setConceptStatus('new');
+                setConceptDesc('');
             }
         } catch (e) {
             console.error(e);
             setConceptStatus('new');
+            setSearchResults([]);
         }
+    };
+
+    const toggleFolder = (folderId: string) => {
+        setExpandedFolders(prev =>
+            prev.includes(folderId) ? prev.filter(id => id !== folderId) : [...prev, folderId]
+        );
+    };
+
+    const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setConceptTerm(val);
+
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+        searchTimeoutRef.current = setTimeout(() => {
+            checkConcept(val);
+        }, 300);
+    };
+
+    const handleInsertLink = (label: string) => {
+        insertText(`[[${label}]]`);
+        setShowConceptDialog(false);
     };
 
     const handleCreateConcept = async () => {
         if (!conceptTerm) return;
         setIsCreatingConcept(true);
         try {
-            let conceptId = '';
-
             if (conceptStatus === 'new') {
                 const newC = await conceptAPI.create(conceptTerm, conceptDesc);
-                if (newC) conceptId = newC.id;
-            } else {
-                // Existing
-                const existing = await conceptAPI.getByLabel(conceptTerm);
-                if (existing) conceptId = existing.id;
+                if (newC && onConceptLinked) onConceptLinked(newC.id);
             }
-
-            if (conceptId && onConceptLinked) {
-                onConceptLinked(conceptId);
-            }
-
-            // Just insert the link
-            insertText(`[[${conceptTerm}]]`);
-            setShowConceptDialog(false);
+            handleInsertLink(conceptTerm);
         } catch (e) {
             alert('Failed to create/link concept');
             console.error(e);
@@ -300,52 +328,155 @@ export function RichTextEditor({ value, onChange, placeholder, className, onConc
 
             {/* Concept Dialog */}
             <Dialog open={showConceptDialog} onOpenChange={setShowConceptDialog}>
-                <DialogContent>
+                <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
                     <DialogHeader>
-                        <DialogTitle>Link Concept / Keyword</DialogTitle>
+                        <DialogTitle>Insert Link / Concept</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Keyword Term</label>
+                    <div className="flex flex-col gap-4 py-4 overflow-hidden h-full">
+                        <div className="space-y-2 shrink-0">
                             <Input
                                 value={conceptTerm}
-                                onChange={(e) => {
-                                    setConceptTerm(e.target.value);
-                                    if (conceptStatus !== 'idle') setConceptStatus('idle');
-                                }}
-                                onBlur={() => checkConcept(conceptTerm)}
-                                placeholder="e.g., Quantum Entanglement"
+                                onChange={handleSearchInput}
+                                placeholder="Search existing topics/concepts..."
+                                autoFocus
                             />
                         </div>
 
-                        {conceptStatus === 'checking' && <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> Checking database...</div>}
+                        {conceptStatus === 'checking' && <div className="text-sm text-muted-foreground flex items-center gap-2 shrink-0"><Loader2 className="w-3 h-3 animate-spin" /> Searching database...</div>}
 
-                        {conceptStatus === 'exists' && (
-                            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded text-sm text-green-600">
-                                <span className="font-semibold block mb-1">Concept Found!</span>
-                                {conceptDesc ? conceptDesc : "No description available."}
-                            </div>
-                        )}
+                        {/* DB Results & Folder Tree Hybrid View */}
+                        <div className="flex-1 overflow-y-auto space-y-2 pr-2 border border-border/50 rounded-md p-2 bg-secondary/10">
 
-                        {conceptStatus === 'new' && (
-                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Description (New Concept)</label>
+                            {/* If actively searching, show flat DB results */}
+                            {conceptTerm.trim() !== '' ? (
+                                <>
+                                    {searchResults.length === 0 && conceptStatus !== 'checking' && (
+                                        <p className="text-sm text-center text-muted-foreground py-4">No exact matches found.</p>
+                                    )}
+                                    {searchResults.map((res) => (
+                                        <button
+                                            key={res.id}
+                                            onClick={() => handleInsertLink(res.label)}
+                                            className="w-full text-left p-2 rounded-md hover:bg-secondary border border-transparent hover:border-border/50 transition-colors flex flex-col"
+                                        >
+                                            <span className="font-semibold text-sm">{res.label}</span>
+                                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{res.type}</span>
+                                        </button>
+                                    ))}
+                                </>
+                            ) : (
+                                /* Folder View (Empty Search Input) */
+                                <div className="space-y-1 select-none">
+                                    {FIELDS.map(field => {
+                                        const isExpanded = expandedFolders.includes(field.id);
+                                        // Merge seeded topics with dynamic DB topics for this field
+                                        const seededTopics = TIMELINE_TOPICS.filter(t => t.fieldId === field.id).map(t => ({ id: t.id, label: t.title, type: 'topic' }));
+                                        const dbTopics = searchResults.filter(r => r.type === 'topic' && r.data?.fieldId === field.id);
+
+                                        // Deduplicate
+                                        const mergedTopics = [...seededTopics];
+                                        dbTopics.forEach(dt => {
+                                            if (!mergedTopics.some(mt => mt.label === dt.label)) mergedTopics.push(dt);
+                                        });
+
+                                        return (
+                                            <div key={field.id} className="border border-border/30 rounded-md overflow-hidden bg-background">
+                                                <button
+                                                    onClick={() => toggleFolder(field.id)}
+                                                    className="w-full flex items-center justify-between p-2.5 hover:bg-secondary/50 text-left transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium">{field.name}</span>
+                                                        <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">{mergedTopics.length} File(s)</span>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground">{isExpanded ? '▼' : '▶'}</span>
+                                                </button>
+
+                                                {isExpanded && (
+                                                    <div className="p-1 bg-secondary/10 border-t border-border/30">
+                                                        {mergedTopics.length === 0 ? (
+                                                            <div className="p-2 text-xs text-muted-foreground italic pl-6">- Empty folder -</div>
+                                                        ) : (
+                                                            mergedTopics.map(topic => (
+                                                                <button
+                                                                    key={topic.id}
+                                                                    onClick={() => handleInsertLink(topic.label)}
+                                                                    className="w-full text-left p-2 pl-6 rounded-md hover:bg-secondary hover:text-primary transition-colors flex items-center gap-2"
+                                                                >
+                                                                    <div className="w-1 h-1 rounded-full bg-border" />
+                                                                    <span className="text-sm">{topic.label}</span>
+                                                                </button>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+
+                                    {/* Other Concepts Folder */}
+                                    {(() => {
+                                        const conceptsOnly = searchResults.filter(r => r.type === 'concept');
+                                        const isExpanded = expandedFolders.includes('other-concepts');
+
+                                        return (
+                                            <div className="border border-border/30 rounded-md overflow-hidden bg-background mt-2">
+                                                <button
+                                                    onClick={() => toggleFolder('other-concepts')}
+                                                    className="w-full flex items-center justify-between p-2.5 hover:bg-secondary/50 text-left transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium">Other References</span>
+                                                        <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">{conceptsOnly.length} Concept(s)</span>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground">{isExpanded ? '▼' : '▶'}</span>
+                                                </button>
+                                                {isExpanded && (
+                                                    <div className="p-1 bg-secondary/10 border-t border-border/30">
+                                                        {conceptsOnly.length === 0 ? (
+                                                            <div className="p-2 text-xs text-muted-foreground italic pl-6">- No miscellaneous concepts -</div>
+                                                        ) : (
+                                                            conceptsOnly.map(concept => (
+                                                                <button
+                                                                    key={concept.id}
+                                                                    onClick={() => handleInsertLink(concept.label)}
+                                                                    className="w-full text-left p-2 pl-6 rounded-md hover:bg-secondary hover:text-primary transition-colors flex items-center gap-2"
+                                                                >
+                                                                    <div className="w-1 h-1 rounded-full bg-border" />
+                                                                    <span className="text-sm text-muted-foreground">{concept.label}</span>
+                                                                </button>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+
+                        {conceptStatus === 'new' && conceptTerm.trim().length > 0 && (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 shrink-0 border-t border-border/50 pt-4 mt-2">
+                                <label className="text-sm font-medium leading-none text-primary">Create New Concept: "{conceptTerm}"</label>
                                 <textarea
-                                    className="w-full min-h-[100px] p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
-                                    placeholder="Enter a brief description for this concept..."
+                                    className="w-full min-h-[60px] p-2 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                                    placeholder="Brief description (optional)..."
                                     value={conceptDesc}
                                     onChange={(e) => setConceptDesc(e.target.value)}
                                 />
-                                <p className="text-xs text-muted-foreground">This will create a new node in the Graph DB.</p>
+                                <Button className="w-full" onClick={handleCreateConcept} disabled={isCreatingConcept}>
+                                    {isCreatingConcept ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                    Create & Insert Link
+                                </Button>
                             </div>
                         )}
 
-                        <div className="flex justify-end pt-2">
-                            <Button onClick={handleCreateConcept} disabled={!conceptTerm || isCreatingConcept || conceptStatus === 'checking'}>
-                                {isCreatingConcept ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                {conceptStatus === 'new' ? 'Create & Link' : 'Insert Link'}
-                            </Button>
-                        </div>
+                        {conceptStatus !== 'new' && (
+                            <div className="flex justify-end pt-2 shrink-0 border-t border-border/50 mt-2">
+                                <Button variant="secondary" onClick={() => setShowConceptDialog(false)}>Cancel</Button>
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>

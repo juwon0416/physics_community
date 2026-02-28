@@ -9,7 +9,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase URL or Key is missing. Check your .env file.');
 }
 
+// Create a custom fetch that aborts after a timeout
+function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(input, { ...init, signal: controller.signal }).finally(() =>
+        clearTimeout(id)
+    );
+}
+
 export const supabase = createClient(
     supabaseUrl || 'https://placeholder.supabase.co',
-    supabaseAnonKey || 'placeholder-key'
+    supabaseAnonKey || 'placeholder-key',
+    {
+        global: {
+            fetch: (input, init) => fetchWithTimeout(input, init, 8000),
+        },
+    }
 );

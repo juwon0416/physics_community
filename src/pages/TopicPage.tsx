@@ -195,31 +195,31 @@ export function TopicPage() {
         <div className="container px-4 py-8 max-w-screen-xl mx-auto">
             {/* View Mode Toggle (Bookmark Style) */}
             {!isEditing && (
-                <div className="sticky top-20 z-30 flex justify-end md:justify-start mb-[-40px] md:mb-0 pointer-events-none">
-                    <div className="pointer-events-auto bg-background/95 backdrop-blur shadow-lg border border-border/50 rounded-b-xl px-4 py-3 flex gap-2 items-center transform -translate-y-4 hover:translate-y-0 transition-transform duration-300">
-                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-2">Mode</span>
+                <div className="sticky top-[80px] z-30 flex justify-end md:justify-start -mb-6 md:mb-0 pointer-events-none">
+                    <div className="pointer-events-auto bg-background/95 backdrop-blur shadow-lg border border-border/50 rounded-b-xl px-3 py-2 md:px-4 md:py-3 flex gap-1 md:gap-2 items-center transform -translate-y-2 md:-translate-y-4 hover:translate-y-0 transition-transform duration-300">
+                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1 md:mr-2">Mode</span>
                         <Button
                             size="sm"
                             variant={viewMode === 'light' ? 'default' : 'ghost'}
                             onClick={() => setViewMode('light')}
-                            className={viewMode === 'light' ? "bg-[#c15b4d] text-white hover:bg-[#a94b3e]" : ""}
+                            className={viewMode === 'light' ? "bg-[#c15b4d] text-white hover:bg-[#a94b3e] h-8 text-xs md:text-sm md:h-9" : "h-8 text-xs md:text-sm md:h-9"}
                         >
-                            <BookOpen className="w-4 h-4 mr-2" /> Light
+                            <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" /> Light
                         </Button>
                         <Button
                             size="sm"
                             variant={viewMode === 'detailed' ? 'default' : 'ghost'}
                             onClick={() => setViewMode('detailed')}
-                            className={viewMode === 'detailed' ? "bg-[#1f1b1f] text-white hover:bg-black" : ""}
+                            className={viewMode === 'detailed' ? "bg-[#1f1b1f] text-white hover:bg-black h-8 text-xs md:text-sm md:h-9" : "h-8 text-xs md:text-sm md:h-9"}
                         >
-                            <Layers className="w-4 h-4 mr-2" /> Detailed
+                            <Layers className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" /> Detailed
                         </Button>
                     </div>
                 </div>
             )}
 
             {/* Hero */}
-            <div className="mb-12 pt-12 space-y-4 border-b border-border/50 pb-8 relative">
+            <div className="mb-8 pt-6 md:mb-12 md:pt-12 space-y-3 md:space-y-4 border-b border-border/50 pb-6 md:pb-8 relative">
                 <div className="flex items-center gap-2">
                     <Badge variant="outline" className={`text-${field?.color ? 'primary' : 'foreground'}`}>
                         {field?.name || 'Physics'}
@@ -227,13 +227,13 @@ export function TopicPage() {
                     <span className="text-muted-foreground">•</span>
                     <Badge variant="secondary">{topic.year}</Badge>
                 </div>
-                <h1 className="text-4xl md:text-6xl font-display font-bold">{topic.title}</h1>
-                <div className="flex justify-between items-start">
-                    <p className="text-xl text-muted-foreground max-w-3xl font-serif leading-relaxed">{topic.summary}</p>
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-bold leading-tight">{topic.title}</h1>
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                    <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl font-serif leading-relaxed">{topic.summary}</p>
 
                     {/* Admin Controls */}
                     {isEditor && !isEditing && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
                             <Button variant="outline" size="sm" onClick={handleMigrateFromSections} disabled={isMigrating}>
                                 <Database className="w-4 h-4 mr-2" />
                                 {isMigrating ? 'Migrating...' : 'Migrate Sections'}
@@ -266,9 +266,9 @@ export function TopicPage() {
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-[1fr_300px] gap-12">
+            <div className="flex flex-col lg:grid lg:grid-cols-[1fr_250px] gap-8 md:gap-12">
                 {/* Main Content */}
-                <div className="space-y-16">
+                <div className="space-y-12 md:space-y-16">
                     {isEditing ? (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <div className="bg-secondary/10 p-4 rounded-lg mb-4 border border-border/50">
@@ -290,7 +290,7 @@ export function TopicPage() {
                             </div>
                         </div>
                     ) : (
-                        <article className="prose prose-lg prose-invert max-w-none text-foreground/90 font-serif leading-loose">
+                        <article className="prose prose-base sm:prose-lg prose-invert max-w-none text-foreground/90 font-serif leading-loose break-words">
                             {(!topic.content || topic.content.trim() === '') ? (
                                 <div className="py-12 text-center text-muted-foreground bg-secondary/10 rounded-xl border border-dashed border-border/50">
                                     <p>No content yet.</p>
@@ -327,19 +327,19 @@ export function TopicPage() {
                     {/* Related Topics / Context */}
                     {topic && (
                         <div className="pt-8 border-t border-border/50">
-                            <h3 className="text-xl font-bold font-display mb-4">Related Topics in {field?.name}</h3>
-                            <div className="flex flex-wrap gap-4">
+                            <h3 className="text-lg md:text-xl font-bold font-display mb-4">Related Topics in {field?.name}</h3>
+                            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-4">
                                 {TIMELINE_TOPICS
                                     .filter(t => t.fieldId === topic.field_id && t.id !== topic.id)
-                                    // Simple logic: same field, limit to 3 prev/next
+                                    // Simple logic: same field, limit to 4 prev/next
                                     .sort((a, b) => Math.abs(parseInt(a.year) - parseInt(topic.year)) - Math.abs(parseInt(b.year) - parseInt(topic.year)))
                                     .slice(0, 4)
                                     .map(rel => (
                                         <a key={rel.id} href={`/topic/${rel.slug}`} className="block group">
-                                            <Card className="w-[200px] h-full hover:border-primary/50 transition-colors bg-secondary/5">
-                                                <CardContent className="p-4 space-y-2">
-                                                    <Badge variant="outline" className="text-xs">{rel.year}</Badge>
-                                                    <h4 className="font-bold text-sm leading-tight group-hover:text-primary transition-colors">{rel.title}</h4>
+                                            <Card className="w-full md:w-[200px] h-full hover:border-primary/50 transition-colors bg-secondary/5">
+                                                <CardContent className="p-3 md:p-4 space-y-1.5 md:space-y-2">
+                                                    <Badge variant="outline" className="text-[10px] md:text-xs">{rel.year}</Badge>
+                                                    <h4 className="font-bold text-xs md:text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2 md:line-clamp-none">{rel.title}</h4>
                                                 </CardContent>
                                             </Card>
                                         </a>

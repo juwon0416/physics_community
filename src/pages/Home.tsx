@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Atom, BarChart3, ArrowRight, Zap } from 'lucide-react';
+import { Atom, BarChart3, Zap } from 'lucide-react';
 import { FIELDS } from '../data/seed';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui';
+import { Card, CardTitle } from '../components/ui';
 
 // Custom Motion Trail Icon for Classical Mechanics
 const MotionBallIcon = ({ className }: { className?: string }) => (
@@ -23,49 +23,43 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function Home() {
     return (
-        <div className="container px-4 py-12 max-w-screen-2xl mx-auto relative z-10">
-            <div className="mb-16 text-center space-y-6">
+        <div className="container px-4 py-12 max-w-screen-2xl mx-auto relative z-10 flex flex-col items-center">
+
+            <div className="text-center space-y-4 mb-16 relative z-10">
                 <h1 className="text-5xl font-display font-bold tracking-tight md:text-7xl text-foreground">
                     Explore the Universe
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-serif italic">
                     "The eternal mystery of the world is its comprehensibility."
                 </p>
-                <div className="w-24 h-1 bg-foreground mx-auto mt-8 opacity-20"></div>
+                <div className="w-24 h-1 bg-foreground mx-auto mt-6 opacity-20"></div>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+            {/* Restructured Horizontal Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 w-full max-w-7xl">
                 {FIELDS.map((field, index) => (
                     <motion.div
                         key={field.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.15 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="w-full h-full"
                     >
-                        <Link to={`/field/${field.slug}`}>
-                            <Card className="h-full relative overflow-hidden group transition-all duration-300 border-2 hover:border-foreground/80 bg-card hover:shadow-lg">
-                                {/* Background Image (Monochrome / Sepia) */}
-                                {field.image && (
-                                    <div
-                                        className="absolute inset-0 bg-cover bg-center opacity-10 group-hover:opacity-20 transition-opacity duration-700 grayscale sepia"
-                                        style={{ backgroundImage: `url(${field.image})` }}
-                                    />
-                                )}
+                        <Link to={`/field/${field.slug}`} className="block w-full h-full">
+                            <Card className="w-full h-full min-h-[160px] relative overflow-hidden group transition-all duration-300 border border-border/50 hover:border-foreground/50 hover:shadow-lg hover:-translate-y-1 bg-card flex flex-col justify-center items-center text-center p-6">
 
-                                <CardHeader className="relative z-10 pb-2">
-                                    <div className="text-foreground transition-transform duration-300 group-hover:scale-110 origin-left">
-                                        {iconMap[field.icon]}
-                                    </div>
-                                    <CardTitle className="text-3xl font-display text-foreground">{field.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="relative z-10">
-                                    <CardDescription className="text-lg font-serif italic text-muted-foreground mb-8 leading-relaxed">
-                                        {field.description}
-                                    </CardDescription>
-                                    <div className="absolute bottom-6 left-6 right-6 flex items-center text-foreground font-bold group-hover:gap-2 transition-all">
-                                        Explore Timeline <ArrowRight className="ml-2 h-4 w-4" />
-                                    </div>
-                                </CardContent>
+                                {/* Subtle hover highlight */}
+                                <div className="absolute inset-0 bg-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                                <div className="relative z-10 transition-transform duration-300 group-hover:scale-110 mb-4 text-muted-foreground group-hover:text-foreground">
+                                    {iconMap[field.icon]}
+                                </div>
+                                <div className="relative z-10">
+                                    <CardTitle className="text-lg md:text-xl font-display font-bold text-foreground leading-tight">
+                                        {field.name}
+                                    </CardTitle>
+                                </div>
+
                             </Card>
                         </Link>
                     </motion.div>

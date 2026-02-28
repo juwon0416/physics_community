@@ -73,28 +73,7 @@ export const FIELDS: Field[] = [
     }
 ];
 
-export const TIMELINE_TOPICS: TimelineEntry[] = [
-    // Classical Mechanics
-    {
-        id: 'c1',
-        fieldId: 'classical',
-        year: '1687',
-        title: 'Newton\'s Laws of Motion',
-        slug: 'newtons-laws',
-        summary: 'The foundation of classical mechanics describing the relationship between a body and the forces acting upon it.',
-        tags: ['Forces', 'Motion', 'Gravity']
-    },
-    // ... (rest of classical) ...
-    // Note: To save token space I am not repeating all existing entries in the prompt but I must perform the REPLACE carefully.
-    // The previous content ended at "Fluctuation Theorem".
-    // I will append Electrodynamics topics at the END of TIMELINE_TOPICS.
-    // Wait, the REPLACE block must match existing content.
-    // I will target the END of FIELDS array and the END of TIMELINE_TOPICS array.
-    // I'll do two separate replacements or one large one? The file is small enough.
-    // Actually I can just add Electrodynamics to FIELDS first.
-    // Then append topics to TIMELINE_TOPICS.
-
-    // Classical Mechanics
+export const TIMELINE_TOPICS: TimelineEntry[] = [    // Classical Mechanics
     {
         id: 'c1',
         fieldId: 'classical',
@@ -322,7 +301,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm1',
         fieldId: 'mathematical-physics',
-        year: '1807',
+        year: '',
         title: 'Fourier Analysis',
         slug: 'fourier-analysis',
         summary: 'The study of the way general functions may be represented or approximated by sums of simpler trigonometric functions.',
@@ -331,7 +310,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm2',
         fieldId: 'mathematical-physics',
-        year: '1828',
+        year: '',
         title: 'Green\'s Functions',
         slug: 'greens-functions',
         summary: 'Impulse response functions used to solve differential equations subject to boundary conditions.',
@@ -340,7 +319,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm3',
         fieldId: 'mathematical-physics',
-        year: '1854',
+        year: '',
         title: 'Riemannian Geometry',
         slug: 'riemannian-geometry',
         summary: 'The branch of differential geometry that studies Riemannian manifolds, essential for General Relativity.',
@@ -349,7 +328,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm4',
         fieldId: 'mathematical-physics',
-        year: '1873',
+        year: '',
         title: 'Lie Groups',
         slug: 'lie-groups',
         summary: 'Groups that are also smooth manifolds, representing continuous symmetries in physics.',
@@ -358,7 +337,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm5',
         fieldId: 'mathematical-physics',
-        year: '1915',
+        year: '',
         title: 'Noether\'s Theorem',
         slug: 'noethers-theorem',
         summary: 'Propounds that every differentiable symmetry of the action of a physical system has a corresponding conservation law.',
@@ -367,7 +346,7 @@ export const TIMELINE_TOPICS: TimelineEntry[] = [
     {
         id: 'm6',
         fieldId: 'mathematical-physics',
-        year: '1940',
+        year: '',
         title: 'Functional Analysis',
         slug: 'functional-analysis',
         summary: 'The study of vector spaces endowed with some kind of limit-related structure, crucial for Quantum Mechanics.',

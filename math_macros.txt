@@ -1,0 +1,38 @@
+RichTextEditor에 지정된 수식 매크로 목록입니다.
+UI 버튼에 나열된 매크로(MACRO_GROUPS)와, 마크다운 렌더링 시 실제로 KaTeX에 등록되는 매크로(PHYSICS_MACROS)가 포함되어 있습니다.
+
+---
+
+### 1. 에디터 UI 메뉴(버튼)에 나열된 매크로 목록 (RichTextEditor.tsx)
+
+[Quantum]
+- |ψ⟩ Ket : \ket{ }
+- ⟨ψ| Bra : \bra{ }
+- ⟨φ|ψ⟩ Inner Prod : \braket{ }{ }
+- † Dagger : \dag
+- H Hamiltonian : \H
+
+[Vector / Calc]
+- ∇ Grad : \grad 
+- ∇⋅ Div : \div 
+- ∇× Curl : \curl 
+- ∂y/∂x Partial : \pd{y}{x}
+- dy/dx Total : \dd{y}{x}
+
+---
+
+### 2. 마크다운 렌더러에 실제 등록된 KaTeX 매크로 목록 (latexMacros.ts)
+
+- \ket : \left| #1 \right\rangle
+- \bra : \left\langle #1 \right|
+- \braket : \left\langle #1 \middle| #2 \right\rangle
+- \grad : \nabla
+- \div : \nabla\cdot
+- \curl : \nabla\times
+- \pd : \frac{\partial #1}{\partial #2}
+- \dd : \frac{d #1}{d #2}
+- \avg : \left\langle#1\right\rangle
+- \dag : ^\dagger
+- \L : \mathcal{L}
+- \H : \mathcal{H}
+- \unity : \mathbb{1}

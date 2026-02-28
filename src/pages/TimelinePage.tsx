@@ -1,11 +1,11 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FIELDS, TIMELINE_TOPICS } from '../data/seed';
 import { storage } from '../data/storage';
 import type { Topic } from '../data/storage';
 import { Button, Badge, Input, Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui';
-import { ArrowRight, ChevronLeft, ChevronRight, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ArrowRight, Plus, Edit2, Trash2 } from 'lucide-react';
 import { ImageUpload } from '../components/ui/ImageUpload';
 
 export function TimelinePage() {
@@ -15,10 +15,7 @@ export function TimelinePage() {
     const isEditor = true;
 
     const [search, setSearch] = useState('');
-    const containerRef = useRef<HTMLDivElement>(null);
-    const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
     const [topics, setTopics] = useState<Topic[]>([]);
-    // const [loading, setLoading] = useState(true); // Unused
 
     // Edit/Add State
     const [isAdding, setIsAdding] = useState(false);
@@ -31,9 +28,36 @@ export function TimelinePage() {
     // Load Data
     const loadTopics = React.useCallback(async () => {
         if (!field) return;
-        const loaded = await storage.getTopics(field.id);
-        setTopics(loaded);
-        // setLoading(false);
+        try {
+            const loaded = await storage.getTopics(field.id);
+            if (!loaded || loaded.length === 0) {
+                // Auto Fallback to Seed Data if DB is empty or fails
+                const seedForField = TIMELINE_TOPICS.filter(t => t.fieldId === field.id).map(t => ({
+                    id: t.id,
+                    field_id: t.fieldId,
+                    year: t.year,
+                    title: t.title,
+                    slug: t.slug,
+                    summary: t.summary,
+                    tags: t.tags
+                }));
+                setTopics(seedForField);
+                return;
+            }
+            setTopics(loaded);
+        } catch (e) {
+            console.error("Failed to load topics from Supabase, using local seed", e);
+            const seedForField = TIMELINE_TOPICS.filter(t => t.fieldId === field.id).map(t => ({
+                id: t.id,
+                field_id: t.fieldId,
+                year: t.year,
+                title: t.title,
+                slug: t.slug,
+                summary: t.summary,
+                tags: t.tags
+            }));
+            setTopics(seedForField);
+        }
     }, [field]);
 
     useEffect(() => {
@@ -57,61 +81,7 @@ export function TimelinePage() {
         return result.sort((a, b) => parseInt(a.year) - parseInt(b.year));
     }, [topics, search, isDictionaryMode]);
 
-    // Active Topic Management
-    const [userSelectedTopicId, setUserSelectedTopicId] = useState<string | null>(null);
-
-    const activeTopic = useMemo(() => {
-        if (userSelectedTopicId) {
-            const found = filteredTopics.find(t => t.id === userSelectedTopicId);
-            if (found) return found;
-        }
-        return filteredTopics[0];
-    }, [filteredTopics, userSelectedTopicId]);
-
-    const activeIndex = useMemo(() => {
-        if (!activeTopic) return 0;
-        const index = filteredTopics.findIndex(t => t.id === activeTopic.id);
-        return index >= 0 ? index : 0;
-    }, [activeTopic, filteredTopics]);
-
-    // Alias for compatibility with existing handlers
-    const setActiveTopicId = setUserSelectedTopicId;
-
-    // Scroll Logic
-    useEffect(() => {
-        if (containerRef.current && itemsRef.current[activeIndex]) {
-            const container = containerRef.current;
-            const item = itemsRef.current[activeIndex];
-
-            if (item) {
-                const containerWidth = container.offsetWidth;
-                const itemWidth = item.offsetWidth;
-                const itemLeft = item.offsetLeft;
-
-                // Center the active item
-                // scrollTo is smoother than scrollIntoView for custom carousels
-                const scrollTo = itemLeft - (containerWidth / 2) + (itemWidth / 2);
-
-                container.scrollTo({
-                    left: scrollTo,
-                    behavior: 'smooth'
-                });
-            }
-        }
-    }, [activeIndex, filteredTopics]);
-
-
     // Handlers
-    const handleNext = () => {
-        const next = Math.min(activeIndex + 1, filteredTopics.length - 1);
-        setActiveTopicId(filteredTopics[next].id);
-    };
-
-    const handlePrev = () => {
-        const prev = Math.max(activeIndex - 1, 0);
-        setActiveTopicId(filteredTopics[prev].id);
-    };
-
     const handleEditClick = (e: React.MouseEvent, topic: Topic) => {
         e.stopPropagation();
         setEditingTopic(topic);
@@ -188,221 +158,159 @@ export function TimelinePage() {
     const BackgroundImage = field.image ? `url(${field.image})` : undefined;
 
     return (
-        <div className="flex flex-col min-h-[calc(100dvh-64px)] overflow-x-hidden bg-background">
+        <div className="flex flex-col min-h-[calc(100vh-64px)] overflow-x-hidden bg-background">
+            {/* Field Background Opacity */}
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none z-0"
+                style={{ backgroundImage: BackgroundImage, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(100%)' }}
+            />
 
-            {/* Top Area: Details */}
-            <div className="flex-1 relative flex flex-col items-center justify-center p-4 md:p-8">
-                {/* Field Background Opacity */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                    style={{ backgroundImage: BackgroundImage, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(100%)' }}
-                />
+            {/* Header Controls (Fixed at Top of Timeline/Dictionary) */}
+            <div className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
+                <div className="container mx-auto max-w-screen-2xl flex items-center p-4 gap-4">
+                    {isEditor && (
+                        <Button onClick={handleAddClick} size="icon" className="rounded-full h-10 w-10 shrink-0">
+                            <Plus className="w-5 h-5" />
+                        </Button>
+                    )}
 
-                <AnimatePresence mode="wait">
-                    {activeTopic ? (
-                        <motion.div
-                            key={activeTopic.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.4 }}
-                            className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
-                        >
-                            {/* Featured Image (Mobile: Top, Desktop: Right - swapped order in code but grid handles it) */}
-                            {/* We use order-first (default) on mobile, and md:order-last for desktop so text is left, image is right */}
-                            <div className="order-first md:order-last relative aspect-video md:aspect-[4/3] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-muted/20 flex items-center justify-center w-full max-w-[400px] md:max-w-none mx-auto">
-                                {activeTopic.image_url ? (
-                                    <motion.img
-                                        initial={{ scale: 1.1 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ duration: 5 }}
-                                        src={activeTopic.image_url}
-                                        alt={activeTopic.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="text-muted-foreground/30 text-6xl">
-                                        <div className="w-16 h-16 border-4 border-current rounded-full opacity-50" />
-                                    </div>
-                                )}
-                                {/* Overlay Gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 md:opacity-0" />
-                            </div>
-
-                            {/* Text Content */}
-                            <div className="space-y-4 md:space-y-6 text-center md:text-left">
-                                <div>
-                                    <Badge variant="outline" className="mb-2 md:mb-4 text-base md:text-lg px-3 py-1 border-primary/30 text-primary">
-                                        {activeTopic.year}
-                                    </Badge>
-                                    <h1 className="text-3xl md:text-6xl font-display font-bold leading-tight text-foreground">
-                                        {activeTopic.title}
-                                    </h1>
-                                </div>
-                                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-serif line-clamp-4 md:line-clamp-none">
-                                    {activeTopic.summary}
-                                </p>
-                                <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
-                                    {activeTopic.tags.map(tag => (
-                                        <Badge key={tag} variant="outline" className="px-3 py-1 border-muted-foreground/30 text-muted-foreground font-mono text-xs md:text-sm hover:bg-muted/50 transition-colors">#{tag}</Badge>
-                                    ))}
-                                </div>
-                                <div className="pt-4 flex justify-center md:justify-start gap-4">
-                                    <Link to={`/topic/${activeTopic.slug}`}>
-                                        <Button size="lg" className="rounded-full px-6 md:px-8 text-base md:text-lg bg-foreground text-background hover:bg-foreground/80 font-serif tracking-wide shadow-md">
-                                            Read More <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-                                        </Button>
-                                    </Link>
-                                    {isEditor && (
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="icon" onClick={(e) => handleEditClick(e, activeTopic)}><Edit2 className="w-4 h-4" /></Button>
-                                            <Button variant="outline" size="icon" className="text-destructive" onClick={(e) => handleDelete(e, activeTopic.id)}><Trash2 className="w-4 h-4" /></Button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <div className="text-center py-20 text-muted-foreground">
-                            <p>No topics found. Add one manually or load seed data.</p>
-                            {isEditor && (
-                                <Button onClick={handleMigrate} variant="outline" className="mt-4">
-                                    Load Seed Data
-                                </Button>
-                            )}
+                    {!isDictionaryMode && topics.length > 0 && (
+                        <div className="text-sm font-medium text-muted-foreground mr-auto hidden md:block">
+                            Scroll down to explore timeline
                         </div>
                     )}
-                </AnimatePresence>
+
+                    <div className="ml-auto w-full md:w-auto">
+                        <Input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Filter topics..."
+                            className="bg-background rounded-full border-primary/20 w-full md:w-64"
+                        />
+                    </div>
+                </div>
             </div>
 
-            {/* Bottom Area: Content List (Timeline or Dictionary) */}
-            <div className="border-t border-border/40 bg-background/50 backdrop-blur-sm relative z-20 flex-1 overflow-hidden flex flex-col">
-                <div className="container mx-auto max-w-screen-2xl h-full flex flex-col p-4 gap-4">
-                    {/* Controls & Search */}
-                    <div className="flex items-center gap-2 shrink-0">
+            <div className="flex-1 relative z-10">
+                {filteredTopics.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground gap-4">
+                        <p>No topics found. Add one manually or load seed data.</p>
                         {isEditor && (
-                            <Button onClick={handleAddClick} size="icon" className="rounded-full h-10 w-10 md:h-12 md:w-12 shrink-0">
-                                <Plus className="w-5 h-5 md:w-6 md:h-6" />
-                            </Button>
-                        )}
-
-                        {!isDictionaryMode && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0"
-                                onClick={handlePrev}
-                                disabled={activeIndex === 0}
-                            >
-                                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                            </Button>
-                        )}
-
-                        <div className="hidden md:block">
-                            <Input
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                placeholder="Filter topics..."
-                                className="pl-4 bg-background rounded-full border-primary/20 w-40"
-                            />
-                        </div>
-
-                        {!isDictionaryMode && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-primary/10 shrink-0 ml-auto md:ml-0"
-                                onClick={handleNext}
-                                disabled={activeIndex === filteredTopics.length - 1}
-                            >
-                                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                            <Button onClick={handleMigrate} variant="outline">
+                                Load Seed Data
                             </Button>
                         )}
                     </div>
-
-                    {/* View Switch: Grid vs Timeline */}
-                    {isDictionaryMode ? (
-                        <div className="flex-1 overflow-y-auto min-h-0 pr-2">
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-12">
-                                {filteredTopics.map((topic) => {
-                                    const isActive = topic.id === activeTopic?.id;
-                                    return (
-                                        <div
-                                            key={topic.id}
-                                            onClick={() => setActiveTopicId(topic.id)}
-                                            className={`
-                                                cursor-pointer rounded-xl border p-4 transition-all hover:shadow-md flex flex-col items-center text-center gap-2
-                                                ${isActive
-                                                    ? 'bg-primary/5 border-primary ring-1 ring-primary'
-                                                    : 'bg-card border-border hover:border-primary/50'}
-                                            `}
-                                        >
-                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xs shrink-0">
-                                                {topic.title.charAt(0).toUpperCase()}
-                                            </div>
-                                            <span className="text-sm font-medium leading-tight line-clamp-2">
-                                                {topic.title}
-                                            </span>
+                ) : isDictionaryMode ? (
+                    /* Dictionary Grid View (Unchanged Structure) */
+                    <div className="container mx-auto p-4 md:p-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            {filteredTopics.map((topic) => (
+                                <Link to={`/topic/${topic.slug}`} key={topic.id} className="block">
+                                    <div className="cursor-pointer rounded-xl border p-4 transition-all hover:shadow-md hover:border-primary/50 flex flex-col items-center text-center gap-2 bg-card">
+                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-serif font-bold text-xs shrink-0">
+                                            {topic.title.charAt(0).toUpperCase()}
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                        <span className="text-sm font-medium leading-tight line-clamp-2">
+                                            {topic.title}
+                                        </span>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
-                    ) : (
-                        <div
-                            ref={containerRef}
-                            className="flex-1 overflow-x-auto no-scrollbar scroll-smooth flex items-center px-4 md:px-0 py-24"
-                            style={{ scrollbarWidth: 'none' }}
-                        >
-                            <div className="relative flex items-center gap-0 min-w-full justify-center lg:justify-start lg:px-[50vw]">
-                                {filteredTopics.map((topic, index) => {
-                                    const isActive = index === activeIndex;
-                                    return (
-                                        <div
-                                            key={topic.id}
-                                            ref={(el) => { itemsRef.current[index] = el; }}
-                                            onClick={() => setActiveTopicId(topic.id)}
-                                            className={`
-                                                flex-shrink-0 cursor-pointer transition-all duration-500 ease-out
-                                                flex flex-col items-center gap-4 group select-none snap-center relative
-                                                w-[140px] md:w-[220px] 
-                                                ${isActive ? 'z-10 opacity-100' : 'opacity-40 hover:opacity-80'}
-                                            `}
-                                        >
-                                            {/* Connector Line - Gradient for smooth transition */}
-                                            {index < filteredTopics.length - 1 && (
-                                                <div
-                                                    className={`
-                                                        absolute top-6 md:top-8 left-1/2 w-full h-[2px] -translate-y-1/2 -z-20
-                                                        bg-gradient-to-r transition-all duration-500
-                                                        ${isActive
-                                                            ? 'from-foreground to-foreground/20'
-                                                            : (index + 1 === activeIndex ? 'from-foreground/20 to-foreground' : 'from-foreground/20 to-foreground/20')
-                                                        }
-                                                    `}
+                    </div>
+                ) : (
+                    /* Vertical Stacked Cards Timeline View */
+                    <div className="flex flex-col w-full">
+                        {filteredTopics.map((topic, index) => {
+                            // Calculate a slight top margin based on index so cards stack nicely and don't completely cover the top margin of the card below
+                            const stickyTopOffset = `calc(4rem + ${index * 1}rem)`;
+
+                            return (
+                                <section
+                                    key={topic.id}
+                                    className="sticky w-full h-[100dvh] md:h-screen md:min-h-[600px] flex items-center justify-center p-2 md:p-8"
+                                    style={{
+                                        top: stickyTopOffset,
+                                    }}
+                                >
+                                    {/* Card Container */}
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95, y: 50 }}
+                                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                                        viewport={{ once: false, margin: "-20%" }}
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                        className="w-full max-w-5xl bg-background border border-border/50 shadow-2xl rounded-3xl overflow-hidden relative overflow-y-auto max-h-[95dvh] grid grid-cols-1 md:grid-cols-2"
+                                    >
+                                        {/* Image Section */}
+                                        <div className="relative aspect-video md:aspect-auto md:h-full bg-muted/20 flex items-center justify-center overflow-hidden">
+                                            {topic.image_url ? (
+                                                <img
+                                                    src={topic.image_url}
+                                                    alt={topic.title}
+                                                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                                                 />
+                                            ) : (
+                                                <div className="text-muted-foreground/20 text-6xl md:text-8xl font-serif opacity-30">
+                                                    {topic.year}
+                                                </div>
                                             )}
+                                            {/* Gradient Overlay for Text Readability if needed on image side */}
+                                            <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-background/90 via-background/20 to-transparent md:pointer-events-none" />
 
-                                            <div className={`
-                                                relative w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 transition-all duration-500
-                                                ${isActive
-                                                    ? 'bg-foreground text-background border-foreground shadow-[0_0_20px_rgba(var(--foreground),0.3)] scale-110'
-                                                    : 'bg-background/80 backdrop-blur-sm border-foreground/20 text-muted-foreground group-hover:border-foreground/40 scale-90'}
-                                            `}>
-                                                <span className="font-bold font-mono text-xs md:text-sm tracking-tighter">{topic.year}</span>
+                                            {/* Large Floating Year Mobile Only */}
+                                            <div className="absolute bottom-4 left-4 md:hidden">
+                                                <Badge variant="secondary" className="text-2xl font-bold bg-background/80 backdrop-blur-sm">
+                                                    {topic.year}
+                                                </Badge>
                                             </div>
-                                            <span className={`
-                                                text-[10px] md:text-xs font-medium max-w-full text-center truncate px-2 transition-all duration-300
-                                                ${isActive ? 'text-foreground scale-110 font-bold' : 'text-muted-foreground scale-90'}
-                                            `}>
-                                                {topic.title}
-                                            </span>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
+
+                                        {/* Content Section */}
+                                        <div className="p-4 md:p-12 flex flex-col justify-center space-y-3 md:space-y-6 relative z-10 bg-background/95 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none">
+                                            <div className="hidden md:block">
+                                                <Badge variant="outline" className="mb-4 text-xl px-4 py-1 border-primary/30 text-primary font-mono bg-background">
+                                                    {topic.year}
+                                                </Badge>
+                                            </div>
+
+                                            <h2 className="text-2xl md:text-5xl lg:text-6xl font-display font-bold leading-tight text-foreground">
+                                                {topic.title}
+                                            </h2>
+
+                                            <p className="text-sm md:text-xl text-muted-foreground leading-relaxed font-serif line-clamp-3 md:line-clamp-none">
+                                                {topic.summary}
+                                            </p>
+
+                                            <div className="flex flex-wrap gap-1.5 md:gap-2 pt-1 md:pt-2">
+                                                {topic.tags.map(tag => (
+                                                    <Badge key={tag} variant="secondary" className="px-2 py-0.5 md:px-3 md:py-1 font-mono text-[10px] md:text-sm">
+                                                        #{tag}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+
+                                            <div className="pt-3 md:pt-6 flex flex-wrap items-center gap-3 md:gap-4">
+                                                <Link to={`/topic/${topic.slug}`}>
+                                                    <Button size="default" className="md:h-11 md:px-8 rounded-full text-sm md:text-lg font-serif tracking-wide shadow-md">
+                                                        Explore Theory <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+                                                    </Button>
+                                                </Link>
+                                                {isEditor && (
+                                                    <div className="flex gap-2 ml-auto">
+                                                        <Button variant="outline" size="icon" onClick={(e) => handleEditClick(e, topic)}><Edit2 className="w-4 h-4" /></Button>
+                                                        <Button variant="outline" size="icon" className="text-destructive" onClick={(e) => handleDelete(e, topic.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </section>
+                            );
+                        })}
+                        {/* Empty spacing at bottom so last card can scroll fully up */}
+                        <div className="h-[50vh] w-full" />
+                    </div>
+                )}
             </div>
 
             {/* Edit/Add Dialog */}

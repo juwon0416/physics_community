@@ -31,53 +31,98 @@ export interface PositionedNode extends GraphNode {
 // ---------------------------------------------------------------------------
 // CHRONOLOGICAL LAYOUT
 // ---------------------------------------------------------------------------
-export const layoutChronological = (model: GraphModel, width: number = 2000): PositionedNode[] => {
+export const layoutChronological = (model: GraphModel, width: number = 2500): PositionedNode[] => {
     console.log("layoutChronological called with", model.nodes.length, "nodes");
     const MIN_YEAR = 1600;
     const MAX_YEAR = 2030;
     const YEAR_RANGE = MAX_YEAR - MIN_YEAR;
-    const LANE_HEIGHT = 150;
+    const LANE_HEIGHT = 300;
     const FIELD_ORDER = ['classical', 'electrodynamics', 'statistical', 'quantum'];
     const ROOT_X = 50;
     const FIELD_X = 220;
     const TIMELINE_X0 = 400;
     const AVAILABLE_WIDTH = width - TIMELINE_X0 - 50;
     const PX_PER_YEAR = AVAILABLE_WIDTH / YEAR_RANGE;
-    const yearBuckets: Record<string, number> = {};
 
-    const base = model.nodes.map(node => {
+    const baseMap = new Map<string, PositionedNode>();
+
+    // 1. Position Roots and Fields
+    model.nodes.forEach(node => {
         let x = 0; let y = 0;
         if (node.type === 'root') {
             x = ROOT_X;
             y = (FIELD_ORDER.length * LANE_HEIGHT) / 2 - LANE_HEIGHT / 2;
+            baseMap.set(node.id, { ...node, x, y });
         } else if (node.type === 'field') {
             const fieldIndex = FIELD_ORDER.indexOf(node.id);
             if (fieldIndex !== -1) {
                 x = FIELD_X;
                 y = fieldIndex * LANE_HEIGHT;
-            }
-        } else if (node.type === 'topic') {
-            const fieldId = node.data?.fieldId as string;
-            const fieldIndex = FIELD_ORDER.indexOf(fieldId);
-            const laneY = fieldIndex !== -1 ? fieldIndex * LANE_HEIGHT : 0;
-            const year = node.data?.year as number;
-            if (year) {
-                x = TIMELINE_X0 + (year - MIN_YEAR) * PX_PER_YEAR;
-                const key = `${fieldId}-${year}`;
-                const count = yearBuckets[key] || 0;
-                yearBuckets[key] = count + 1;
-                const direction = count % 2 === 0 ? -1 : 1;
-                const magnitude = Math.ceil(count / 2) * 40;
-                const offset = count === 0 ? 0 : direction * magnitude;
-                y = laneY + offset;
-            } else {
-                x = width - 50;
-                y = laneY;
+                baseMap.set(node.id, { ...node, x, y, data: { ...node.data, baselineY: y } });
             }
         }
-        return { ...node, x, y };
     });
 
+    // 2. Group Topics by Field
+    const topicsByField: Record<string, GraphNode[]> = {};
+    model.nodes.forEach(node => {
+        if (node.type === 'topic') {
+            const fieldId = node.data?.fieldId as string;
+            if (fieldId && FIELD_ORDER.includes(fieldId)) {
+                if (!topicsByField[fieldId]) topicsByField[fieldId] = [];
+                topicsByField[fieldId].push(node);
+            } else {
+                baseMap.set(node.id, { ...node, x: width - 50, y: 0 }); // Fallback
+            }
+        } else if (node.type !== 'root' && node.type !== 'field') {
+            baseMap.set(node.id, { ...node, x: 0, y: 0 }); // Fallback for concepts
+        }
+    });
+
+    const NODE_WIDTH = 110;
+    const NODE_HEIGHT = 65;
+
+    // 3. Greedy Placement for Topics
+    FIELD_ORDER.forEach((fieldId, fieldIndex) => {
+        const laneY = fieldIndex * LANE_HEIGHT;
+        const topics = topicsByField[fieldId] || [];
+
+        // Sort explicitly by year (safely handle strings or missing values)
+        topics.sort((a, b) => {
+            const yearA = Number(a.data?.year) || 0;
+            const yearB = Number(b.data?.year) || 0;
+            return yearA - yearB;
+        });
+
+        const placed: { x: number, y: number }[] = [];
+
+        topics.forEach(node => {
+            const year = node.data?.year as number;
+            let x = width - 50;
+            let y = laneY;
+
+            if (year) {
+                x = TIMELINE_X0 + (year - MIN_YEAR) * PX_PER_YEAR;
+                // Avoid Overlaps via Vertical Stacking
+                let overlapping = true;
+                while (overlapping) {
+                    overlapping = false;
+                    for (const p of placed) {
+                        if (Math.abs(p.x - x) < NODE_WIDTH && Math.abs(p.y - y) < NODE_HEIGHT) {
+                            y += NODE_HEIGHT;
+                            overlapping = true;
+                            break;
+                        }
+                    }
+                }
+                placed.push({ x, y });
+            }
+
+            baseMap.set(node.id, { ...node, x, y, data: { ...node.data, baselineY: laneY } });
+        });
+    });
+
+    const base = Array.from(baseMap.values());
     const byId = new Map(base.map(n => [n.id, n]));
     const childCount = new Map<string, number>();
     const relevantEdges = model.edges.filter(e =>
@@ -161,15 +206,34 @@ export const runForceSimulation = (
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
             let length = PHYSICS.SPRING_LENGTH;
+            let strength = PHYSICS.SPRING_STRENGTH * 1.2; // Stiffer springs
+
             // Tighter springs for hierarchy to keep children close to parents (Starburst)
-            if (edge.type === 'hierarchy' || edge.type === 'run') length = 40;
+            if (edge.type === 'hierarchy' || edge.type === 'run') {
+                length = 120; // Spread out radial branches so they don't overlap densely
+            } else if (edge.type === 'mentions') {
+                const srcData = nodeDataMap.get(source.id) as { fieldId?: string } | undefined;
+                const tgtData = nodeDataMap.get(target.id) as { fieldId?: string } | undefined;
+
+                // Blooming Effect: If the target or source is a dynamically generated concept 
+                // or belongs to mathematical-physics, it should stick closely to its parent.
+                const isConceptNode = source.type === 'concept' || target.type === 'concept' ||
+                    srcData?.fieldId === 'mathematical-physics' || tgtData?.fieldId === 'mathematical-physics';
+
+                if (isConceptNode) {
+                    length = 50;   // Bloom closely
+                    strength = 0.4; // Bind tightly
+                } else {
+                    // Cross-references between core timeline sequences remain loose to prevent backbone compression
+                    length = 250;
+                    strength = 0.02; // Extremely weak attraction
+                }
+            }
 
             // Mathematical Physics children: Allow slightly more spread but strict radial pull
             if (source.id === 'mathematical-physics' || target.id === 'mathematical-physics') {
-                length = 100;
+                if (edge.type !== 'mentions') length = 100;
             }
-
-            const strength = PHYSICS.SPRING_STRENGTH * 1.2; // Stiffer springs
 
             const force = (dist - length) * strength;
             const fx = (dx / dist) * force;
@@ -261,8 +325,12 @@ export const getChronologicalEdges = (model: GraphModel) => {
 
     // Create Chain: Field -> Topic (Year 1) -> Topic (Year 2) -> ...
     Object.entries(topicsByField).forEach(([fieldId, fieldTopics]) => {
-        // Sort effectively by year
-        fieldTopics.sort((a, b) => parseInt(a.data!.year as string) - parseInt(b.data!.year as string));
+        // Sort effectively by year safely
+        fieldTopics.sort((a, b) => {
+            const yearA = Number(a.data?.year) || 0;
+            const yearB = Number(b.data?.year) || 0;
+            return yearA - yearB;
+        });
 
         if (fieldTopics.length > 0) {
             // Connect Field to First Topic
@@ -325,8 +393,8 @@ export const layoutNetwork = (
         return sn;
     });
 
-    // Use our chain edges for the simulation structure
-    const simulationEdges = getChronologicalEdges(model);
+    // Restore pure starburst hierarchy: ignore sequence chains (temporal)
+    const simulationEdges = model.edges.filter(e => e.type !== 'temporal');
 
     runForceSimulation(simNodes, simulationEdges, 500, nodeDataMap);
 
@@ -334,4 +402,72 @@ export const layoutNetwork = (
         const simNode = simNodes.find(sn => sn.id === n.id);
         return { ...n, x: simNode?.x || 0, y: simNode?.y || 0 };
     });
+};
+
+export interface PositionedNode3D extends PositionedNode {
+    z: number;
+    fx?: number;
+    fy?: number;
+    fz?: number;
+}
+
+export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: PositionedNode3D[], links: any[] } => {
+    // 1. Core anchors constraints: 
+    // root at (0,0,0)
+    // 4 fields form a bounding tetrahedron.
+    // Mathematical vertices for a tetrahedron inscribed in a sphere of radius R:
+    // v1 = ( R,  R,  R)
+    // v2 = ( R, -R, -R)
+    // v3 = (-R,  R, -R)
+    // v4 = (-R, -R,  R)
+    const R = 300; // Large enough to bound all inner topics
+
+    const nodes3D: PositionedNode3D[] = model.nodes.map(n => {
+        const node3D: PositionedNode3D = { ...n, x: 0, y: 0, z: 0 };
+
+        switch (n.id) {
+            case 'root':
+                node3D.fx = 0; node3D.fy = 0; node3D.fz = 0;
+                node3D.x = 0; node3D.y = 0; node3D.z = 0;
+                break;
+            case 'classical':
+                node3D.fx = R; node3D.fy = R; node3D.fz = R;
+                node3D.x = R; node3D.y = R; node3D.z = R;
+                break;
+            case 'quantum':
+                node3D.fx = R; node3D.fy = -R; node3D.fz = -R;
+                node3D.x = R; node3D.y = -R; node3D.z = -R;
+                break;
+            case 'electrodynamics':
+                node3D.fx = -R; node3D.fy = R; node3D.fz = -R;
+                node3D.x = -R; node3D.y = R; node3D.z = -R;
+                break;
+            case 'statistical':
+                node3D.fx = -R; node3D.fy = -R; node3D.fz = R;
+                node3D.x = -R; node3D.y = -R; node3D.z = R;
+                break;
+            case 'mathematical-physics':
+                // Place external to the core tetrahedron
+                node3D.fx = 0; node3D.fy = R * 1.5; node3D.fz = 0;
+                node3D.x = 0; node3D.y = R * 1.5; node3D.z = 0;
+                break;
+            default:
+                // Randomly scatter other nodes near the center initially
+                node3D.x = (Math.random() - 0.5) * R;
+                node3D.y = (Math.random() - 0.5) * R;
+                node3D.z = (Math.random() - 0.5) * R;
+                break;
+        }
+
+        return node3D;
+    });
+
+    // Strip out pure temporal chains so branches act as a radial starburst rather than compressed chains
+    const links = model.edges.filter(e => e.type !== 'temporal').map(e => ({
+        source: e.source,
+        target: e.target,
+        type: e.type
+    }));
+
+    return { nodes: nodes3D, links };
 };

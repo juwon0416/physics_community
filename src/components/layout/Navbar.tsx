@@ -67,7 +67,7 @@ export function Navbar() {
                     <Link to="/" className="mr-6 flex items-center space-x-2 font-display font-bold text-lg hover:text-primary transition-colors flex-shrink-0">
                         <span className="inline-block">PhysComm</span>
                     </Link>
-                    <Link to="/graph" className="mr-6 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden md:inline-block flex-shrink-0">
+                    <Link to="/graph" className="mr-6 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors inline-block flex-shrink-0">
                         Graph View
                     </Link>
 

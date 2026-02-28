@@ -181,14 +181,18 @@ export const conceptAPI = {
 
         console.log(`[syncContentEdges] Scanning content for source '${source.label}' (${source.id}). Terms found:`, terms);
 
-        // 2. Upsert Source Node
+        // 2. Safely Upsert Source Node (Preserve existing data like year and slug)
+        const { data: existingSrc } = await supabase.from('graph_nodes').select('data').eq('id', source.id).maybeSingle();
+        const mergedSrcData = existingSrc?.data || {};
+        if (source.fieldId) mergedSrcData.fieldId = source.fieldId;
+
         await supabase
             .from('graph_nodes')
             .upsert({
                 id: source.id,
                 type: source.type,
                 label: source.label,
-                data: source.fieldId ? { fieldId: source.fieldId } : {}
+                data: mergedSrcData
             });
 
         // 3. Delete existing mentions edges

@@ -77,63 +77,85 @@ export const buildStaticGraphModel = (): GraphModel => {
 };
 
 export const fetchGraphModel = async (): Promise<GraphModel> => {
-    // 1. Fetch from DB
-    const { data: dbNodes, error: nodeError } = await supabase
-        .from('graph_nodes')
-        .select('*');
+    try {
+        // 1. Fetch from DB
+        const { data: dbNodes, error: nodeError } = await supabase
+            .from('graph_nodes')
+            .select('*');
 
-    const { data: dbEdges, error: edgeError } = await supabase
-        .from('graph_edges')
-        .select('*');
+        const { data: dbEdges, error: edgeError } = await supabase
+            .from('graph_edges')
+            .select('*');
 
-    if (nodeError) throw nodeError;
-    if (edgeError) throw edgeError;
+        // If network/DB error, throw so catch block runs and returns static data smoothly
+        if (nodeError) throw nodeError;
+        if (edgeError) throw edgeError;
 
-    const staticModel = buildStaticGraphModel();
+        const staticModel = buildStaticGraphModel();
 
-    // Map DB nodes to GraphNode
-    const dynamicNodes: GraphNode[] = (dbNodes || []).map(n => ({
-        id: n.id,
-        type: n.type as GraphNode['type'],
-        label: n.label,
-        x: n.x,
-        y: n.y,
-        data: n.data,
-        slug: n.data?.slug,
-        description: n.data?.description
-    }));
+        // Check if DB is mostly empty, return static immediately
+        if ((!dbNodes || dbNodes.length === 0) && (!dbEdges || dbEdges.length === 0)) {
+            return staticModel;
+        }
 
-    // strict 1:1 mapping for edge types
-    const dynamicEdges: GraphEdge[] = (dbEdges || []).map(e => {
-        let type: GraphEdge['type'] = 'relational';
-        if (e.label === 'hierarchy') type = 'hierarchy';
-        else if (e.label === 'temporal') type = 'temporal';
-        else if (e.label === 'mentions') type = 'mentions';
+        // Map DB nodes to GraphNode
+        const dynamicNodes: GraphNode[] = (dbNodes || []).map(n => ({
+            id: n.id,
+            type: n.type as GraphNode['type'],
+            label: n.label,
+            x: n.x,
+            y: n.y,
+            data: n.data,
+            slug: n.data?.slug,
+            description: n.data?.description
+        }));
+
+        // strict 1:1 mapping for edge types
+        const dynamicEdges: GraphEdge[] = (dbEdges || []).map(e => {
+            let type: GraphEdge['type'] = 'relational';
+            if (e.label === 'hierarchy') type = 'hierarchy';
+            else if (e.label === 'temporal') type = 'temporal';
+            else if (e.label === 'mentions') type = 'mentions';
+
+            return {
+                source: e.source,
+                target: e.target,
+                type
+            };
+        });
+
+        // Deduplication Strategy:
+        const nodeMap = new Map<string, GraphNode>();
+        staticModel.nodes.forEach(n => nodeMap.set(n.id, n));
+
+        dynamicNodes.forEach(n => {
+            const staticNode = nodeMap.get(n.id);
+            if (staticNode) {
+                // Healing Merge: Re-inject lost static properties (like year/slug) if DB lacks them
+                // This permanently fixes chronological ordering if DB data was corrupted
+                n.data = { ...staticNode.data, ...(n.data || {}) };
+                if (!n.slug) n.slug = staticNode.slug;
+                if (!n.description) n.description = staticNode.description;
+                if (!n.label) n.label = staticNode.label;
+                if (!n.color) n.color = staticNode.color;
+            }
+            nodeMap.set(n.id, n); // Overwrite with merged
+        });
+
+        // Edges: unique by source-target-type
+        const uniqueEdges = new Map<string, GraphEdge>();
+
+        [...staticModel.edges, ...dynamicEdges].forEach(edge => {
+            const key = `${edge.source}|${edge.target}|${edge.type}`;
+            uniqueEdges.set(key, edge);
+        });
 
         return {
-            source: e.source,
-            target: e.target,
-            type
+            nodes: Array.from(nodeMap.values()),
+            edges: Array.from(uniqueEdges.values())
         };
-    });
-
-    // Deduplication Strategy:
-    const nodeMap = new Map<string, GraphNode>();
-    staticModel.nodes.forEach(n => nodeMap.set(n.id, n));
-    dynamicNodes.forEach(n => nodeMap.set(n.id, n)); // Overwrite if exists
-
-    // Edges: unique by source-target-type
-    // We combine static and dynamic edges, but simple concat might have duplicates if static edges are also in DB.
-    // For safety, let's use a Set for uniqueness based on "source|target|type"
-    const uniqueEdges = new Map<string, GraphEdge>();
-
-    [...staticModel.edges, ...dynamicEdges].forEach(edge => {
-        const key = `${edge.source}|${edge.target}|${edge.type}`;
-        uniqueEdges.set(key, edge);
-    });
-
-    return {
-        nodes: Array.from(nodeMap.values()),
-        edges: Array.from(uniqueEdges.values())
-    };
+    } catch (error) {
+        console.warn("fetchGraphModel: Failed fetching from Supabase. Returning static model natively.", error);
+        return buildStaticGraphModel();
+    }
 };
