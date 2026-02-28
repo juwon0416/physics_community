@@ -333,8 +333,11 @@ export const getChronologicalEdges = (model: GraphModel) => {
         });
 
         if (fieldTopics.length > 0) {
-            // Connect Field to First Topic (using 'temporal' so it survives subgraph filtering)
-            chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'temporal' });
+            // ONLY Connect Field to First Topic if the Field node actually exists in the current view!
+            // (e.g. 'mathematical-physics' is hidden by default. If we link to it, WebGL crashes and all nodes disappear)
+            if (model.nodes.some(n => n.id === fieldId)) {
+                chainEdges.push({ source: fieldId, target: fieldTopics[0].id, type: 'temporal' });
+            }
         }
 
         // Connect Topic i to Topic i+1
