@@ -99,13 +99,14 @@ export function GraphOverviewPage() {
         });
 
         activeNodes = activeNodes.filter(n => {
-            const isMathPhysics = n.id === 'mathematical-physics' || n.data?.fieldId === 'mathematical-physics';
+            // RULE: The Mathematical Physics main field node itself is NEVER shown in any view.
+            if (n.id === 'mathematical-physics') {
+                return false;
+            }
 
-            if (isMathPhysics) {
-                // STRICT RULE: NEVER show Mathematical Physics in Timeline (chronological) view under any circumstances.
+            // RULE: For child topics of Mathematical Physics, only show in Network View IF explicitly mentioned.
+            if (n.data?.fieldId === 'mathematical-physics') {
                 if (activeTab === 'chronological') return false;
-
-                // STRICT RULE: In Network view, ONLY show Math Physics nodes if they are actively linked via user 'mentions'.
                 return mentionsIds.has(n.id);
             }
 

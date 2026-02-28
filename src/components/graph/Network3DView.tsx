@@ -112,6 +112,8 @@ export default function Network3DView({ model }: Network3DViewProps) {
             // Visual configuration
             backgroundColor="rgba(0,0,0,0)" // Transparent to match the rest of the dark theme
             showNavInfo={false}
+            enableNodeDrag={false} // Disable pointer drag natively so hovers never mistakenly grab or offset child nodes
+
 
             // Physics Properties
             d3AlphaDecay={0.05} // Faster decay for quicker settling
