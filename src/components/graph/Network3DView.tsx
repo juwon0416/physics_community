@@ -58,7 +58,6 @@ export default function Network3DView({ model }: Network3DViewProps) {
         // 1. Revert the previously hovered node natively
         if (prevNode && prevNode.__threeObj) {
             const group = prevNode.__threeObj as THREE.Group;
-            const userData = group.userData;
             const sphere = group.children[0] as THREE.Mesh;
             const sprite = group.children[1] as SpriteText;
 
@@ -69,9 +68,7 @@ export default function Network3DView({ model }: Network3DViewProps) {
                 sprite.color = '#e5e7eb';
                 sprite.material.depthTest = true;
                 sprite.renderOrder = 0;
-                if (userData.type === 'topic' || userData.type === 'concept') {
-                    sprite.visible = false; // Hide non-essential labels again
-                }
+                // Labels are now always visible, so no need to hide them on unhover
             }
         }
 
@@ -124,16 +121,14 @@ export default function Network3DView({ model }: Network3DViewProps) {
 
                 let radius = 4;
                 let color = '#9ca3af'; // muted-foreground default
-                let showLabel = false;
+                let showLabel = true; // ALL labels visible by default now
 
                 if (n.type === 'root') {
                     radius = 16;
                     color = '#ffffff'; // text-foreground
-                    showLabel = true;
                 } else if (n.type === 'field') {
                     radius = 12;
                     color = colorMap[n.id] || colorMap[(n.data as any)?.fieldId as string] || color;
-                    showLabel = true;
                 } else if (n.type === 'topic') {
                     radius = 6;
                     color = colorMap[(n.data as any)?.fieldId as string] || color;
