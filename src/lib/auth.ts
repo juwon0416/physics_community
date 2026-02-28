@@ -128,7 +128,6 @@ export function useAuth() {
         signInWithID,
         signOut,
         isAdmin: profile?.role === 'admin',
-        isEditor: ['admin', 'editor'].includes(profile?.role ?? ''),
         nickname: profile?.nickname || user?.email?.split('@')[0] || 'User'
     };
 }

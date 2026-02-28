@@ -17,9 +17,7 @@ import { conceptAPI } from '../lib/concepts';
 
 export function TopicPage() {
     const { topicSlug } = useParams();
-    const { isEditor, nickname } = useAuth();
-
-
+    const { isAdmin, nickname } = useAuth();
     // Topic State
     const [topic, setTopic] = useState<Topic | null>(null);
     const field = FIELDS.find(f => f.id === topic?.field_id); // Use field_id from DB topic
@@ -232,7 +230,7 @@ export function TopicPage() {
                     <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl font-serif leading-relaxed">{topic.summary}</p>
 
                     {/* Admin Controls */}
-                    {isEditor && !isEditing && (
+                    {isAdmin && !isEditing && (
                         <div className="flex flex-wrap gap-2 w-full md:w-auto">
                             <Button variant="outline" size="sm" onClick={handleMigrateFromSections} disabled={isMigrating}>
                                 <Database className="w-4 h-4 mr-2" />
@@ -294,7 +292,7 @@ export function TopicPage() {
                             {(!topic.content || topic.content.trim() === '') ? (
                                 <div className="py-12 text-center text-muted-foreground bg-secondary/10 rounded-xl border border-dashed border-border/50">
                                     <p>No content yet.</p>
-                                    {isEditor && (
+                                    {isAdmin && (
                                         <p className="mt-2 text-sm">
                                             Click "Edit Article" to start writing or "Migrate Sections" if you have old data.
                                         </p>

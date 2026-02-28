@@ -4,15 +4,14 @@ import { motion } from 'framer-motion';
 import { FIELDS, TIMELINE_TOPICS } from '../data/seed';
 import { storage } from '../data/storage';
 import type { Topic } from '../data/storage';
+import { useAuth } from '../lib/auth';
 import { Button, Badge, Input, Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui';
 import { ArrowRight, Plus, Edit2, Trash2 } from 'lucide-react';
 import { ImageUpload } from '../components/ui/ImageUpload';
 
 export function TimelinePage() {
     const { fieldSlug } = useParams();
-
-    // Auth: Hardcoded for dev environment as requested or implied if hook missing
-    const isEditor = true;
+    const { isAdmin } = useAuth();
 
     const [search, setSearch] = useState('');
     const [topics, setTopics] = useState<Topic[]>([]);
@@ -167,7 +166,7 @@ export function TimelinePage() {
             {/* Header Controls (Fixed at Top of Timeline/Dictionary) */}
             <div className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
                 <div className="container mx-auto max-w-screen-2xl flex items-center p-4 gap-4">
-                    {isEditor && (
+                    {isAdmin && (
                         <Button onClick={handleAddClick} size="icon" className="rounded-full h-10 w-10 shrink-0">
                             <Plus className="w-5 h-5" />
                         </Button>
@@ -194,7 +193,7 @@ export function TimelinePage() {
                 {filteredTopics.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground gap-4">
                         <p>No topics found. Add one manually or load seed data.</p>
-                        {isEditor && (
+                        {isAdmin && (
                             <Button onClick={handleMigrate} variant="outline">
                                 Load Seed Data
                             </Button>
@@ -295,7 +294,7 @@ export function TimelinePage() {
                                                         Explore Theory <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                                                     </Button>
                                                 </Link>
-                                                {isEditor && (
+                                                {isAdmin && (
                                                     <div className="flex gap-2 ml-auto">
                                                         <Button variant="outline" size="icon" onClick={(e) => handleEditClick(e, topic)}><Edit2 className="w-4 h-4" /></Button>
                                                         <Button variant="outline" size="icon" className="text-destructive" onClick={(e) => handleDelete(e, topic.id)}><Trash2 className="w-4 h-4" /></Button>
