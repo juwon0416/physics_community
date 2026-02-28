@@ -107,7 +107,7 @@ export default function Network3DView({ model }: Network3DViewProps) {
     return (
         <ForceGraph3D
             ref={fgRef}
-            graphData={{ nodes, links }}
+            graphData={constrainedModel}
             nodeId="id"
             // Visual configuration
             backgroundColor="rgba(0,0,0,0)" // Transparent to match the rest of the dark theme
