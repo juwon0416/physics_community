@@ -54,8 +54,47 @@ export default function Network3DView({ model }: Network3DViewProps) {
         }
     }, [nodes, links]);
 
-    const handleNodeHover = useCallback((node: any) => {
-        // Apply pointer cursor directly on canvas, ForceGraph handles internally mostly but we trigger state
+    const handleNodeHover = useCallback((node: any, prevNode: any) => {
+        // 1. Revert the previously hovered node natively
+        if (prevNode && prevNode.__threeObj) {
+            const group = prevNode.__threeObj as THREE.Group;
+            const userData = group.userData;
+            const sphere = group.children[0] as THREE.Mesh;
+            const sprite = group.children[1] as SpriteText;
+
+            if (sphere && sphere.material instanceof THREE.MeshLambertMaterial) {
+                sphere.material.emissiveIntensity = 0;
+            }
+            if (sprite) {
+                sprite.color = '#e5e7eb';
+                sprite.material.depthTest = true;
+                sprite.renderOrder = 0;
+                if (userData.type === 'topic' || userData.type === 'concept') {
+                    sprite.visible = false; // Hide non-essential labels again
+                }
+            }
+        }
+
+        // 2. Highlight the newly hovered node natively
+        if (node && node.__threeObj) {
+            const group = node.__threeObj as THREE.Group;
+            const userData = group.userData;
+            const sphere = group.children[0] as THREE.Mesh;
+            const sprite = group.children[1] as SpriteText;
+
+            if (sphere && sphere.material instanceof THREE.MeshLambertMaterial) {
+                sphere.material.emissive.set(userData.baseColor);
+                sphere.material.emissiveIntensity = 0.6;
+            }
+            if (sprite) {
+                sprite.color = userData.baseColor;
+                sprite.material.depthTest = false;
+                sprite.renderOrder = 999;
+                sprite.visible = true; // Ensure visibility
+            }
+        }
+
+        // 3. Trigger React state update ONLY for Link rendering, ForceGraph handles links efficiently via databinding
         setHoverNode(node || null);
     }, []);
 
@@ -78,10 +117,9 @@ export default function Network3DView({ model }: Network3DViewProps) {
             d3AlphaDecay={0.05} // Faster decay for quicker settling
             d3VelocityDecay={0.4} // Higher friction to stop runaway nodes on hover
 
-            // Node Renderer
-            nodeThreeObject={(node: any) => {
+            // Node Renderer (Stabilized reference to halt infinite re-render geometry rebuild loops)
+            nodeThreeObject={useCallback((node: any) => {
                 const n = node as PositionedNode3D;
-                const isHovered = hoverNode?.id === n.id;
 
                 let radius = 4;
                 let color = '#9ca3af'; // muted-foreground default
@@ -98,57 +136,43 @@ export default function Network3DView({ model }: Network3DViewProps) {
                 } else if (n.type === 'topic') {
                     radius = 6;
                     color = colorMap[(n.data as any)?.fieldId as string] || color;
-                    // Show topic labels if hovering over it, or we could hide them
-                    showLabel = isHovered;
                 } else if (n.type === 'concept') {
                     radius = 3;
                     color = '#6b7280'; // muted
-                    showLabel = isHovered;
-                }
-
-                // If hovered, highlight styling without changing physical radius
-                if (isHovered) {
-                    // Just ensure label is shown and add a glow to the material
-                    // We DO NOT change `radius` to prevent raycast glitching (runaway nodes)
-                    showLabel = true;
                 }
 
                 const group = new THREE.Group();
+                group.userData = { type: n.type, baseColor: color, baseRadius: radius };
 
                 // 1. Sphere
                 const geometry = new THREE.SphereGeometry(radius, 16, 16);
                 const material = new THREE.MeshLambertMaterial({
                     color: color,
                     transparent: true,
-                    opacity: n.type === 'concept' && !isHovered ? 0.6 : 1,
-                    emissive: isHovered ? color : '#000000',
-                    emissiveIntensity: isHovered ? 0.4 : 0
+                    opacity: n.type === 'concept' ? 0.6 : 1,
+                    emissive: '#000000',
+                    emissiveIntensity: 0
                 });
                 const sphere = new THREE.Mesh(geometry, material);
                 group.add(sphere);
 
                 // 2. Label
-                if (showLabel && n.label) {
+                if (n.label) {
                     const sprite = new SpriteText(n.label);
-                    sprite.color = isHovered ? color : '#e5e7eb'; // Hover accent vs normal light gray
+                    sprite.color = '#e5e7eb';
                     sprite.textHeight = n.type === 'root' ? 8 : (n.type === 'field' ? 6 : 4);
-
-                    // font weighting
                     sprite.fontWeight = n.type === 'root' || n.type === 'field' ? 'bold' : 'normal';
-
-                    // offset text safely below
                     sprite.position.y = -(radius + sprite.textHeight + 1);
+                    sprite.visible = showLabel;
 
-                    if (isHovered) {
-                        sprite.material.depthTest = false; // Render on top of everything
-                        sprite.renderOrder = 999;
-                    }
+                    // CRITICAL: Block SpriteText from receiving hover raycasts so it doesn't trigger jitter!
+                    sprite.raycast = function () { };
 
                     group.add(sprite);
                 }
 
                 return group;
-            }}
+            }, [])}
 
             // Link Renderer
             linkDirectionalArrowLength={(link: any) => (link.type === 'mentions' || link.type === 'hierarchy' || link.type === 'temporal' ? 3.5 : 0)}
