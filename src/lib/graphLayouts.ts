@@ -420,7 +420,7 @@ export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: Posit
     // v2 = ( R, -R, -R)
     // v3 = (-R,  R, -R)
     // v4 = (-R, -R,  R)
-    const R = 300; // Large enough to bound all inner topics
+    const R = 60; // Reduced distance to keep field nodes closer to the central physics root
 
     const nodes3D: PositionedNode3D[] = model.nodes.map(n => {
         const node3D: PositionedNode3D = { ...n, x: 0, y: 0, z: 0 };
@@ -462,8 +462,8 @@ export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: Posit
         return node3D;
     });
 
-    // Strip out pure temporal chains so branches act as a radial starburst rather than compressed chains
-    const links = model.edges.filter(e => e.type !== 'temporal').map(e => ({
+    // Keep all links (temporal included) so user can see chronological connections
+    const links = model.edges.map(e => ({
         source: e.source,
         target: e.target,
         type: e.type

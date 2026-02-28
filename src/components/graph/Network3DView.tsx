@@ -41,15 +41,16 @@ export default function Network3DView({ model }: Network3DViewProps) {
         if (fg) {
             // Adjust D3 force settings for better aesthetics and stability
             fg.d3Force('link')?.distance((link: any) => {
-                // Keep field-to-topic links relatively loose, but strict hierarchy tight
-                if (link.type === 'hierarchy') return 100;
-                if (link.type === 'mentions') return 200;
-                return 150;
+                if (link.type === 'hierarchy') return 30;
+                if (link.type === 'temporal') return 30;
+                if (link.type === 'mentions') return 60;
+                return 40;
+            }).strength((link: any) => {
+                // Weak temporal link forces so the starburst shape isn't compressed
+                if (link.type === 'temporal') return 0.05;
+                return 1;
             });
-            fg.d3Force('charge')?.strength(-100); // Stronger repulsion for spread
-
-            // Warm-up to skip initial chaotic jitter
-            // fg.d3ReheatSimulation();
+            fg.d3Force('charge')?.strength(-40); // Less repulsion for tighter clusters
         }
     }, [nodes, links]);
 
@@ -74,8 +75,8 @@ export default function Network3DView({ model }: Network3DViewProps) {
             showNavInfo={false}
 
             // Physics Properties
-            d3AlphaDecay={0.02} // Slower decay for smoother settling
-            d3VelocityDecay={0.2}
+            d3AlphaDecay={0.05} // Faster decay for quicker settling
+            d3VelocityDecay={0.4} // Higher friction to stop runaway nodes on hover
 
             // Node Renderer
             nodeThreeObject={(node: any) => {
@@ -141,8 +142,13 @@ export default function Network3DView({ model }: Network3DViewProps) {
             }}
 
             // Link Renderer
-            linkDirectionalArrowLength={(link: any) => (link.type === 'mentions' || link.type === 'hierarchy' ? 3.5 : 0)}
+            linkDirectionalArrowLength={(link: any) => (link.type === 'mentions' || link.type === 'hierarchy' || link.type === 'temporal' ? 3.5 : 0)}
             linkDirectionalArrowRelPos={1}
+            linkDirectionalParticles={(link: any) => {
+                const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
+                return isHovered ? 4 : 0;
+            }}
+            linkDirectionalParticleWidth={2}
             linkColor={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
                 if (isHovered) return 'rgba(255,255,255,0.8)';
