@@ -17,6 +17,7 @@ export function GraphOverviewPage() {
 
     // View State
     const [activeTab, setActiveTab] = useState<'chronological' | 'network'>('chronological');
+    const [activeFieldFilter, setActiveFieldFilter] = useState<string>('all');
     const [model, setModel] = useState<GraphModel | null>(null);
     const [nodes, setNodes] = useState<PositionedNode[]>([]);
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -114,6 +115,21 @@ export function GraphOverviewPage() {
                 return connectedIds.has(n.id);
             }
 
+            // Field Filter Logic
+            if (activeFieldFilter !== 'all') {
+                // ALWAYS keep root
+                if (n.id === 'root') return true;
+
+                // Keep the selected Field node itself
+                if (n.id === activeFieldFilter) return true;
+
+                // Keep children of the selected field
+                if (n.data?.fieldId === activeFieldFilter) return true;
+
+                // If it doesn't match the active field tree, toss it out
+                return false;
+            }
+
             return true; // Always show other Topics/Fields regardless of connection
         });
 
@@ -145,7 +161,7 @@ export function GraphOverviewPage() {
             }
             setFilteredNetworkModel({ nodes: activeNodes, edges: activeEdges });
         }
-    }, [activeTab, model]);
+    }, [activeTab, activeFieldFilter, model]);
 
 
     // Helper for viewport refs for event handlers
@@ -455,26 +471,52 @@ export function GraphOverviewPage() {
 
             {/* UI Controls */}
             {/* Using top-4 with an absolute container inside a relative container that's already offset by the header. */}
-            <div className="absolute top-4 left-4 z-20 flex gap-2" onMouseDown={e => e.stopPropagation()}>
-                <div className="glass p-1 rounded-lg flex gap-1">
-                    <Button
-                        variant={activeTab === 'chronological' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => { setActiveTab('chronological'); resetView('chronological'); }}
-                        className="text-xs"
-                    >
-                        <Calendar className="w-3 h-3 mr-2" />
-                        Timeline
-                    </Button>
-                    <Button
-                        variant={activeTab === 'network' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => { setActiveTab('network'); resetView('network'); }}
-                        className="text-xs"
-                    >
-                        <Share2 className="w-3 h-3 mr-2" />
-                        Network
-                    </Button>
+            <div className="absolute top-4 left-4 z-20 flex flex-col gap-2" onMouseDown={e => e.stopPropagation()}>
+                <div className="flex gap-2">
+                    <div className="glass p-1 rounded-lg flex gap-1">
+                        <Button
+                            variant={activeTab === 'chronological' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => { setActiveTab('chronological'); resetView('chronological'); }}
+                            className="text-xs"
+                        >
+                            <Calendar className="w-3 h-3 mr-2" />
+                            Timeline
+                        </Button>
+                        <Button
+                            variant={activeTab === 'network' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => { setActiveTab('network'); resetView('network'); }}
+                            className="text-xs"
+                        >
+                            <Share2 className="w-3 h-3 mr-2" />
+                            Network
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Subgraph Field Filter */}
+                <div className="glass p-1.5 rounded-lg flex items-center shadow-md pointer-events-auto w-fit max-w-[80vw] overflow-x-auto gap-1">
+                    {[
+                        { id: 'all', label: 'All Fields' },
+                        { id: 'quantum', label: 'Quantum' },
+                        { id: 'statistical', label: 'Statistical' },
+                        { id: 'electrodynamics', label: 'E-Dynamics' },
+                        { id: 'classical', label: 'Classical' }
+                    ].map(f => (
+                        <Button
+                            key={f.id}
+                            variant={activeFieldFilter === f.id ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setActiveFieldFilter(f.id)}
+                            className={`rounded-md px-2 h-7 transition-all duration-300 text-[10px] sm:text-xs whitespace-nowrap ${activeFieldFilter === f.id
+                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                    : 'hover:bg-accent/30 text-muted-foreground'
+                                }`}
+                        >
+                            {f.label}
+                        </Button>
+                    ))}
                 </div>
             </div>
 
