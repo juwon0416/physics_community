@@ -99,12 +99,15 @@ export function GraphOverviewPage() {
             }
         });
 
+        // When in Timeline view, we ALWAYS want to show all fields regardless of the network filter selection
+        const effectiveFieldFilter = activeTab === 'network' ? activeFieldFilter : 'all';
+
         // 1. Identify core nodes of the active subgraph
         const coreFieldNodeIds = new Set<string>();
-        if (activeFieldFilter !== 'all') {
-            coreFieldNodeIds.add(activeFieldFilter);
+        if (effectiveFieldFilter !== 'all') {
+            coreFieldNodeIds.add(effectiveFieldFilter);
             model.nodes.forEach(n => {
-                if (n.data?.fieldId === activeFieldFilter) {
+                if (n.data?.fieldId === effectiveFieldFilter) {
                     coreFieldNodeIds.add(n.id);
                 }
             });
@@ -112,7 +115,7 @@ export function GraphOverviewPage() {
 
         // 2. Identify all nodes directly connected to the core
         const linkedToCoreIds = new Set<string>();
-        if (activeFieldFilter !== 'all') {
+        if (effectiveFieldFilter !== 'all') {
             model.edges.forEach(e => {
                 if (coreFieldNodeIds.has(e.source)) linkedToCoreIds.add(e.target);
                 if (coreFieldNodeIds.has(e.target)) linkedToCoreIds.add(e.source);
@@ -123,7 +126,7 @@ export function GraphOverviewPage() {
             // RULE 1: Never show mathematical-physics main node
             if (n.id === 'mathematical-physics') return false;
 
-            if (activeFieldFilter !== 'all') {
+            if (effectiveFieldFilter !== 'all') {
                 // In Subgraph view:
                 if (n.id === 'root') return false;
 
