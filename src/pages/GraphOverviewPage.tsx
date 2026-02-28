@@ -117,8 +117,8 @@ export function GraphOverviewPage() {
 
             // Field Filter Logic
             if (activeFieldFilter !== 'all') {
-                // ALWAYS keep root
-                if (n.id === 'root') return true;
+                // DROP root so the graph is completely isolated to the field
+                if (n.id === 'root') return false;
 
                 // Keep the selected Field node itself
                 if (n.id === activeFieldFilter) return true;
@@ -134,10 +134,16 @@ export function GraphOverviewPage() {
         });
 
         // 2. Filter Edges to match Active Nodes (Fixes "Dropped Edge" warnings)
-        // NOTE: For Network view, we use generated backbone edges for layout, but here we can just pass default.
-        // The layoutNetwork function calculates its own backbone internally.
         const activeNodeIds = new Set(activeNodes.map(n => n.id));
-        const activeEdges = model.edges.filter(e => activeNodeIds.has(e.source) && activeNodeIds.has(e.target));
+
+        // If we are looking at a specific Subgraph Field, we want a strict Chronological chain (A -> B -> C)
+        // instead of a messy Star graph (Field -> A, Field -> B) which is created by 'hierarchy' links.
+        let activeEdges = model.edges.filter(e => activeNodeIds.has(e.source) && activeNodeIds.has(e.target));
+
+        if (activeFieldFilter !== 'all' && activeTab === 'network') {
+            // Force strict chronological backbone for the specific filtered field
+            activeEdges = getChronologicalEdges({ nodes: activeNodes, edges: activeEdges });
+        }
 
         console.log(`Graph Layout Update. Nodes: ${activeNodes.length}, Edges: ${activeEdges.length}`);
 
@@ -510,8 +516,8 @@ export function GraphOverviewPage() {
                             size="sm"
                             onClick={() => setActiveFieldFilter(f.id)}
                             className={`rounded-md px-2 h-7 transition-all duration-300 text-[10px] sm:text-xs whitespace-nowrap ${activeFieldFilter === f.id
-                                    ? 'bg-primary text-primary-foreground shadow-sm'
-                                    : 'hover:bg-accent/30 text-muted-foreground'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'hover:bg-accent/30 text-muted-foreground'
                                 }`}
                         >
                             {f.label}

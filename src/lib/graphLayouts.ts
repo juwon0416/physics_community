@@ -462,12 +462,34 @@ export const applyTetrahedralConstraints3D = (model: GraphModel): { nodes: Posit
         return node3D;
     });
 
-    // Keep all links (temporal included) so user can see chronological connections
-    const links = model.edges.map(e => ({
+    // If `root` is missing from the nodes list, it means we are in Subgraph Filter Mode.
+    // In Subgraph Filter Mode, we remove tetrahedral anchor constraints from the lone field 
+    // to let the engine organically arrange the chronological chained 3D string in space automatically.
+    const isSubgraphFilterActive = !model.nodes.some(n => n.id === 'root');
+
+    if (isSubgraphFilterActive) {
+        nodes3D.forEach(n => {
+            // Un-anchor everything allowing the physics simulation to do its job
+            n.fx = undefined;
+            n.fy = undefined;
+            n.fz = undefined;
+        });
+    }
+
+    // Pass links
+    let links = model.edges.map(e => ({
         source: e.source,
         target: e.target,
         type: e.type
     }));
+
+    // In Subgraph filter mode, drop everything EXCEPT chronological ('temporal') and linear field-to-first-topic links
+    // to enforce the snake/chain look. GraphOverviewPage already pre-filtered to `getChronologicalEdges`
+    // but this ensures the 3D renderer respects it entirely.
+    if (isSubgraphFilterActive) {
+        links = links.filter(l => l.type === 'temporal' || l.type === 'mentions');
+        // We drop 'hierarchy' entirely to prevent the starburst structure tying everything back to the field node
+    }
 
     return { nodes: nodes3D, links };
 };
