@@ -21,6 +21,7 @@ export function GraphOverviewPage() {
     const [nodes, setNodes] = useState<PositionedNode[]>([]);
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [filteredNetworkModel, setFilteredNetworkModel] = useState<GraphModel | null>(null);
 
     // Cache for network positions to avoid re-simulating
     const networkCache = useRef<PositionedNode[] | null>(null);
@@ -141,6 +142,7 @@ export function GraphOverviewPage() {
                 networkCache.current = layout;
                 setNodes(layout);
             }
+            setFilteredNetworkModel({ nodes: activeNodes, edges: activeEdges });
         }
     }, [activeTab, model]);
 
@@ -482,10 +484,10 @@ export function GraphOverviewPage() {
             </div>
 
             {/* Content Canvas */}
-            {activeTab === 'network' && model ? (
+            {activeTab === 'network' && filteredNetworkModel ? (
                 <div className="absolute inset-0 z-10 w-full h-full pointer-events-auto">
                     <Suspense fallback={<div className="flex items-center justify-center w-full h-full bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-                        <Network3DView model={model} />
+                        <Network3DView model={filteredNetworkModel} />
                     </Suspense>
                 </div>
             ) : (

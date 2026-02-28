@@ -106,10 +106,11 @@ export default function Network3DView({ model }: Network3DViewProps) {
                     showLabel = isHovered;
                 }
 
-                // If hovered, expand a bit
+                // If hovered, highlight styling without changing physical radius
                 if (isHovered) {
-                    radius *= 1.3;
-                    showLabel = true; // explicitly ensure
+                    // Just ensure label is shown and add a glow to the material
+                    // We DO NOT change `radius` to prevent raycast glitching (runaway nodes)
+                    showLabel = true;
                 }
 
                 const group = new THREE.Group();
@@ -119,7 +120,9 @@ export default function Network3DView({ model }: Network3DViewProps) {
                 const material = new THREE.MeshLambertMaterial({
                     color: color,
                     transparent: true,
-                    opacity: n.type === 'concept' && !isHovered ? 0.6 : 1
+                    opacity: n.type === 'concept' && !isHovered ? 0.6 : 1,
+                    emissive: isHovered ? color : '#000000',
+                    emissiveIntensity: isHovered ? 0.4 : 0
                 });
                 const sphere = new THREE.Mesh(geometry, material);
                 group.add(sphere);
@@ -135,6 +138,12 @@ export default function Network3DView({ model }: Network3DViewProps) {
 
                     // offset text safely below
                     sprite.position.y = -(radius + sprite.textHeight + 1);
+
+                    if (isHovered) {
+                        sprite.material.depthTest = false; // Render on top of everything
+                        sprite.renderOrder = 999;
+                    }
+
                     group.add(sprite);
                 }
 
