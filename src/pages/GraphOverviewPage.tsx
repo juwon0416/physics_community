@@ -99,6 +99,9 @@ export function GraphOverviewPage() {
             }
         });
 
+        const keptNonConcepts = new Set<string>();
+
+        // Pass 1: Filter and establish core Field & Topic structure
         activeNodes = activeNodes.filter(n => {
             // RULE: The Mathematical Physics main field node itself is NEVER shown in any view.
             if (n.id === 'mathematical-physics') {
@@ -108,11 +111,14 @@ export function GraphOverviewPage() {
             // RULE: For child topics of Mathematical Physics, only show in Network View IF explicitly mentioned.
             if (n.data?.fieldId === 'mathematical-physics') {
                 if (activeTab === 'chronological') return false;
-                return mentionsIds.has(n.id);
+                const keep = mentionsIds.has(n.id);
+                if (keep) keptNonConcepts.add(n.id);
+                return keep;
             }
 
+            // KEEP concepts alive in Pass 1, we decide on them in Pass 2
             if (n.type === 'concept') {
-                return connectedIds.has(n.id);
+                return true;
             }
 
             // Field Filter Logic
@@ -121,16 +127,42 @@ export function GraphOverviewPage() {
                 if (n.id === 'root') return false;
 
                 // Keep the selected Field node itself
-                if (n.id === activeFieldFilter) return true;
+                if (n.id === activeFieldFilter) {
+                    keptNonConcepts.add(n.id);
+                    return true;
+                }
 
                 // Keep children of the selected field
-                if (n.data?.fieldId === activeFieldFilter) return true;
+                if (n.data?.fieldId === activeFieldFilter) {
+                    keptNonConcepts.add(n.id);
+                    return true;
+                }
 
                 // If it doesn't match the active field tree, toss it out
                 return false;
             }
 
+            keptNonConcepts.add(n.id);
             return true; // Always show other Topics/Fields regardless of connection
+        });
+
+        // Pass 2: Filter concepts strictly based on whether they attach to a Kept node
+        activeNodes = activeNodes.filter(n => {
+            if (n.type === 'concept') {
+                // Must be connected at all
+                if (!connectedIds.has(n.id)) return false;
+
+                // Must be connected to THIS specific subgraph's nodes
+                if (activeFieldFilter !== 'all') {
+                    // Check if there is ANY edge connecting this concept to a kept non-concept topic/field
+                    const isLinkedToField = model.edges.some(e =>
+                        (e.source === n.id && keptNonConcepts.has(e.target)) ||
+                        (e.target === n.id && keptNonConcepts.has(e.source))
+                    );
+                    return isLinkedToField;
+                }
+            }
+            return true;
         });
 
         // 2. Filter Edges to match Active Nodes (Fixes "Dropped Edge" warnings)
@@ -501,29 +533,31 @@ export function GraphOverviewPage() {
                     </div>
                 </div>
 
-                {/* Subgraph Field Filter */}
-                <div className="glass p-1.5 rounded-lg flex items-center shadow-md pointer-events-auto w-fit max-w-[80vw] overflow-x-auto gap-1">
-                    {[
-                        { id: 'all', label: 'All Fields' },
-                        { id: 'quantum', label: 'Quantum' },
-                        { id: 'statistical', label: 'Statistical' },
-                        { id: 'electrodynamics', label: 'E-Dynamics' },
-                        { id: 'classical', label: 'Classical' }
-                    ].map(f => (
-                        <Button
-                            key={f.id}
-                            variant={activeFieldFilter === f.id ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setActiveFieldFilter(f.id)}
-                            className={`rounded-md px-2 h-7 transition-all duration-300 text-[10px] sm:text-xs whitespace-nowrap ${activeFieldFilter === f.id
-                                ? 'bg-primary text-primary-foreground shadow-sm'
-                                : 'hover:bg-accent/30 text-muted-foreground'
-                                }`}
-                        >
-                            {f.label}
-                        </Button>
-                    ))}
-                </div>
+                {/* Subgraph Field Filter - ONLY applicable in Network View */}
+                {activeTab === 'network' && (
+                    <div className="glass p-1.5 rounded-lg flex items-center shadow-md pointer-events-auto w-fit max-w-[80vw] overflow-x-auto gap-1">
+                        {[
+                            { id: 'all', label: 'All Fields' },
+                            { id: 'quantum', label: 'Quantum' },
+                            { id: 'statistical', label: 'Statistical' },
+                            { id: 'electrodynamics', label: 'E-Dynamics' },
+                            { id: 'classical', label: 'Classical' }
+                        ].map(f => (
+                            <Button
+                                key={f.id}
+                                variant={activeFieldFilter === f.id ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setActiveFieldFilter(f.id)}
+                                className={`rounded-md px-2 h-7 transition-all duration-300 text-[10px] sm:text-xs whitespace-nowrap ${activeFieldFilter === f.id
+                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                    : 'hover:bg-accent/30 text-muted-foreground'
+                                    }`}
+                            >
+                                {f.label}
+                            </Button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="absolute top-4 right-4 z-20 flex flex-col gap-2" onMouseDown={e => e.stopPropagation()}>

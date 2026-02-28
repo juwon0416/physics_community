@@ -187,7 +187,7 @@ export default function Network3DView({ model }: Network3DViewProps) {
             linkColor={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
                 if (isHovered) return 'rgba(255,255,255,0.8)';
-                return 'rgba(156, 163, 175, 0.2)'; // text-muted-foreground at 0.2
+                return 'rgba(156, 163, 175, 0.45)'; // text-muted-foreground with higher opacity for visibility
             }}
             linkWidth={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
