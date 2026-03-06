@@ -3,9 +3,9 @@
 // ----------------------------------------------------------------------------
 // These will be passed to KaTeX to render them correctly in the preview.
 export const PHYSICS_MACROS = {
-    "\\ket": "\\left|\\! #1 \\, \\right\\rangle",
-    "\\bra": "\\left\\langle \\, #1 \\!\\right|",
-    "\\braket": "\\left\\langle \\, #1 \\middle| #2 \\, \\right\\rangle",
+    "\\ket": "\\left|\\mkern-1.5mu #1 \\mkern1.5mu\\right\\rangle",
+    "\\bra": "\\left\\langle\\mkern1.5mu #1 \\mkern-1.5mu\\right|",
+    "\\braket": "\\left\\langle\\mkern1.5mu #1 \\middle| #2 \\mkern1.5mu\\right\\rangle",
     "\\grad": "\\nabla",
     "\\div": "\\nabla\\cdot",
     "\\curl": "\\nabla\\times",
