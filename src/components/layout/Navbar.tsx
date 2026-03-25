@@ -1,31 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Moon, Sun, Home, ChevronRight } from 'lucide-react';
+import { Home, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { FIELDS, TIMELINE_TOPICS } from '../../data/seed';
 import { LoginDialog } from '../auth/LoginDialog';
 
 export function Navbar() {
-    const [isDark, setIsDark] = useState(() => {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            return true;
-        }
-        return false;
-    });
-
     const location = useLocation();
-
-    useEffect(() => {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-            localStorage.theme = 'dark';
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.theme = 'light';
-        }
-    }, [isDark]);
-
-    const toggleTheme = () => setIsDark(!isDark);
 
     // Breadcrumb Logic
     const pathnames = location.pathname.split('/').filter((x) => x);
@@ -94,13 +75,6 @@ export function Navbar() {
 
                 <div className="flex flex-1 items-center justify-end space-x-2">
                     <LoginDialog />
-                    <button
-                        onClick={toggleTheme}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 w-9"
-                    >
-                        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                        <span className="sr-only">Toggle theme</span>
-                    </button>
                 </div>
             </div>
         </nav>

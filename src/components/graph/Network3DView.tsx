@@ -8,90 +8,114 @@ import { applyTetrahedralConstraints3D, type PositionedNode3D } from '../../lib/
 
 interface Network3DViewProps {
     model: GraphModel;
+    focusedNodeId?: string | null;
 }
 
-// Map Fields to Distinct Colors
+// Entropy Hero와 동일한 HSL 색상 체계 매핑
 const colorMap: Record<string, string> = {
-    'classical': '#60a5fa',         // blue-400
-    'quantum': '#f472b6',           // pink-400
-    'statistical': '#4ade80',       // green-400
-    'electrodynamics': '#facc15',   // yellow-400
-    'mathematical-physics': '#c084fc' // purple-400
+    'quantum': 'hsl(195, 80%, 60%)',           
+    'statistical': 'hsl(285, 80%, 60%)',       
+    'electrodynamics': 'hsl(335, 80%, 60%)',   
+    'classical': 'hsl(45, 80%, 60%)',          
+    'mathematical-physics': 'hsl(225, 80%, 60%)' 
 };
 
-export default function Network3DView({ model }: Network3DViewProps) {
+// 유체 입자처럼 빛나는 텍스처 생성 유틸리티
+const createGlowTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+};
+
+const glowTexture = createGlowTexture();
+
+export default function Network3DView({ model, focusedNodeId }: Network3DViewProps) {
     const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
     const navigate = useNavigate();
-
-    // Maintain hover state for selective rendering
     const [hoverNode, setHoverNode] = useState<PositionedNode3D | null>(null);
 
-    // Filter out Mathematical Physics branches (strict condition for 3D as requested originally or keep it consistent)
-    // Here we include 'mathematical-physics' strictly if it's naturally connected or if we just want it out, 
-    // but the user's latest prompt implies we want 5 core nodes: physics(root) + 4 main fields.
     const constrainedModel = useMemo(() => {
         return applyTetrahedralConstraints3D(model);
     }, [model]);
 
     const { nodes, links } = constrainedModel;
 
-    // Tuning the physical simulation upon mount
     useEffect(() => {
         const fg = fgRef.current;
         if (fg) {
-            // Adjust D3 force settings for better aesthetics and stability
             fg.d3Force('link')?.distance((link: any) => {
-                if (link.type === 'hierarchy') return 30;
-                if (link.type === 'temporal') return 30;
-                if (link.type === 'mentions') return 60;
-                return 40;
+                if (link.type === 'hierarchy') return 45;
+                if (link.type === 'temporal') return 35;
+                if (link.type === 'mentions') return 70;
+                return 50;
             }).strength((link: any) => {
-                // Weak temporal link forces so the starburst shape isn't compressed
                 if (link.type === 'temporal') return 0.05;
                 return 1;
             });
-            fg.d3Force('charge')?.strength(-150); // High repulsion to keep chronological chains physically separated from each other
+            fg.d3Force('charge')?.strength(-200);
         }
     }, [nodes, links]);
 
+    useEffect(() => {
+        if (focusedNodeId && fgRef.current) {
+            const node = nodes.find(n => n.id === focusedNodeId);
+            if (node && node.x !== undefined && node.y !== undefined && node.z !== undefined) {
+                const distance = 180;
+                const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+                fgRef.current.cameraPosition(
+                    { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, 
+                    node as any, 
+                    2000  
+                );
+            }
+        }
+    }, [focusedNodeId, nodes]);
+
     const handleNodeHover = useCallback((node: any, prevNode: any) => {
-        // 1. Revert the previously hovered node natively
         if (prevNode && prevNode.__threeObj) {
             const group = prevNode.__threeObj as THREE.Group;
-            const sphere = group.children[0] as THREE.Mesh;
-            const sprite = group.children[1] as SpriteText;
-
-            if (sphere && sphere.material instanceof THREE.MeshLambertMaterial) {
-                sphere.material.emissiveIntensity = 0;
-            }
-            if (sprite) {
-                sprite.color = '#e5e7eb';
-                sprite.material.depthTest = true;
-                sprite.renderOrder = 0;
-                // Labels are now always visible, so no need to hide them on unhover
+            const sprite = group.children[0] as THREE.Sprite;
+            const label = group.children[1] as SpriteText;
+            
+            // 원래 상태로 복구 (Tween 효과 대신 즉시 변경 - force-graph 내부 최적화)
+            sprite.scale.set(group.userData.baseRadius * 2, group.userData.baseRadius * 2, 1);
+            sprite.material.opacity = group.userData.type === 'concept' ? 0.4 : 0.8;
+            
+            if (label) {
+                label.color = '#e5e7eb';
+                label.material.opacity = 0.5;
             }
         }
-
-        // 2. Highlight the newly hovered node natively
         if (node && node.__threeObj) {
             const group = node.__threeObj as THREE.Group;
-            const userData = group.userData;
-            const sphere = group.children[0] as THREE.Mesh;
-            const sprite = group.children[1] as SpriteText;
-
-            if (sphere && sphere.material instanceof THREE.MeshLambertMaterial) {
-                sphere.material.emissive.set(userData.baseColor);
-                sphere.material.emissiveIntensity = 0.6;
-            }
-            if (sprite) {
-                sprite.color = userData.baseColor;
-                sprite.material.depthTest = false;
-                sprite.renderOrder = 999;
-                sprite.visible = true; // Ensure visibility
+            const sprite = group.children[0] as THREE.Sprite;
+            const label = group.children[1] as SpriteText;
+            
+            // 호버 시 강조: 크기 확대 및 불투명도 증가
+            const scale = group.userData.baseRadius * 3.5;
+            sprite.scale.set(scale, scale, 1);
+            sprite.material.opacity = 1.0;
+            
+            if (label) {
+                label.color = group.userData.baseColor;
+                label.material.opacity = 1.0;
+                label.visible = true; 
             }
         }
-
-        // 3. Trigger React state update ONLY for Link rendering, ForceGraph handles links efficiently via databinding
         setHoverNode(node || null);
     }, []);
 
@@ -106,89 +130,68 @@ export default function Network3DView({ model }: Network3DViewProps) {
             ref={fgRef}
             graphData={constrainedModel}
             nodeId="id"
-            // Visual configuration
-            backgroundColor="rgba(0,0,0,0)" // Transparent to match the rest of the dark theme
+            backgroundColor="rgba(0,0,0,0)" 
             showNavInfo={false}
-
-
-            // Physics Properties
-            d3AlphaDecay={0.05} // Faster decay for quicker settling
-            d3VelocityDecay={0.4} // Higher friction to stop runaway nodes on hover
-
-            // Node Renderer (Stabilized reference to halt infinite re-render geometry rebuild loops)
+            d3AlphaDecay={0.02}
+            d3VelocityDecay={0.3}
             nodeThreeObject={useCallback((node: any) => {
                 const n = node as PositionedNode3D;
+                let radius = 6;
+                let colorStr = '#ffffff'; 
+                
+                if (n.type === 'root') { radius = 22; colorStr = '#ffffff'; }
+                else if (n.type === 'field') { radius = 16; colorStr = colorMap[n.id] || colorMap[(n.data as any)?.fieldId as string] || '#ffffff'; }
+                else if (n.type === 'topic') { radius = 10; colorStr = colorMap[(n.data as any)?.fieldId as string] || '#ffffff'; }
+                else if (n.type === 'concept') { radius = 5; colorStr = '#9ca3af'; }
 
-                let radius = 4;
-                let color = '#9ca3af'; // muted-foreground default
-                let showLabel = true; // ALL labels visible by default now
-
-                if (n.type === 'root') {
-                    radius = 16;
-                    color = '#ffffff'; // text-foreground
-                } else if (n.type === 'field') {
-                    radius = 12;
-                    color = colorMap[n.id] || colorMap[(n.data as any)?.fieldId as string] || color;
-                } else if (n.type === 'topic') {
-                    radius = 6;
-                    color = colorMap[(n.data as any)?.fieldId as string] || color;
-                } else if (n.type === 'concept') {
-                    radius = 3;
-                    color = '#6b7280'; // muted
-                }
-
+                const color = new THREE.Color(colorStr);
                 const group = new THREE.Group();
-                group.userData = { type: n.type, baseColor: color, baseRadius: radius };
-
-                // 1. Sphere
-                const geometry = new THREE.SphereGeometry(radius, 16, 16);
-                const material = new THREE.MeshLambertMaterial({
+                group.userData = { type: n.type, baseColor: colorStr, baseRadius: radius };
+                
+                // WebGL Sprite를 활용한 "유체 입자" 글로우 효과 구현
+                const material = new THREE.SpriteMaterial({
+                    map: glowTexture,
                     color: color,
                     transparent: true,
-                    opacity: n.type === 'concept' ? 0.6 : 1,
-                    emissive: '#000000',
-                    emissiveIntensity: 0
+                    opacity: n.type === 'concept' ? 0.4 : 0.8,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
                 });
-                const sphere = new THREE.Mesh(geometry, material);
-                group.add(sphere);
+                
+                const sprite = new THREE.Sprite(material);
+                sprite.scale.set(radius * 2, radius * 2, 1);
+                group.add(sprite);
 
-                // 2. Label
                 if (n.label) {
-                    const sprite = new SpriteText(n.label);
-                    sprite.color = '#e5e7eb';
-                    sprite.textHeight = n.type === 'root' ? 8 : (n.type === 'field' ? 6 : 4);
-                    sprite.fontWeight = n.type === 'root' || n.type === 'field' ? 'bold' : 'normal';
-                    sprite.position.y = -(radius + sprite.textHeight + 1);
-                    sprite.visible = showLabel;
-
-                    // CRITICAL: Block SpriteText from receiving hover raycasts so it doesn't trigger jitter!
-                    sprite.raycast = function () { };
-
-                    group.add(sprite);
+                    const labelSprite = new SpriteText(n.label);
+                    labelSprite.color = '#e5e7eb';
+                    labelSprite.textHeight = n.type === 'root' ? 10 : (n.type === 'field' ? 8 : 5);
+                    labelSprite.fontWeight = 'bold';
+                    labelSprite.position.y = -(radius + labelSprite.textHeight + 2);
+                    labelSprite.material.transparent = true;
+                    labelSprite.material.opacity = 0.5;
+                    labelSprite.raycast = () => {};
+                    group.add(labelSprite);
                 }
-
                 return group;
             }, [])}
-
-            // Link Renderer
-            linkDirectionalArrowLength={(link: any) => (link.type === 'mentions' || link.type === 'hierarchy' || link.type === 'temporal' ? 3.5 : 0)}
-            linkDirectionalArrowRelPos={1}
             linkDirectionalParticles={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
-                return isHovered ? 4 : 0;
+                const isFocused = focusedNodeId && (link.source.id === focusedNodeId || link.target.id === focusedNodeId);
+                return (isHovered || isFocused) ? 6 : 0;
             }}
-            linkDirectionalParticleWidth={2}
+            linkDirectionalParticleWidth={3}
             linkColor={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
-                if (isHovered) return 'rgba(255,255,255,0.8)';
-                return 'rgba(156, 163, 175, 0.45)'; // text-muted-foreground with higher opacity for visibility
+                const isFocused = focusedNodeId && (link.source.id === focusedNodeId || link.target.id === focusedNodeId);
+                if (isHovered || isFocused) return 'rgba(255,255,255,0.8)';
+                return 'rgba(255, 255, 255, 0.08)'; 
             }}
             linkWidth={(link: any) => {
                 const isHovered = hoverNode && (link.source.id === hoverNode.id || link.target.id === hoverNode.id);
-                return isHovered ? 1.5 : 0.5;
+                const isFocused = focusedNodeId && (link.source.id === focusedNodeId || link.target.id === focusedNodeId);
+                return (isHovered || isFocused) ? 2.0 : 0.8;
             }}
-
-            // Interaction
             onNodeHover={handleNodeHover}
             onNodeClick={handleNodeClick}
         />

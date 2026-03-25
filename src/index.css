@@ -1,170 +1,45 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-
 @layer base {
   :root {
-    /* Trendy Modern Theme - Glass & gradients */
-
-    /* Background: Light Soft Gray/White for clean look, or subtle gradient */
-    --background: 210 40% 98%;
-
-    /* Foreground: Deep Slate */
-    --foreground: 222 47% 11%;
-
-    /* Card: White with opacity for glass effect */
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    /* Primary: Vibrant Indigo/Violet gradient base */
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Secondary: Soft Slate */
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
-
-    /* Muted: Grayish Blue */
-    --muted: 215 16% 47%;
-    --muted-foreground: 215 16% 47%;
-
-    /* Accent: Cyan/Teal for vibrancy */
-    --accent: 199 89% 48%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
-
-    /* Modern Rounded Corners */
-    --radius: 1rem;
-  }
-
-  /* Dark Mode: Deep Space/Midnight */
-  .dark {
-    --background: 222 47% 11%;
+    --background: 240 43% 1%; /* #020205 */
     --foreground: 210 40% 98%;
-
-    --card: 222 47% 11%;
+    --card: 240 43% 2%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 11%;
+    --popover: 240 43% 2%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 263 70% 50%;
-    /* Deep Purple/Indigo */
     --primary-foreground: 210 40% 98%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 199 89% 48%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 263 70% 50%;
+    --radius: 1rem;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30;
-    /* Subtle mesh gradient background */
+    /* 핵심: 우주 배경 메쉬 그라데이션 */
     background-image:
       radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
       radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
       radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
     background-attachment: fixed;
     background-size: cover;
-  }
-
-  /* Lighter gradient for light mode */
-  :root:not(.dark) body {
-    background-image:
-      radial-gradient(at 0% 0%, hsla(253, 16%, 90%, 1) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(225, 39%, 95%, 1) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339, 49%, 95%, 1) 0, transparent 50%);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-display tracking-tight;
-  }
-
-  p,
-  span,
-  li,
-  a {
-    @apply font-sans;
-  }
-
-  code,
-  pre {
-    @apply font-mono;
+    background-color: #020205;
   }
 }
 
-/* Glassmorphism Utilities */
-.glass {
-  @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
-}
-
-.dark .glass {
-  @apply bg-black/30 backdrop-blur-lg border border-white/10 shadow-lg;
-}
-
-.glass-card {
-  @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/15;
-}
-
-.dark .glass-card {
-  @apply bg-black/30 border-white/10 hover:bg-black/40;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-muted rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-accent;
-}
-
-/* Timeline Theme Mappings */
-.timeline-vintage {
-  /* Renamed to just timeline-theme internally or map variables */
-  --paper: hsl(var(--background));
-  --ink: hsl(var(--foreground));
-  --muted: hsl(var(--muted-foreground));
-  --grid: hsl(var(--border));
-  --accent: hsl(var(--primary));
-}
+.glass { @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg; }
+.glass-card { @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl transition-all duration-300 hover:shadow-xl hover:bg-white/15; }

@@ -413,11 +413,11 @@ export default function EntropyHero() {
 
       <div className="sticky top-0 h-screen w-full flex flex-col justify-between p-4 md:p-12 z-10 pointer-events-none">
         <div className="flex flex-col md:flex-row justify-between items-start gap-3 md:gap-8">
-          <div className="w-[85%] sm:w-full md:max-w-2xl bg-black/20 backdrop-blur-xl p-3 md:p-6 rounded-xl md:rounded-3xl border border-white/10">
-            <div className="text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-blue-400 mb-0.5 md:mb-2 font-bold">
+          <div className="w-[75%] sm:w-full md:max-w-2xl bg-black/20 backdrop-blur-xl p-2.5 md:p-6 rounded-xl md:rounded-3xl border border-white/10">
+            <div className="text-[7px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-blue-400 mb-0.5 md:mb-2 font-bold">
               Thermodynamics of Information
             </div>
-            <h1 className="text-lg md:text-5xl font-bold tracking-tight mb-1 md:mb-4 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent font-display">
+            <h1 className="text-base md:text-5xl font-bold tracking-tight mb-0.5 md:mb-4 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent font-display">
               3D Kinetic Entropy Field
             </h1>
             <p className="hidden sm:block text-xs md:text-base text-white/50 leading-relaxed font-light">
@@ -426,12 +426,12 @@ export default function EntropyHero() {
             </p>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-xl p-3 md:p-6 rounded-xl md:rounded-3xl border border-white/10 min-w-[100px] md:min-w-[160px] text-right self-end md:self-start">
-            <div className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/40 mb-0.5 md:mb-1">Entropy</div>
-            <div className="text-2xl md:text-6xl font-mono font-bold text-white tracking-tighter">
-              {entropy}<span className="text-sm md:text-xl ml-0.5 text-white/30">%</span>
+          <div className="bg-white/5 backdrop-blur-xl p-2 md:p-6 rounded-xl md:rounded-3xl border border-white/10 min-w-[80px] md:min-w-[160px] text-right self-end md:self-start">
+            <div className="text-[7px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/40 mb-0.5 md:mb-1">Entropy</div>
+            <div className="text-xl md:text-6xl font-mono font-bold text-white tracking-tighter">
+              {entropy}<span className="text-[10px] md:text-xl ml-0.5 text-white/30">%</span>
             </div>
-            <div className="mt-1.5 md:mt-2 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+            <div className="mt-1 md:mt-2 h-0.5 md:h-1 w-full bg-white/10 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-blue-500 transition-all duration-300 ease-out"
                 style={{ width: `${entropy}%` }}
