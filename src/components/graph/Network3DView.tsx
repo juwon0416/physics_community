@@ -8,7 +8,6 @@ import { applyTetrahedralConstraints3D, type PositionedNode3D } from '../../lib/
 
 interface Network3DViewProps {
     model: GraphModel;
-    focusedNodeId?: string | null;
 }
 
 // Map Fields to Distinct Colors
@@ -20,7 +19,7 @@ const colorMap: Record<string, string> = {
     'mathematical-physics': '#c084fc' // purple-400
 };
 
-export default function Network3DView({ model, focusedNodeId: _focusedNodeId }: Network3DViewProps) {
+export default function Network3DView({ model }: Network3DViewProps) {
     const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
     const navigate = useNavigate();
 
