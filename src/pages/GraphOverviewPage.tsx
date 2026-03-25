@@ -294,21 +294,21 @@ export function GraphOverviewPage() {
             </div>
 
             {activeFieldFilter !== 'all' && chronologicalTopics.length > 0 && (
-                <div className="fixed top-[115px] left-3 z-20 flex flex-col gap-1 w-32 sm:w-56 max-h-[calc(100vh-200px)] overflow-y-auto glass p-1.5 sm:p-3 rounded-lg shadow-md pointer-events-auto transition-all" onMouseDown={e => e.stopPropagation()}>
-                    <h3 className="text-[7px] sm:text-[10px] font-semibold text-primary/80 uppercase tracking-widest mb-0.5 border-b border-primary/20 pb-0.5">Timeline</h3>
-                    <div className="flex flex-col gap-0 border-l hover:border-primary/40 border-primary/20 ml-1 sm:ml-2 pl-1.5 sm:pl-3 py-0.5 transition-colors">
+                <div className="fixed top-[125px] left-4 z-20 flex flex-col gap-2 w-40 sm:w-56 max-h-[calc(100vh-180px)] overflow-y-auto glass p-2 sm:p-3 rounded-lg shadow-md pointer-events-auto transition-all" onMouseDown={e => e.stopPropagation()}>
+                    <h3 className="text-[8px] sm:text-[10px] font-semibold text-primary/80 uppercase tracking-widest mb-1 border-b border-primary/20 pb-1">Timeline</h3>
+                    <div className="flex flex-col gap-0.5 sm:gap-1 border-l hover:border-primary/40 border-primary/20 ml-1.5 sm:ml-2 pl-2 sm:pl-3 py-1 transition-colors">
                         {chronologicalTopics.map(topic => (
                             <button
                                 key={topic.id}
                                 onClick={() => setFocusedNodeId(topic.id)}
                                 className="text-left py-1 sm:py-1.5 relative group outline-none"
                             >
-                                <div className={`absolute -left-[7.5px] sm:-left-[17px] top-1/2 -translate-y-1/2 w-1 h-1 sm:w-2 sm:h-2 rounded-full transition-colors ${focusedNodeId === topic.id ? 'bg-primary shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'bg-primary/30 group-hover:bg-primary/70'}`} />
-                                <div className={`text-[8px] sm:text-xs leading-tight transition-colors ${focusedNodeId === topic.id ? 'text-primary font-medium' : 'text-muted-foreground group-hover:text-primary/90'}`}>
+                                <div className={`absolute -left-[13px] sm:-left-[17px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${focusedNodeId === topic.id ? 'bg-primary shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'bg-primary/30 group-hover:bg-primary/70'}`} />
+                                <div className={`text-[10px] sm:text-xs leading-snug transition-colors ${focusedNodeId === topic.id ? 'text-primary font-medium' : 'text-muted-foreground group-hover:text-primary/90'}`}>
                                     {String(topic.label)}
                                 </div>
                                 {topic.data?.year ? (
-                                    <div className="text-[7px] sm:text-[9px] text-muted-foreground/40 font-mono mt-0">{String(topic.data.year)}</div>
+                                    <div className="text-[8px] sm:text-[9px] text-muted-foreground/50 font-mono mt-0">{String(topic.data.year)}</div>
                                 ) : null}
                             </button>
                         ))}
@@ -316,13 +316,11 @@ export function GraphOverviewPage() {
                 </div>
             )}
 
-            {filteredNetworkModel && (
-                <div className="absolute inset-0 z-10 w-full h-full pointer-events-auto">
-                    <Suspense fallback={<div className="flex items-center justify-center w-full h-full bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-                        <Network3DView model={filteredNetworkModel} focusedNodeId={focusedNodeId} />
-                    </Suspense>
-                </div>
-            )}
+            <div className="absolute inset-0 z-10 w-full h-full pointer-events-auto">
+                <Suspense fallback={<div className="flex items-center justify-center w-full h-full bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+                    <Network3DView model={filteredNetworkModel} focusedNodeId={focusedNodeId} />
+                </Suspense>
+            </div>
         </div>
     );
 }
