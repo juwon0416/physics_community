@@ -11,7 +11,8 @@
 
 - App shell: `src/components/layout/Layout.tsx`, `src/components/layout/Navbar.tsx`
 - Graph overview: `src/pages/GraphOverviewPage.tsx`
-- Active graph view: `src/components/graph/OntologyGraphView.tsx`
+- Active graph view: `src/components/graph/FileOntologyCanvas.tsx`
+- Legacy concept graph view: `src/components/graph/OntologyGraphView.tsx`
 - Retired graph experiments: `trash/src-unused/components/graph/`
 - Retired editor experiments: `trash/src-unused/components/editor/`
 - Topic data access: `src/data/storage.ts`

@@ -30,7 +30,6 @@ relations:
     - file:graph-spheres
     - file:knowledge-pipeline
     - file:storage
-    - page:graph-overview-page
     - page:topic-page
 evidence:
   - kind: static-import
@@ -84,5 +83,4 @@ confidence: high
 | in | imports | [[file-graph-spheres]] | high | static-import @ src/lib/graphSpheres.ts |
 | in | imports | [[file-knowledge-pipeline]] | high | static-import @ src/lib/knowledgePipeline.ts |
 | in | imports | [[file-storage]] | high | static-import @ src/data/storage.ts |
-| in | imports | [[page-graph-overview-page]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
 | in | imports | [[page-topic-page]] | high | static-import @ src/pages/TopicPage.tsx |

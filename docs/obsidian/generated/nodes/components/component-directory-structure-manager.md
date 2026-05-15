@@ -14,7 +14,7 @@ relations:
     - file:storage
     - file:topic-slug
   incoming:
-    - page:graph-overview-page
+    - none
 evidence:
   - kind: static-import
     source_path: src/components/admin/DirectoryStructureManager.tsx
@@ -48,4 +48,3 @@ confidence: high
 | out | imports | [[file-seed]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | out | imports | [[file-storage]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | out | imports | [[file-topic-slug]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
-| in | imports | [[page-graph-overview-page]] | high | static-import @ src/pages/GraphOverviewPage.tsx |

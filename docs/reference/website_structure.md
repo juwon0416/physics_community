@@ -21,9 +21,11 @@ This document is a short human guide to the active website structure. For machin
 - `src/pages/TopicPage.tsx`
   - Topic detail page and document rendering flow.
 - `src/pages/GraphOverviewPage.tsx`
-  - Graph workspace page that combines the graph canvas with admin panels.
+  - File ontology workspace page mounted at `/graph`.
+- `src/components/graph/FileOntologyCanvas.tsx`
+  - Active markdown-file ontology canvas with DB-backed files, hidden summaries, and labeled edges.
 - `src/components/graph/OntologyGraphView.tsx`
-  - Active ontology graph UI.
+  - Preserved legacy concept ontology graph UI.
 - `src/components/admin/KnowledgeImportManager.tsx`
   - Topic and knowledge import controls.
 - `src/components/admin/DirectoryStructureManager.tsx`
@@ -38,9 +40,9 @@ This document is a short human guide to the active website structure. For machin
 ```text
 src/
 ├── components/
-│   ├── admin/      # graph admin panels used by GraphOverviewPage
+│   ├── admin/      # legacy graph import and structure panels
 │   ├── auth/       # login dialog
-│   ├── graph/      # active graph rendering and graph interactions
+│   ├── graph/      # active file ontology canvas and legacy graph rendering
 │   ├── layout/     # navbar and shared shell
 │   └── ui/         # shared buttons, dialogs, inputs, upload controls
 ├── data/           # topic storage and archive access layer

@@ -2,9 +2,9 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 154
-- Nodes generated: 122
-- Edges generated: 192
+- Files scanned: 157
+- Nodes generated: 126
+- Edges generated: 194
 
 ## .codex
 
@@ -23,8 +23,8 @@
 
 ## database
 
-- Files scanned: 20
-- Registry nodes: 19
+- Files scanned: 21
+- Registry nodes: 20
 
 - `database/sql/archive/archive_graph_schema.sql` -> [[database-archive-graph-schema]], [[table-archive-topics]], [[table-archive-graph-nodes]], [[table-archive-graph-edges]]
 - `database/sql/maintenance/check_purge_status.sql` -> [[database-check-purge-status]]
@@ -40,6 +40,7 @@
 - `database/sql/migrations/migration_sync_fields.sql` -> [[database-migration-sync-fields]]
 - `database/sql/migrations/migration_sync_graph.sql` -> [[database-migration-sync-graph]]
 - `database/sql/schema/complete_graph_schema.sql` -> [[database-complete-graph-schema]]
+- `database/sql/schema/file_ontology_schema.sql` -> [[database-file-ontology-schema]], [[table-file-ontology-files]], [[table-file-ontology-edges]]
 - `database/sql/schema/hierarchical_graph_schema.sql` -> [[database-hierarchical-graph-schema]]
 - `database/sql/schema/knowledge_repository_schema.sql` -> [[database-knowledge-repository-schema]], [[table-knowledge-repositories]], [[table-knowledge-source-documents]], [[table-knowledge-ingestion-runs]], [[table-knowledge-node-sources]], [[table-knowledge-change-sets]]
 - `database/sql/schema/ontology_paper_system_schema.sql` -> [[database-ontology-paper-system-schema]], [[table-ontology-papers]], [[table-ontology-global-concepts]], [[table-ontology-nodes]], [[table-ontology-edges]], [[table-ontology-concept-links]], [[table-ontology-inter-paper-relations]], [[table-ontology-concept-evolution]], [[table-ontology-model-lineage]], [[table-ontology-problem-solution-chains]], [[table-ontology-open-question-chains]], [[table-ontology-extraction-runs]]
@@ -108,13 +109,14 @@
 
 ## src
 
-- Files scanned: 41
-- Registry nodes: 37
+- Files scanned: 43
+- Registry nodes: 38
 
 - `src/App.tsx` -> [[file-app]], [[route-root-layout]], [[route-home]], [[route-graph]], [[route-field-field-slug]], [[route-topic-topic-slug]], [[route-not-found]]
 - `src/components/admin/DirectoryStructureManager.tsx` -> [[component-directory-structure-manager]]
 - `src/components/admin/KnowledgeImportManager.tsx` -> [[component-knowledge-import-manager]]
 - `src/components/auth/LoginDialog.tsx` -> [[component-login-dialog]]
+- `src/components/graph/FileOntologyCanvas.tsx` -> [[component-file-ontology-canvas]]
 - `src/components/graph/OntologyGraphView.tsx` -> [[component-ontology-graph-view]]
 - `src/components/layout/Layout.tsx` -> [[component-layout]]
 - `src/components/layout/Navbar.tsx` -> [[component-navbar]]
@@ -135,7 +137,6 @@
 - `src/lib/graphModel.ts` -> [[file-graph-model]]
 - `src/lib/graphSpheres.ts` -> [[file-graph-spheres]]
 - `src/lib/knowledgePipeline.ts` -> [[file-knowledge-pipeline]]
-- `src/lib/knowledgeSchema.ts` -> [[file-knowledge-schema]]
 
 ## tailwind.config.js
 

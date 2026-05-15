@@ -23,6 +23,8 @@ This folder groups SQL by purpose so the active website structure is easier to r
   - Knowledge import tables required by the knowledge ingestion flow.
 - `schema/ontology_paper_system_schema.sql`
   - Ontology and paper-system oriented schema set.
+- `schema/file_ontology_schema.sql`
+  - Additive `/graph` file ontology canvas tables for markdown files, hidden summaries, positions, and labeled file edges.
 - `migrations/`
   - Follow filename order by intent; each file is a targeted change, not a full reset.
 - `maintenance/check_purge_status.sql`

@@ -35,7 +35,8 @@ Implement website changes in the existing React/Vite app while preserving graph-
 
 - React Router routes live in `src/App.tsx`.
 - The graph overview flow centers on `src/pages/GraphOverviewPage.tsx`.
-- Active graph UI currently renders through `src/components/graph/OntologyGraphView.tsx`.
+- Active `/graph` UI currently renders through `src/components/graph/FileOntologyCanvas.tsx`.
+- `src/components/graph/OntologyGraphView.tsx` is preserved as the legacy concept ontology canvas and should not be assumed to own `/graph`.
 - Retired graph/editor experiments are kept under `trash/src-unused/` or `trash/src-legacy/`.
 - Topic rendering and PDF/content precedence live in `src/pages/TopicPage.tsx`.
 - Frontend code may use `VITE_*` values through `import.meta.env`, but must not hard-code real Supabase URLs, anon keys, or service role keys.

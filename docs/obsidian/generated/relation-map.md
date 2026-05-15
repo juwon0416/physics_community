@@ -21,6 +21,7 @@
 | [[component-directory-structure-manager]] | imports | [[file-seed]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | [[component-directory-structure-manager]] | imports | [[file-storage]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | [[component-directory-structure-manager]] | imports | [[file-topic-slug]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
+| [[component-file-ontology-canvas]] | imports | [[file-cn]] | high | static-import @ src/components/graph/FileOntologyCanvas.tsx |
 | [[component-image-upload]] | imports | [[component-button]] | high | static-import @ src/components/ui/ImageUpload.tsx |
 | [[component-image-upload]] | imports | [[file-cn]] | high | static-import @ src/components/ui/ImageUpload.tsx |
 | [[component-image-upload]] | imports | [[file-storage]] | high | static-import @ src/components/ui/ImageUpload.tsx |
@@ -46,6 +47,10 @@
 | [[database-clean-edges]] | migrates | [[table-graph-edges]] | medium | migration @ database/sql/maintenance/clean_edges.sql |
 | [[database-complete-graph-schema]] | migrates | [[table-graph-edges]] | medium | migration @ database/sql/schema/complete_graph_schema.sql |
 | [[database-complete-graph-schema]] | migrates | [[table-graph-nodes]] | medium | migration @ database/sql/schema/complete_graph_schema.sql |
+| [[database-file-ontology-schema]] | defines | [[table-file-ontology-edges]] | high | sql-schema @ database/sql/schema/file_ontology_schema.sql |
+| [[database-file-ontology-schema]] | migrates | [[table-file-ontology-edges]] | medium | migration @ database/sql/schema/file_ontology_schema.sql |
+| [[database-file-ontology-schema]] | defines | [[table-file-ontology-files]] | high | sql-schema @ database/sql/schema/file_ontology_schema.sql |
+| [[database-file-ontology-schema]] | migrates | [[table-file-ontology-files]] | medium | migration @ database/sql/schema/file_ontology_schema.sql |
 | [[database-hierarchical-graph-schema]] | migrates | [[table-graph-edges]] | medium | migration @ database/sql/schema/hierarchical_graph_schema.sql |
 | [[database-knowledge-repository-schema]] | migrates | [[table-archive-graph-nodes]] | medium | migration @ database/sql/schema/knowledge_repository_schema.sql |
 | [[database-knowledge-repository-schema]] | migrates | [[table-graph-nodes]] | medium | migration @ database/sql/schema/knowledge_repository_schema.sql |
@@ -172,11 +177,8 @@
 | [[file-storage]] | queries | [[table-questions]] | high | supabase-query @ src/data/storage.ts |
 | [[file-storage]] | queries | [[table-topic-sections]] | high | supabase-query @ src/data/storage.ts |
 | [[file-storage]] | queries | [[table-topics]] | high | supabase-query @ src/data/storage.ts |
-| [[page-graph-overview-page]] | imports | [[component-directory-structure-manager]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
-| [[page-graph-overview-page]] | imports | [[component-knowledge-import-manager]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
-| [[page-graph-overview-page]] | imports | [[component-ontology-graph-view]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
+| [[page-graph-overview-page]] | imports | [[component-file-ontology-canvas]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
 | [[page-graph-overview-page]] | imports | [[file-auth]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
-| [[page-graph-overview-page]] | imports | [[file-graph-model]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
 | [[page-home]] | imports | [[file-cn]] | high | static-import @ src/pages/Home.tsx |
 | [[page-home]] | imports | [[file-theme]] | high | static-import @ src/pages/Home.tsx |
 | [[page-timeline-page]] | imports | [[component-image-upload]] | high | static-import @ src/pages/TimelinePage.tsx |

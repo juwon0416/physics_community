@@ -7,7 +7,8 @@ Physics Community is a Vite + React + TypeScript site for browsing physics topic
 - Website entry and routes: `src/App.tsx`
 - Page-level screens: `src/pages/`
 - Active graph page: `src/pages/GraphOverviewPage.tsx`
-- Active graph UI: `src/components/graph/OntologyGraphView.tsx`
+- Active graph UI: `src/components/graph/FileOntologyCanvas.tsx`
+- Legacy concept graph UI: `src/components/graph/OntologyGraphView.tsx`
 - Graph admin tools: `src/components/admin/KnowledgeImportManager.tsx`, `src/components/admin/DirectoryStructureManager.tsx`
 - Topic rendering and storage: `src/data/`, `src/lib/`
 - SQL source files: `database/sql/`

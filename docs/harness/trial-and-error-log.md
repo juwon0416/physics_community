@@ -141,3 +141,30 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Add a clarity gate requiring `명확하지 않은 부분 -> 질문` before behavior changes when product or data-shape choices are unresolved.
 - Prevention: Check `AGENTS.md` and the task-specific skill workflow before implementing broad feature changes.
 - Related files: `AGENTS.md`, `.codex/skills/frontend-site-implementation/SKILL.md`, `docs/harness/index.md`
+
+### 2026-05-15 - File ontology canvas must stay separate from legacy graph tables
+
+- Context: Replacing `/graph` with a markdown-file ontology canvas while preserving the existing database.
+- False assumption or risk: File nodes and file-to-file edges could be stored in legacy `graph_nodes` and `graph_edges`, mixing concept ontology data with editable file workspace data.
+- Signal: The user clarified that the new graph view should not connect to the old graph DB path, while markdown files and file relations should persist in DB.
+- Correction: Use dedicated `file_ontology_files` and `file_ontology_edges` tables for markdown content, hidden summaries, canvas coordinates, and editable edge labels.
+- Prevention: For `/graph` file canvas work, inspect imports for `src/lib/fileOntology.ts` and avoid `fetchGraphModel`, `saveGraphData`, `graph_nodes`, and `graph_edges` write paths unless explicitly migrating legacy data.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/lib/fileOntology.ts`, `database/sql/schema/file_ontology_schema.sql`, `.codex/skills/graph-data-stewardship/references/db-and-mcp-rules.md`
+
+### 2026-05-15 - Registry extraction and Obsidian rendering must run sequentially
+
+- Context: Updating the site-code registry after route, component, and SQL schema changes.
+- False assumption or risk: `generate_site_code_graph.js` and `render_obsidian_registry.js` can be run in parallel.
+- Signal: `validate_registry_drift.js` reported missing generated nodes even though extraction had just succeeded.
+- Correction: Run extraction first, then render generated Obsidian docs, then validate drift.
+- Prevention: Use `node tools/extraction/generate_site_code_graph.js`, wait for success, then `node tools/extraction/render_obsidian_registry.js`; do not parallelize those two commands.
+- Related files: `docs/registry/site-code-graph.json`, `docs/obsidian/generated/**`, `tools/validation/validate_registry_drift.js`
+
+### 2026-05-15 - Registry checks may need elevated git access on Windows
+
+- Context: Running extraction and drift validation from the desktop sandbox.
+- False assumption or risk: Filesystem fallback is equivalent to `git ls-files` for registry source-of-truth checks.
+- Signal: The manifest reported fallback extraction warnings, or drift validation reported false drift after a successful elevated extraction.
+- Correction: Re-run `node tools/extraction/generate_site_code_graph.js` and `node tools/validation/validate_registry_drift.js` with enough permission for Git when sandboxed `git ls-files` returns EPERM.
+- Prevention: Treat fallback extraction as a warning state for final registry artifacts; final registry validation should pass with Git tracked-file access.
+- Related files: `tools/extraction/registry_core.js`, `tools/validation/validate_registry_drift.js`, `docs/registry/extraction-manifest.json`

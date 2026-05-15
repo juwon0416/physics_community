@@ -12,7 +12,7 @@ relations:
     - file:graph-model
     - file:theme
   incoming:
-    - page:graph-overview-page
+    - none
 evidence:
   - kind: static-import
     source_path: src/components/graph/OntologyGraphView.tsx
@@ -38,4 +38,3 @@ confidence: high
 | --- | --- | --- | --- | --- |
 | out | imports | [[file-graph-model]] | high | static-import @ src/components/graph/OntologyGraphView.tsx |
 | out | imports | [[file-theme]] | high | static-import @ src/components/graph/OntologyGraphView.tsx |
-| in | imports | [[page-graph-overview-page]] | high | static-import @ src/pages/GraphOverviewPage.tsx |

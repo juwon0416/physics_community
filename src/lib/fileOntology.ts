@@ -1,0 +1,326 @@
+import { supabase } from './supabase';
+
+export interface FileOntologyFile {
+    id: string;
+    title: string;
+    summary: string;
+    content: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+}
+
+export interface FileOntologyEdge {
+    id: string;
+    sourceFileId: string;
+    targetFileId: string;
+    label: string;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+}
+
+export interface FileOntologyModel {
+    files: FileOntologyFile[];
+    edges: FileOntologyEdge[];
+}
+
+export interface FileOntologyLoadResult {
+    model: FileOntologyModel;
+    source: 'database' | 'starter';
+    warning?: string;
+}
+
+interface FileOntologyFileRow {
+    id: string;
+    title: string;
+    summary: string | null;
+    content: string | null;
+    x: number | null;
+    y: number | null;
+    width: number | null;
+    height: number | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
+interface FileOntologyEdgeRow {
+    id: string;
+    source_file_id: string;
+    target_file_id: string;
+    label: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
+const FILE_TABLE = 'file_ontology_files';
+const EDGE_TABLE = 'file_ontology_edges';
+
+const FILE_SELECT = 'id,title,summary,content,x,y,width,height,created_at,updated_at';
+const EDGE_SELECT = 'id,source_file_id,target_file_id,label,created_at,updated_at';
+
+export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
+    'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
+
+function cloneFile(file: FileOntologyFile): FileOntologyFile {
+    return { ...file };
+}
+
+function cloneEdge(edge: FileOntologyEdge): FileOntologyEdge {
+    return { ...edge };
+}
+
+export function getStarterFileOntologyModel(): FileOntologyModel {
+    return {
+        files: [
+            {
+                id: 'file-ontology-index',
+                title: 'File Ontology Index',
+                summary: 'A starter markdown file explaining the new file-based ontology canvas.',
+                content:
+                    '# File Ontology Index\n\nThis canvas treats markdown files as first-class nodes.\n\nUse [[file-ontology-links|highlight links]] to connect phrases to another file.\n\nInline math such as $E=mc^2$ and display math blocks are rendered in preview.\n\n$$\nS = k_B \\log \\Omega\n$$',
+                x: 120,
+                y: 120,
+                width: 440,
+                height: 360,
+            },
+            {
+                id: 'file-ontology-links',
+                title: 'Linked Highlights',
+                summary: 'Hovering a highlighted wiki link shows this hidden summary metadata.',
+                content:
+                    '# Linked Highlights\n\nThe markdown body stays clean. The summary shown in hover tooltips is stored separately as hidden file metadata.\n\nSelect text in the editor, press the link button, then choose a target file.',
+                x: 660,
+                y: 240,
+                width: 420,
+                height: 320,
+            },
+        ],
+        edges: [
+            {
+                id: 'edge-file-ontology-index-file-ontology-links',
+                sourceFileId: 'file-ontology-index',
+                targetFileId: 'file-ontology-links',
+                label: 'documents link behavior',
+            },
+        ],
+    };
+}
+
+function isMissingRelationError(error: { message?: string; code?: string } | null | undefined) {
+    if (!error) return false;
+
+    const message = (error.message || '').toLowerCase();
+    return (
+        error.code === '42P01' ||
+        message.includes('does not exist') ||
+        message.includes(FILE_TABLE) ||
+        message.includes(EDGE_TABLE)
+    );
+}
+
+function toFile(row: FileOntologyFileRow): FileOntologyFile {
+    return {
+        id: row.id,
+        title: row.title,
+        summary: row.summary || '',
+        content: row.content || '',
+        x: Number(row.x ?? 120),
+        y: Number(row.y ?? 120),
+        width: Number(row.width ?? 440),
+        height: Number(row.height ?? 340),
+        createdAt: row.created_at ?? null,
+        updatedAt: row.updated_at ?? null,
+    };
+}
+
+function toEdge(row: FileOntologyEdgeRow): FileOntologyEdge {
+    return {
+        id: row.id,
+        sourceFileId: row.source_file_id,
+        targetFileId: row.target_file_id,
+        label: row.label || 'relates to',
+        createdAt: row.created_at ?? null,
+        updatedAt: row.updated_at ?? null,
+    };
+}
+
+function toFileRow(file: FileOntologyFile) {
+    return {
+        id: file.id,
+        title: file.title,
+        summary: file.summary,
+        content: file.content,
+        x: file.x,
+        y: file.y,
+        width: file.width,
+        height: file.height,
+    };
+}
+
+function toEdgeRow(edge: FileOntologyEdge) {
+    return {
+        id: edge.id,
+        source_file_id: edge.sourceFileId,
+        target_file_id: edge.targetFileId,
+        label: edge.label,
+    };
+}
+
+export function normalizeFileOntologyLookup(value: string | null | undefined) {
+    return (value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9가-힣]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+export function createFileOntologyId(title: string) {
+    const slug = normalizeFileOntologyLookup(title) || 'markdown-file';
+    const randomSuffix =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+            ? crypto.randomUUID().slice(0, 8)
+            : Math.random().toString(36).slice(2, 10);
+
+    return `${slug}-${randomSuffix}`;
+}
+
+export function createFileOntologyEdgeId(sourceFileId: string, targetFileId: string) {
+    const randomSuffix =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+            ? crypto.randomUUID().slice(0, 8)
+            : Math.random().toString(36).slice(2, 10);
+
+    return `edge-${sourceFileId}-${targetFileId}-${randomSuffix}`;
+}
+
+export function createBlankFileOntologyFile(index: number): FileOntologyFile {
+    const title = `Untitled File ${index + 1}`;
+    const id = createFileOntologyId(title);
+    const offset = index * 36;
+
+    return {
+        id,
+        title,
+        summary: 'Add a short hidden summary for hover tooltips.',
+        content: `# ${title}\n\nWrite markdown here. Select text and use the link button to create [[${id}|file links]].`,
+        x: 140 + offset,
+        y: 140 + offset,
+        width: 440,
+        height: 340,
+    };
+}
+
+export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> {
+    const starter = getStarterFileOntologyModel();
+
+    const { data: fileRows, error: fileError } = await supabase
+        .from(FILE_TABLE)
+        .select(FILE_SELECT)
+        .order('created_at', { ascending: true });
+
+    if (fileError) {
+        const warning = isMissingRelationError(fileError)
+            ? FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE
+            : `File ontology read failed: ${fileError.message}`;
+
+        return {
+            model: {
+                files: starter.files.map(cloneFile),
+                edges: starter.edges.map(cloneEdge),
+            },
+            source: 'starter',
+            warning,
+        };
+    }
+
+    const files = (fileRows || []).map((row) => toFile(row as FileOntologyFileRow));
+
+    const { data: edgeRows, error: edgeError } = await supabase
+        .from(EDGE_TABLE)
+        .select(EDGE_SELECT)
+        .order('created_at', { ascending: true });
+
+    if (edgeError) {
+        return {
+            model: {
+                files: files.length > 0 ? files : starter.files.map(cloneFile),
+                edges: files.length > 0 ? [] : starter.edges.map(cloneEdge),
+            },
+            source: files.length > 0 ? 'database' : 'starter',
+            warning: isMissingRelationError(edgeError)
+                ? FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE
+                : `File ontology edge read failed: ${edgeError.message}`,
+        };
+    }
+
+    if (files.length === 0) {
+        return {
+            model: {
+                files: starter.files.map(cloneFile),
+                edges: starter.edges.map(cloneEdge),
+            },
+            source: 'starter',
+            warning: 'File ontology tables are empty. Showing a starter canvas until the first file is saved.',
+        };
+    }
+
+    return {
+        model: {
+            files,
+            edges: (edgeRows || []).map((row) => toEdge(row as FileOntologyEdgeRow)),
+        },
+        source: 'database',
+    };
+}
+
+export async function saveFileOntologyFile(file: FileOntologyFile) {
+    const { data, error } = await supabase
+        .from(FILE_TABLE)
+        .upsert(toFileRow(file), { onConflict: 'id' })
+        .select(FILE_SELECT)
+        .single();
+
+    if (error) throw new Error(error.message);
+    return toFile(data as FileOntologyFileRow);
+}
+
+export async function saveFileOntologyFilePosition(file: FileOntologyFile) {
+    const { data, error } = await supabase
+        .from(FILE_TABLE)
+        .update({
+            x: file.x,
+            y: file.y,
+            width: file.width,
+            height: file.height,
+        })
+        .eq('id', file.id)
+        .select(FILE_SELECT)
+        .single();
+
+    if (error) throw new Error(error.message);
+    return toFile(data as FileOntologyFileRow);
+}
+
+export async function deleteFileOntologyFile(fileId: string) {
+    const { error } = await supabase.from(FILE_TABLE).delete().eq('id', fileId);
+    if (error) throw new Error(error.message);
+}
+
+export async function saveFileOntologyEdge(edge: FileOntologyEdge) {
+    const { data, error } = await supabase
+        .from(EDGE_TABLE)
+        .upsert(toEdgeRow(edge), { onConflict: 'id' })
+        .select(EDGE_SELECT)
+        .single();
+
+    if (error) throw new Error(error.message);
+    return toEdge(data as FileOntologyEdgeRow);
+}
+
+export async function deleteFileOntologyEdge(edgeId: string) {
+    const { error } = await supabase.from(EDGE_TABLE).delete().eq('id', edgeId);
+    if (error) throw new Error(error.message);
+}

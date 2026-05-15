@@ -19,7 +19,7 @@ Make graph and database changes safely while preserving stable identities, incre
 
 ## Workflow
 
-1. Determine whether the change touches legacy graph tables, archive graph tables, ontology tables, or static seed fallback.
+1. Determine whether the change touches legacy graph tables, archive graph tables, ontology tables, file ontology tables, or static seed fallback.
 2. Inspect current table names and scope routing in `src/data/storage.ts` and `src/lib/graphModel.ts`.
 3. Preserve node ids, slugs, and edge semantics unless the task is an explicit migration.
 4. Prefer idempotent migrations and additive schema changes.
@@ -34,7 +34,7 @@ Make graph and database changes safely while preserving stable identities, incre
 ## Guardrails
 
 - Static fallback exists for resilience. Do not remove it casually.
-- Archive and legacy scopes may use different table names.
+- Archive, legacy, and file ontology scopes use different table names; do not route file ontology writes into `graph_nodes` or `graph_edges`.
 - Concept graph and ontology payloads are attached in `graphModel.ts`; avoid breaking topic nodes that lack ontology rows.
 - Bulk delete and rewrite flows are high risk under RLS and should be avoided unless explicitly requested.
 - Service role keys must stay in MCP/server runtime environment variables and never move into React, generated docs, or committed `.env*` files.

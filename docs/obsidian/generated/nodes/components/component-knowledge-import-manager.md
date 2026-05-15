@@ -14,7 +14,7 @@ relations:
     - file:knowledge-pipeline
     - file:knowledge-schema
   incoming:
-    - page:graph-overview-page
+    - none
 evidence:
   - kind: static-import
     source_path: src/components/admin/KnowledgeImportManager.tsx
@@ -48,4 +48,3 @@ confidence: high
 | out | imports | [[file-graph-model]] | high | static-import @ src/components/admin/KnowledgeImportManager.tsx |
 | out | imports | [[file-knowledge-pipeline]] | high | static-import @ src/components/admin/KnowledgeImportManager.tsx |
 | out | imports | [[file-knowledge-schema]] | high | static-import @ src/components/admin/KnowledgeImportManager.tsx |
-| in | imports | [[page-graph-overview-page]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
