@@ -1,13 +1,13 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "dba57f7a3e7599221eb5e1d29082b3b7f260f441",
-    "generated_at": "2026-05-15T14:26:46.587Z",
+    "commit": "2fb75e0ec587b6e72eb3afa7d9db6a1953fecb27",
+    "generated_at": "2026-05-15T14:47:33.111Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "filesystem-fallback",
     "tracked_file_count": 0,
-    "untracked_file_count": 185,
-    "scanned_file_count": 159,
+    "untracked_file_count": 188,
+    "scanned_file_count": 162,
     "node_count": 131,
     "edge_count": 202
   },
@@ -5045,6 +5045,20 @@
       "node_ids": []
     },
     {
+      "path": "docs/reference/fundamentals_chapter1_chunk_inventory.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/large_file_ontology_workflow.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
       "path": "docs/reference/topic_authoring_guidelines.md",
       "tracked": false,
       "untracked": true,
@@ -5345,6 +5359,13 @@
     },
     {
       "path": "src/data/archiveFundamentalsGrounding.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "src/data/fundamentalsChapter1Ontology.ts",
       "tracked": false,
       "untracked": true,
       "kind": "source",

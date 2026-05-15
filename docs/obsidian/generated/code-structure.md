@@ -2,7 +2,7 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 159
+- Files scanned: 162
 - Nodes generated: 131
 - Edges generated: 202
 
@@ -50,7 +50,7 @@
 
 ## docs
 
-- Files scanned: 17
+- Files scanned: 19
 - Registry nodes: 1
 
 - `docs/registry/site-code-graph.schema.json` -> [[config-site-code-graph-schema]]
@@ -110,7 +110,7 @@
 
 ## src
 
-- Files scanned: 44
+- Files scanned: 45
 - Registry nodes: 39
 
 - `src/App.tsx` -> [[file-app]], [[route-root-layout]], [[route-home]], [[route-graph]], [[route-field-field-slug]], [[route-topic-topic-slug]], [[route-not-found]]

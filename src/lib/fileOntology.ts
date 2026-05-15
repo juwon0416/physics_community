@@ -1,4 +1,8 @@
 import { supabase } from './supabase';
+import {
+    FUNDAMENTALS_CHAPTER_1_EDGES,
+    FUNDAMENTALS_CHAPTER_1_FILES,
+} from '../data/fundamentalsChapter1Ontology';
 
 export interface FileOntologyFile {
     id: string;
@@ -134,6 +138,7 @@ export function getStarterFileOntologyModel(): FileOntologyModel {
                 width: 420,
                 height: 320,
             },
+            ...FUNDAMENTALS_CHAPTER_1_FILES,
         ],
         edges: [
             {
@@ -142,6 +147,7 @@ export function getStarterFileOntologyModel(): FileOntologyModel {
                 targetFileId: 'file-ontology-links',
                 label: 'documents link behavior',
             },
+            ...FUNDAMENTALS_CHAPTER_1_EDGES,
         ],
     };
 }
