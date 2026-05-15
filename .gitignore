@@ -34,3 +34,7 @@ mcp-server/*.log
 *.sln
 *.sw?
 .vercel
+
+# Local Obsidian app state and scratch vaults
+docs/obsidian/.obsidian/
+docs/obsidian/physics_community/

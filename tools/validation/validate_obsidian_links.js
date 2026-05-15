@@ -5,6 +5,12 @@ import { repoPath, normalizePath } from '../extraction/registry_core.js';
 const root = process.cwd();
 const obsidianRoot = repoPath(root, 'docs/obsidian');
 const markdownFiles = [];
+const managedRoots = [
+  repoPath(root, 'docs/obsidian/00-index.md'),
+  repoPath(root, 'docs/obsidian/generated'),
+  repoPath(root, 'docs/obsidian/curated'),
+  repoPath(root, 'docs/obsidian/overlays'),
+];
 
 function walk(directory) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -17,7 +23,12 @@ function walk(directory) {
   }
 }
 
-walk(obsidianRoot);
+for (const managedRoot of managedRoots) {
+  if (!fs.existsSync(managedRoot)) continue;
+  const stat = fs.statSync(managedRoot);
+  if (stat.isDirectory()) walk(managedRoot);
+  if (stat.isFile() && managedRoot.endsWith('.md')) markdownFiles.push(managedRoot);
+}
 
 const basenames = new Set(markdownFiles.map((filePath) => path.basename(filePath, '.md')));
 const relativeByBase = new Map(markdownFiles.map((filePath) => [path.basename(filePath, '.md'), normalizePath(path.relative(root, filePath))]));

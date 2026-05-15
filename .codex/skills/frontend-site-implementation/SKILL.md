@@ -21,14 +21,15 @@ Implement website changes in the existing React/Vite app while preserving graph-
 
 1. Identify the visible route, data source, and component owner before editing.
 2. Keep changes local to the affected page, component, or helper.
-3. Preserve existing design system patterns unless the task explicitly asks for a redesign.
-4. For topic/editor rendering, coordinate with `website-content-authoring`.
-5. For graph persistence or schema behavior, coordinate with `graph-data-stewardship`.
-6. Run `npm.cmd run build` for behavior changes, `npm.cmd run lint` when lint risk is meaningful, and `npm.cmd run security:check` before deployment.
-7. If a local app target is obvious after a frontend change, verify in the browser when available.
-8. After successful verification, stage and commit the frontend change as a focused Git checkpoint unless the user asked to avoid Git actions.
-9. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
-10. Log new UI validation or rendering pitfalls with `harness-memory`.
+3. If the requested user workflow, persistence model, route, or data source is unclear, report `명확하지 않은 부분 -> 질문` before implementation.
+4. Preserve existing design system patterns unless the task explicitly asks for a redesign.
+5. For topic/editor rendering, coordinate with `website-content-authoring`.
+6. For graph persistence or schema behavior, coordinate with `graph-data-stewardship`.
+7. Run `npm.cmd run build` for behavior changes, `npm.cmd run lint` when lint risk is meaningful, and `npm.cmd run security:check` before deployment.
+8. If a local app target is obvious after a frontend change, verify in the browser when available.
+9. After successful verification, stage and commit the frontend change as a focused Git checkpoint unless the user asked to avoid Git actions.
+10. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
+11. Log new UI validation or rendering pitfalls with `harness-memory`.
 
 ## Guardrails
 

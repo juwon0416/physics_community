@@ -132,3 +132,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Remove `.env.vercel` from the current Git index, keep it local and ignored, and run a tracked-file secret scan.
 - Prevention: Run `npm.cmd run security:check` before deployment and after any environment or deployment config change.
 - Related files: `.gitignore`, `tools/validation/validate_security_harness.js`, `docs/harness/security.md`
+
+### 2026-05-15 - Product ambiguity should become explicit questions before implementation
+
+- Context: Large graph-view changes can alter data source, persistence, routing, and editing behavior at once.
+- False assumption or risk: An agent may choose a persistence or UX model that conflicts with the user's intended workflow.
+- Signal: The request explicitly asked to ask questions before implementation when parts are unclear.
+- Correction: Add a clarity gate requiring `명확하지 않은 부분 -> 질문` before behavior changes when product or data-shape choices are unresolved.
+- Prevention: Check `AGENTS.md` and the task-specific skill workflow before implementing broad feature changes.
+- Related files: `AGENTS.md`, `.codex/skills/frontend-site-implementation/SKILL.md`, `docs/harness/index.md`

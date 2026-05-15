@@ -11,11 +11,12 @@ Treat this file as the project map, not the encyclopedia. Keep detailed procedur
 1. Identify the user goal, ambiguity, success criteria, and likely files before coding.
 2. Load only the relevant project skill from `.codex/skills/<skill>/SKILL.md`.
 3. Inspect the real code and docs before changing behavior.
-4. Make the smallest surgical change that satisfies the goal.
-5. Verify with the narrowest useful checks, then broaden only if risk justifies it.
-6. Stage, commit, and push meaningful completed work unless the user explicitly asks not to.
-7. If a deployment is requested, deploy from a committed and pushed state so the deployed artifact maps to Git history.
-8. If a failure, workaround, or surprising constraint appears, update `docs/harness/trial-and-error-log.md` through the `harness-memory` skill.
+4. If an implementation choice is unclear, pause and report `명확하지 않은 부분 -> 질문` before changing behavior.
+5. Make the smallest surgical change that satisfies the goal.
+6. Verify with the narrowest useful checks, then broaden only if risk justifies it.
+7. Stage, commit, and push meaningful completed work unless the user explicitly asks not to.
+8. If a deployment is requested, deploy from a committed and pushed state so the deployed artifact maps to Git history.
+9. If a failure, workaround, or surprising constraint appears, update `docs/harness/trial-and-error-log.md` through the `harness-memory` skill.
 
 ## Project Map
 

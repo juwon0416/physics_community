@@ -111,6 +111,10 @@ function scanTextFile(filePath, content, issues) {
   const lines = content.split(/\r?\n/);
 
   lines.forEach((lineText, index) => {
+    if (filePath === 'tools/validation/validate_security_harness.js' && lineText.includes('_PATTERN')) {
+      return;
+    }
+
     for (const match of lineText.matchAll(INLINE_SECRET_ASSIGNMENT_PATTERN)) {
       const key = match[1];
       const value = match[2] ?? '';

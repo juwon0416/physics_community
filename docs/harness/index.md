@@ -22,6 +22,10 @@ Primary reference: OpenAI, "Harness engineering: leveraging Codex in an agent-fi
 
 Give future agents a map, not a giant manual. Add only the context needed for repeatable decisions, and promote repeated mistakes into skills or mechanical checks.
 
+## Clarity Gate
+
+Before implementation, unresolved product or data-shape ambiguity should be surfaced as `명확하지 않은 부분 -> 질문`. Do this especially when a request changes persistence, source-of-truth ownership, routing, database access, or user-visible editing workflows.
+
 ## Skill Map
 
 - `knowledge-reconstruction` owns canonical graph, node docs, provenance, and argument graph workflows.
