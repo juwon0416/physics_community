@@ -63,6 +63,7 @@ node tools/validation/validate_site_code_graph.js
 node tools/validation/validate_source_paths.js
 node tools/validation/validate_obsidian_links.js
 node tools/validation/validate_registry_drift.js
+npm.cmd run security:check
 ```
 
 ## Hard Rules
@@ -76,3 +77,4 @@ node tools/validation/validate_registry_drift.js
 - If evidence is unclear, lower relation confidence or record an extraction warning.
 - Do not node-ize every file. Prefer routes, pages, major components, APIs, DB tables, schemas/migrations, graph/editor modules, content pipeline modules, shared modules, and files agents frequently confuse.
 - Do not deploy repo-structure changes from an unpushed working tree when the generated registry is part of the release artifact.
+- Do not include local `.env*` files or secret values in generated registry artifacts.

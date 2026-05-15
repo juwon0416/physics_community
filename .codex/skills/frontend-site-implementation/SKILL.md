@@ -24,7 +24,7 @@ Implement website changes in the existing React/Vite app while preserving graph-
 3. Preserve existing design system patterns unless the task explicitly asks for a redesign.
 4. For topic/editor rendering, coordinate with `website-content-authoring`.
 5. For graph persistence or schema behavior, coordinate with `graph-data-stewardship`.
-6. Run `npm.cmd run build` for behavior changes and `npm.cmd run lint` when lint risk is meaningful.
+6. Run `npm.cmd run build` for behavior changes, `npm.cmd run lint` when lint risk is meaningful, and `npm.cmd run security:check` before deployment.
 7. If a local app target is obvious after a frontend change, verify in the browser when available.
 8. After successful verification, stage and commit the frontend change as a focused Git checkpoint unless the user asked to avoid Git actions.
 9. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
@@ -37,3 +37,4 @@ Implement website changes in the existing React/Vite app while preserving graph-
 - Active graph UI currently renders through `src/components/graph/OntologyGraphView.tsx`.
 - Retired graph/editor experiments are kept under `trash/src-unused/` or `trash/src-legacy/`.
 - Topic rendering and PDF/content precedence live in `src/pages/TopicPage.tsx`.
+- Frontend code may use `VITE_*` values through `import.meta.env`, but must not hard-code real Supabase URLs, anon keys, or service role keys.

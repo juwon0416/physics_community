@@ -1,13 +1,13 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "ca2203d709553adf0bd633bc27576de81a56b17a",
-    "generated_at": "2026-05-15T07:28:51.988Z",
+    "commit": "cdd080a582b8f6f778bac46baf5e93e62f31c88c",
+    "generated_at": "2026-05-15T08:03:44.823Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "filesystem-fallback",
     "tracked_file_count": 0,
-    "untracked_file_count": 177,
-    "scanned_file_count": 151,
+    "untracked_file_count": 181,
+    "scanned_file_count": 154,
     "node_count": 122,
     "edge_count": 192
   },
@@ -4437,6 +4437,13 @@
       "node_ids": []
     },
     {
+      "path": ".codex/skills/security-harness/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
       "path": ".codex/skills/website-content-authoring/SKILL.md",
       "tracked": false,
       "untracked": true,
@@ -4684,6 +4691,13 @@
     },
     {
       "path": "docs/harness/reference-rules.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/security.md",
       "tracked": false,
       "untracked": true,
       "kind": "docs",
@@ -5374,6 +5388,13 @@
       "node_ids": [
         "file:validate-registry-drift"
       ]
+    },
+    {
+      "path": "tools/validation/validate_security_harness.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
     },
     {
       "path": "tools/validation/validate_site_code_graph.js",

@@ -42,6 +42,7 @@ Read the matching skill before substantial work:
 - `.codex/skills/frontend-site-implementation/SKILL.md` - React/Vite UI, routes, graph views, editor UI, styling, frontend validation.
 - `.codex/skills/harness-memory/SKILL.md` - failure logs, decision logs, recurring mistakes, guardrail updates.
 - `.codex/skills/obsidian-site-code-registry/SKILL.md` - repo extraction, site-code graph manifest, Obsidian generated registry, and registry validation.
+- `.codex/skills/security-harness/SKILL.md` - secret handling, tracked env files, credential hygiene, and deployment security gates.
 
 If multiple skills apply, start with the one that owns the artifact being changed. Use `harness-memory` when learning something that should affect future runs.
 
@@ -56,6 +57,8 @@ If multiple skills apply, start with the one that owns the artifact being change
 - Topic content intended for the website should be Quill-compatible HTML with `ql-formula` KaTeX spans.
 - Supabase writes may be blocked by RLS without a service role key. Do not retry anon writes repeatedly.
 - Never print secrets from `.env*` or environment variables.
+- Never commit `.env*` files except `.env.example`, and keep `.env.example` placeholder-only.
+- Service role keys and provider tokens must stay server-side and out of generated client bundles.
 - Respect the dirty worktree. Do not revert unrelated user changes.
 - Prefer boring, inspectable, repo-local mechanisms over opaque abstractions when they improve agent legibility.
 - Route, component, API, DB, schema, or config changes should refresh and validate the site-code registry.
@@ -77,9 +80,10 @@ Use Windows `.cmd` commands when PowerShell script shims may block execution.
 - Lint check: `npm.cmd run lint`
 - Dev server: `npm.cmd run dev`
 - MCP server check: run `npm.cmd run build` inside `mcp-server/`
+- Security check: `npm.cmd run security:check`
 - Content import check: validate KaTeX formulas and confirm real `<h2>` section headings.
 - Graph/data change check: inspect affected Supabase table/schema assumptions and confirm fallback behavior.
-- Before deployment, verify the relevant build first, then commit and push the exact changes being deployed.
+- Before deployment, verify the relevant build and `npm.cmd run security:check`, then commit and push the exact changes being deployed.
 
 If verification cannot be run, report why and state the remaining risk.
 

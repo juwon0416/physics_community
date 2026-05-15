@@ -1,0 +1,4 @@
+interface:
+  display_name: "Security Harness"
+  short_description: "Secret handling, env hygiene, and deployment security checks."
+  default_prompt: "Use this skill when checking repository security, environment files, credentials, or deployment readiness."

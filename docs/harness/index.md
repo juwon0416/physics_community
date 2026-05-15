@@ -11,6 +11,7 @@ Primary reference: OpenAI, "Harness engineering: leveraging Codex in an agent-fi
 - Agent role specs: `.codex/agents/`
 - Project knowledge: `docs/`
 - Verification gates: `docs/harness/verification.md`
+- Security gates: `docs/harness/security.md`
 - Experience memory: `docs/harness/trial-and-error-log.md`
 - Stable ID catalog: `docs/harness/system-catalog.md`
 - Reference rules: `docs/harness/reference-rules.md`
@@ -29,6 +30,7 @@ Give future agents a map, not a giant manual. Add only the context needed for re
 - `frontend-site-implementation` owns React/Vite UI, routing, graph views, editor UI, and browser-visible behavior.
 - `harness-memory` owns the learning ledger and guardrail promotion loop.
 - `obsidian-site-code-registry` owns repo extraction, graph manifest rendering, Obsidian generated views, and registry validation.
+- `security-harness` owns secret handling, tracked env file checks, and deployment security gates.
 
 ## Maintenance Rule
 

@@ -26,7 +26,7 @@ Make graph and database changes safely while preserving stable identities, incre
 5. Do not print secrets. Check whether service role keys are present without echoing values.
 6. If RLS blocks writes, stop retrying anon writes and choose MCP with service role, SQL migration, or static override fallback.
 7. Keep graph extraction compatible with topic content headings and inline backlinks.
-8. Validate the app build and MCP build when behavior crosses the frontend/MCP boundary.
+8. Validate the app build, MCP build, and `npm.cmd run security:check` when behavior crosses the frontend/MCP boundary.
 9. After verification, stage and commit schema, MCP, or data-logic changes as a focused Git checkpoint.
 10. Push the verified commit before any deployment or release-facing database rollout.
 11. Log recurring data-shape or RLS pitfalls with `harness-memory`.
@@ -37,3 +37,4 @@ Make graph and database changes safely while preserving stable identities, incre
 - Archive and legacy scopes may use different table names.
 - Concept graph and ontology payloads are attached in `graphModel.ts`; avoid breaking topic nodes that lack ontology rows.
 - Bulk delete and rewrite flows are high risk under RLS and should be avoided unless explicitly requested.
+- Service role keys must stay in MCP/server runtime environment variables and never move into React, generated docs, or committed `.env*` files.

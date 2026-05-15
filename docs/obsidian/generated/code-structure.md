@@ -2,13 +2,13 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 151
+- Files scanned: 154
 - Nodes generated: 122
 - Edges generated: 192
 
 ## .codex
 
-- Files scanned: 38
+- Files scanned: 39
 - Registry nodes: 2
 
 - `.codex/config.toml` -> [[config-config]]
@@ -48,7 +48,7 @@
 
 ## docs
 
-- Files scanned: 16
+- Files scanned: 17
 - Registry nodes: 1
 
 - `docs/registry/site-code-graph.schema.json` -> [[config-site-code-graph-schema]]
@@ -146,7 +146,7 @@
 
 ## tools
 
-- Files scanned: 11
+- Files scanned: 12
 - Registry nodes: 6
 
 - `tools/extraction/generate_site_code_graph.js` -> [[file-generate-site-code-graph]]

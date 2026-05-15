@@ -3,10 +3,10 @@
 > GENERATED FILE. Do not edit directly.
 
 - Branch: `master`
-- Commit: `ca2203d709553adf0bd633bc27576de81a56b17a`
-- Generated at: `2026-05-15T07:28:51.988Z`
+- Commit: `cdd080a582b8f6f778bac46baf5e93e62f31c88c`
+- Generated at: `2026-05-15T08:03:44.823Z`
 - Extractor version: `0.1.0`
-- Files scanned: 151
+- Files scanned: 154
 - Nodes generated: 122
 - Edges generated: 192
 - Warnings: 1

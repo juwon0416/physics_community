@@ -6,6 +6,7 @@ Use the narrowest check that proves the change, then add broader checks when the
 
 - Build: `npm.cmd run build`
 - Lint: `npm.cmd run lint`
+- Security: `npm.cmd run security:check`
 - Dev server: `npm.cmd run dev`
 
 Run build for TypeScript, route, graph model, data loading, editor, and rendering changes. Run lint when changes touch code style, hooks, unused imports, or broader refactors.
@@ -42,6 +43,43 @@ npm.cmd run build
 ```
 
 Before write testing, check service role key presence without printing secret values.
+
+## Security Harness
+
+Run this before deployment and after any change to `.env*`, deployment config, Supabase setup, MCP credential handling, or scripts that read provider tokens:
+
+```powershell
+npm.cmd run security:check
+```
+
+The command reports file paths, line numbers, and variable names only. It must not print secret values.
+
+### `check:secret-file-tracking`
+
+- Purpose: Confirm no secret-bearing environment file is tracked by Git.
+- Target files: `.env*`, `.gitignore`
+- Command: `npm.cmd run security:check`
+- Failure example: `.env.vercel` is tracked.
+- Pass criteria: Only `.env.example` may be tracked.
+- Recovery: Run `git rm --cached <env-file>`, keep the file local if needed, and rotate any credential that was already committed.
+
+### `check:secret-pattern-scan`
+
+- Purpose: Detect high-signal hard-coded credential literals in tracked text files.
+- Target files: tracked source, docs, scripts, config, and harness files.
+- Command: `npm.cmd run security:check`
+- Failure example: A JWT-like token, provider API key, private key block, or hard-coded secret assignment appears in source.
+- Pass criteria: No high-signal secret literal is detected in tracked files.
+- Recovery: Move the value to the deployment environment or local `.env*`, replace tracked docs with placeholders, and rotate exposed credentials.
+
+### `check:env-example-safety`
+
+- Purpose: Keep `.env.example` useful without leaking real values.
+- Target files: `.env.example`
+- Command: `npm.cmd run security:check`
+- Failure example: `.env.example` contains a real token instead of `YOUR_*`.
+- Pass criteria: All secret-like values in `.env.example` are placeholders.
+- Recovery: Replace real values with placeholders and rotate any value that was committed.
 
 ## Skills and Harness Docs
 

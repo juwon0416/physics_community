@@ -19,6 +19,9 @@ mcp-server/*.log
 .env
 .env.*
 !.env.example
+.env.local
+.env.production*
+.env.vercel
 
 # Editor directories and files
 .vscode/*

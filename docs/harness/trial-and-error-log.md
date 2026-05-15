@@ -123,3 +123,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Use `supabase-query`, `sql-schema`, or `migration` evidence; lower confidence or warn when evidence is incomplete.
 - Prevention: Run DB extraction and relation evidence validation before relying on DB edges.
 - Related files: `tools/extraction/extract_db_schema.js`, `database/sql/`, `src/data/storage.ts`
+
+### 2026-05-15 - Tracked env files can leak deployment credentials
+
+- Context: Security review of Git-tracked files and deployment environment files.
+- False assumption or risk: `.gitignore` rules protect `.env*` files even after one has already been tracked.
+- Signal: `.env.vercel` was present in Git history and included secret-like deployment variables.
+- Correction: Remove `.env.vercel` from the current Git index, keep it local and ignored, and run a tracked-file secret scan.
+- Prevention: Run `npm.cmd run security:check` before deployment and after any environment or deployment config change.
+- Related files: `.gitignore`, `tools/validation/validate_security_harness.js`, `docs/harness/security.md`

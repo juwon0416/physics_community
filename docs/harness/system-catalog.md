@@ -23,6 +23,7 @@ This catalog defines stable IDs used by harness docs, skills, workflows, checks,
 | `skill:frontend-site-implementation` | `.codex/skills/frontend-site-implementation/SKILL.md` | React/Vite routes, UI, graph views, and editor implementation. |
 | `skill:harness-memory` | `.codex/skills/harness-memory/SKILL.md` | Failure logs and guardrail promotion. |
 | `skill:obsidian-site-code-registry` | `.codex/skills/obsidian-site-code-registry/SKILL.md` | Repo extraction, graph manifest, generated Obsidian registry, and registry validation. |
+| `skill:security-harness` | `.codex/skills/security-harness/SKILL.md` | Secret handling, tracked env file checks, and deployment security gates. |
 
 ## Workflows Table
 
@@ -33,6 +34,8 @@ This catalog defines stable IDs used by harness docs, skills, workflows, checks,
 | `workflow:add-physics-topic` | Add or update physics learning content with graph-aware structure. | `skill:website-content-authoring` |
 | `workflow:add-graph-relation` | Add graph relations with stable IDs and evidence. | `skill:graph-data-stewardship` |
 | `workflow:fix-repeated-failure` | Convert repeated mistakes into logs, skills, or checks. | `skill:harness-memory` |
+| `workflow:security-check` | Scan tracked files for secret-file and hard-coded credential risks. | `skill:security-harness` |
+| `workflow:secure-deployment` | Require build, security check, commit, and push before deployment. | `skill:security-harness` |
 
 ## Checks Table
 
@@ -47,3 +50,6 @@ This catalog defines stable IDs used by harness docs, skills, workflows, checks,
 | `check:registry-drift` | Confirm extracted manifest and rendered docs are up to date. | `node tools/validation/validate_registry_drift.js` |
 | `check:provenance-integrity` | Confirm content/graph changes retain source evidence. | `skill:knowledge-reconstruction` |
 | `check:npm-build` | Confirm app build still passes. | `npm.cmd run build` |
+| `check:secret-file-tracking` | Confirm tracked `.env*` files are limited to `.env.example`. | `npm.cmd run security:check` |
+| `check:secret-pattern-scan` | Confirm tracked text files do not contain high-signal secret literals. | `npm.cmd run security:check` |
+| `check:env-example-safety` | Confirm `.env.example` contains placeholders only. | `npm.cmd run security:check` |
