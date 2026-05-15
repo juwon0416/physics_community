@@ -110,3 +110,26 @@
 .glass-card:hover {
   background: var(--glass-bg-hover);
 }
+
+.file-ontology-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.32) transparent;
+}
+
+.file-ontology-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.file-ontology-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-ontology-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.28);
+  border-radius: 999px;
+}
+
+.file-ontology-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.46);
+}

@@ -172,3 +172,50 @@ using (
           and profiles.role in ('admin', 'editor')
     )
 );
+
+insert into public.file_ontology_files (id, title, summary, content, x, y, width, height)
+values
+    (
+        'file-ontology-index',
+        'File Ontology Index',
+        'A starter markdown file explaining the file-based ontology canvas.',
+        $markdown$# File Ontology Index
+
+This canvas treats markdown files as first-class nodes.
+
+Use [[file-ontology-links|highlight links]] to connect phrases to another file.
+
+Inline math such as $E=mc^2$ and display math blocks are rendered in preview.
+
+$$
+S = k_B \log \Omega
+$$$markdown$,
+        120,
+        120,
+        440,
+        360
+    ),
+    (
+        'file-ontology-links',
+        'Linked Highlights',
+        'Hovering a highlighted wiki link shows this hidden summary metadata.',
+        $markdown$# Linked Highlights
+
+The markdown body stays clean. The summary shown in hover tooltips is stored separately as hidden file metadata.
+
+Select text in the editor, press the link button, then choose a target file.$markdown$,
+        660,
+        240,
+        420,
+        320
+    )
+on conflict (id) do nothing;
+
+insert into public.file_ontology_edges (id, source_file_id, target_file_id, label)
+values (
+    'edge-file-ontology-index-file-ontology-links',
+    'file-ontology-index',
+    'file-ontology-links',
+    'documents link behavior'
+)
+on conflict (id) do nothing;

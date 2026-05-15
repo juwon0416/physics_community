@@ -1,12 +1,12 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "e029855b8c735d670fe92f4c47c67d0573d54db3",
-    "generated_at": "2026-05-15T10:47:26.690Z",
+    "commit": "dbf5b7ea74e0693e94fc3fd1ffe0440942152e54",
+    "generated_at": "2026-05-15T12:40:52.267Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "git-ls-files",
-    "tracked_file_count": 358,
-    "untracked_file_count": 7,
+    "tracked_file_count": 365,
+    "untracked_file_count": 0,
     "scanned_file_count": 157,
     "node_count": 126,
     "edge_count": 194
@@ -4689,8 +4689,8 @@
     },
     {
       "path": "database/sql/schema/file_ontology_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:file-ontology-schema",
@@ -5073,8 +5073,8 @@
     },
     {
       "path": "src/components/graph/FileOntologyCanvas.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:file-ontology-canvas"
@@ -5247,8 +5247,8 @@
     },
     {
       "path": "src/lib/fileOntology.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },

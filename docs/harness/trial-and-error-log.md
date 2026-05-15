@@ -168,3 +168,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Re-run `node tools/extraction/generate_site_code_graph.js` and `node tools/validation/validate_registry_drift.js` with enough permission for Git when sandboxed `git ls-files` returns EPERM.
 - Prevention: Treat fallback extraction as a warning state for final registry artifacts; final registry validation should pass with Git tracked-file access.
 - Related files: `tools/extraction/registry_core.js`, `tools/validation/validate_registry_drift.js`, `docs/registry/extraction-manifest.json`
+
+### 2026-05-15 - File ontology DB availability requires applying SQL, not only deploying frontend code
+
+- Context: `/graph` showed the file ontology starter fallback and save failed because `file_ontology_files` and `file_ontology_edges` did not exist in Supabase.
+- False assumption or risk: Adding `database/sql/schema/file_ontology_schema.sql` to the repo is enough for the deployed website to persist file ontology data.
+- Signal: The UI reported that file ontology tables were unavailable, and save operations could not reach the table.
+- Correction: Apply the idempotent SQL schema to Supabase with a server-side database connection, then verify public read and editor/admin write paths without printing secrets.
+- Prevention: For new DB-backed frontend features, perform both code deploy and database rollout; a frontend deploy alone will not create Supabase tables.
+- Related files: `database/sql/schema/file_ontology_schema.sql`, `src/lib/fileOntology.ts`, `src/components/graph/FileOntologyCanvas.tsx`
