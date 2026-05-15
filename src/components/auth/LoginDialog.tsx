@@ -4,7 +4,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '../../lib/auth';
 import { LogIn } from 'lucide-react';
 
-export function LoginDialog() {
+type LoginDialogProps = {
+    triggerClassName?: string;
+};
+
+export function LoginDialog({ triggerClassName }: LoginDialogProps) {
     const { user, signOut, signInWithID, signUpWithID, loading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [isSignUp, setIsSignUp] = useState(false);
@@ -59,7 +63,7 @@ export function LoginDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className={['gap-2', triggerClassName].filter(Boolean).join(' ')}>
                     <LogIn className="h-4 w-4" />
                     {isSignUp ? 'Sign Up' : 'Sign In'}
                 </Button>

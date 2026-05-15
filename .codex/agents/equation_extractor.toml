@@ -1,0 +1,31 @@
+name = "equation_extractor"
+kind = "worker"
+parallel_safe = true
+objective = "Extract, normalize, and assign the equations, symbol definitions, and mathematical obligations that belong to each affected node."
+
+reads = [
+  "knowledge_reconstruction/work/intake/chunk_inventory.json",
+  "knowledge_reconstruction/work/node_specs/*.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/equations/*.json"
+]
+
+[contracts]
+inputs = [
+  "node spec",
+  "source chunk inventory"
+]
+outputs = [
+  "equation candidates per node",
+  "symbol inventory",
+  "equation provenance hints"
+]
+
+[quality]
+checks = [
+  "Extractors must distinguish definitional equations from derived equations and special-case formulas.",
+  "Every emitted equation must carry enough local context that the writer can explain its meaning and limits.",
+  "Symbol collisions across neighboring nodes must be surfaced rather than silently ignored."
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Site Implementation"
+  short_description: "React and Vite UI implementation checks."
+  default_prompt: "Use this skill when editing routes, pages, graph views, editor UI, or styling."

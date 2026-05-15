@@ -1,0 +1,5449 @@
+{
+  "meta": {
+    "branch": "master",
+    "commit": "ca2203d709553adf0bd633bc27576de81a56b17a",
+    "generated_at": "2026-05-15T07:28:51.988Z",
+    "extractor_version": "0.1.0",
+    "file_list_mode": "filesystem-fallback",
+    "tracked_file_count": 0,
+    "untracked_file_count": 177,
+    "scanned_file_count": 151,
+    "node_count": 122,
+    "edge_count": 192
+  },
+  "framework": {
+    "app": "Vite + React + TypeScript",
+    "routing": "react-router-dom",
+    "database": "Supabase/PostgreSQL",
+    "mcp_server": "mcp-server"
+  },
+  "nodes": [
+    {
+      "id": "api:author-topic",
+      "type": "api",
+      "status": "active",
+      "label": "author_topic",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-prompt",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:create-concept-node",
+      "type": "api",
+      "status": "active",
+      "label": "create_concept_node",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:delete-graph-edge",
+      "type": "api",
+      "status": "active",
+      "label": "delete_graph_edge",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:get-graph-snapshot",
+      "type": "api",
+      "status": "active",
+      "label": "get_graph_snapshot",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:get-topic",
+      "type": "api",
+      "status": "active",
+      "label": "get_topic",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:graph-overview",
+      "type": "api",
+      "status": "active",
+      "label": "graph-overview",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-resource",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:list-topics",
+      "type": "api",
+      "status": "active",
+      "label": "list_topics",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:upsert-graph-edge",
+      "type": "api",
+      "status": "active",
+      "label": "upsert_graph_edge",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:upsert-section",
+      "type": "api",
+      "status": "active",
+      "label": "upsert_section",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:upsert-topic",
+      "type": "api",
+      "status": "active",
+      "label": "upsert_topic",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "api:write-topic-draft",
+      "type": "api",
+      "status": "active",
+      "label": "write_topic_draft",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-tool",
+      "generated_from": [
+        "git-ls-files",
+        "api-handler-path"
+      ]
+    },
+    {
+      "id": "component:button",
+      "type": "component",
+      "status": "active",
+      "label": "Button",
+      "source_path": "src/components/ui/Button.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:dialog",
+      "type": "component",
+      "status": "active",
+      "label": "Dialog",
+      "source_path": "src/components/ui/Dialog.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:directory-structure-manager",
+      "type": "component",
+      "status": "active",
+      "label": "DirectoryStructureManager",
+      "source_path": "src/components/admin/DirectoryStructureManager.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:image-upload",
+      "type": "component",
+      "status": "active",
+      "label": "ImageUpload",
+      "source_path": "src/components/ui/ImageUpload.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:input",
+      "type": "component",
+      "status": "active",
+      "label": "Input",
+      "source_path": "src/components/ui/Input.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:knowledge-import-manager",
+      "type": "component",
+      "status": "active",
+      "label": "KnowledgeImportManager",
+      "source_path": "src/components/admin/KnowledgeImportManager.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:layout",
+      "type": "component",
+      "status": "active",
+      "label": "Layout",
+      "source_path": "src/components/layout/Layout.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:login-dialog",
+      "type": "component",
+      "status": "active",
+      "label": "LoginDialog",
+      "source_path": "src/components/auth/LoginDialog.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:navbar",
+      "type": "component",
+      "status": "active",
+      "label": "Navbar",
+      "source_path": "src/components/layout/Navbar.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "component:ontology-graph-view",
+      "type": "component",
+      "status": "active",
+      "label": "OntologyGraphView",
+      "source_path": "src/components/graph/OntologyGraphView.tsx",
+      "source_kind": "react-component",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "config:config",
+      "type": "config",
+      "status": "active",
+      "label": ".codex/config.toml",
+      "source_path": ".codex/config.toml",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:eslint-config",
+      "type": "config",
+      "status": "active",
+      "label": "eslint.config.js",
+      "source_path": "eslint.config.js",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:mcp-server-package",
+      "type": "config",
+      "status": "active",
+      "label": "mcp-server/package.json",
+      "source_path": "mcp-server/package.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:mcp-server-tsconfig",
+      "type": "config",
+      "status": "active",
+      "label": "mcp-server/tsconfig.json",
+      "source_path": "mcp-server/tsconfig.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:package",
+      "type": "config",
+      "status": "active",
+      "label": "package.json",
+      "source_path": "package.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:postcss-config",
+      "type": "config",
+      "status": "active",
+      "label": "postcss.config.js",
+      "source_path": "postcss.config.js",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:project-pipeline-config",
+      "type": "config",
+      "status": "active",
+      "label": ".codex/project_pipeline_config.toml",
+      "source_path": ".codex/project_pipeline_config.toml",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:site-code-graph-schema",
+      "type": "config",
+      "status": "active",
+      "label": "docs/registry/site-code-graph.schema.json",
+      "source_path": "docs/registry/site-code-graph.schema.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:tailwind-config",
+      "type": "config",
+      "status": "active",
+      "label": "tailwind.config.js",
+      "source_path": "tailwind.config.js",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:tsconfig",
+      "type": "config",
+      "status": "active",
+      "label": "tsconfig.json",
+      "source_path": "tsconfig.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:tsconfig-app",
+      "type": "config",
+      "status": "active",
+      "label": "tsconfig.app.json",
+      "source_path": "tsconfig.app.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:tsconfig-node",
+      "type": "config",
+      "status": "active",
+      "label": "tsconfig.node.json",
+      "source_path": "tsconfig.node.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:vercel",
+      "type": "config",
+      "status": "active",
+      "label": "vercel.json",
+      "source_path": "vercel.json",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "config:vite-config",
+      "type": "config",
+      "status": "active",
+      "label": "vite.config.js",
+      "source_path": "vite.config.js",
+      "source_kind": "config",
+      "generated_from": [
+        "git-ls-files",
+        "config"
+      ]
+    },
+    {
+      "id": "database:archive-graph-schema",
+      "type": "database",
+      "status": "active",
+      "label": "archive_graph_schema",
+      "source_path": "database/sql/archive/archive_graph_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:check-purge-status",
+      "type": "database",
+      "status": "active",
+      "label": "check_purge_status",
+      "source_path": "database/sql/maintenance/check_purge_status.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:clean-edges",
+      "type": "database",
+      "status": "active",
+      "label": "clean_edges",
+      "source_path": "database/sql/maintenance/clean_edges.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:complete-graph-schema",
+      "type": "database",
+      "status": "active",
+      "label": "complete_graph_schema",
+      "source_path": "database/sql/schema/complete_graph_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:hierarchical-graph-schema",
+      "type": "database",
+      "status": "active",
+      "label": "hierarchical_graph_schema",
+      "source_path": "database/sql/schema/hierarchical_graph_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:knowledge-repository-schema",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_repository_schema",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:migration-add-content",
+      "type": "database",
+      "status": "active",
+      "label": "migration_add_content",
+      "source_path": "database/sql/migrations/migration_add_content.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-add-light-content",
+      "type": "database",
+      "status": "active",
+      "label": "migration_add_light_content",
+      "source_path": "database/sql/migrations/migration_add_light_content.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-add-sync-trigger",
+      "type": "database",
+      "status": "active",
+      "label": "migration_add_sync_trigger",
+      "source_path": "database/sql/migrations/migration_add_sync_trigger.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-fix-wave-particle",
+      "type": "database",
+      "status": "active",
+      "label": "migration_fix_wave_particle",
+      "source_path": "database/sql/migrations/migration_fix_wave_particle.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-prune-orphans",
+      "type": "database",
+      "status": "active",
+      "label": "migration_prune_orphans",
+      "source_path": "database/sql/migrations/migration_prune_orphans.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-purge-function",
+      "type": "database",
+      "status": "active",
+      "label": "migration_purge_function",
+      "source_path": "database/sql/migrations/migration_purge_function.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-sync-fields",
+      "type": "database",
+      "status": "active",
+      "label": "migration_sync_fields",
+      "source_path": "database/sql/migrations/migration_sync_fields.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-sync-graph",
+      "type": "database",
+      "status": "active",
+      "label": "migration_sync_graph",
+      "source_path": "database/sql/migrations/migration_sync_graph.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:ontology-paper-system-schema",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_paper_system_schema",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:purge-legacy-sections",
+      "type": "database",
+      "status": "active",
+      "label": "purge_legacy_sections",
+      "source_path": "database/sql/maintenance/purge_legacy_sections.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:safe-schema-update",
+      "type": "database",
+      "status": "active",
+      "label": "safe_schema_update",
+      "source_path": "database/sql/maintenance/safe_schema_update.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:schema",
+      "type": "database",
+      "status": "active",
+      "label": "schema",
+      "source_path": "database/sql/schema/schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "database:update-graph-schema",
+      "type": "database",
+      "status": "active",
+      "label": "update_graph_schema",
+      "source_path": "database/sql/schema/update_graph_schema.sql",
+      "source_kind": "sql-schema",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "file:app",
+      "type": "file",
+      "status": "active",
+      "label": "src/App.tsx",
+      "source_path": "src/App.tsx",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:archive-fundamentals",
+      "type": "file",
+      "status": "active",
+      "label": "src/data/archiveFundamentals.ts",
+      "source_path": "src/data/archiveFundamentals.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:archive-schema",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/archiveSchema.ts",
+      "source_path": "src/lib/archiveSchema.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:auth",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/auth.ts",
+      "source_path": "src/lib/auth.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "import-graph"
+      ]
+    },
+    {
+      "id": "file:backlinks",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/backlinks.ts",
+      "source_path": "src/lib/backlinks.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:cn",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/cn.ts",
+      "source_path": "src/lib/cn.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "import-graph"
+      ]
+    },
+    {
+      "id": "file:concepts",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/concepts.ts",
+      "source_path": "src/lib/concepts.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:generate-site-code-graph",
+      "type": "file",
+      "status": "active",
+      "label": "tools/extraction/generate_site_code_graph.js",
+      "source_path": "tools/extraction/generate_site_code_graph.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:graph-layouts",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/graphLayouts.ts",
+      "source_path": "src/lib/graphLayouts.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:graph-model",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/graphModel.ts",
+      "source_path": "src/lib/graphModel.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:graph-spheres",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/graphSpheres.ts",
+      "source_path": "src/lib/graphSpheres.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:index",
+      "type": "file",
+      "status": "active",
+      "label": "mcp-server/src/index.ts",
+      "source_path": "mcp-server/src/index.ts",
+      "source_kind": "mcp-server-source",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:knowledge-pipeline",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/knowledgePipeline.ts",
+      "source_path": "src/lib/knowledgePipeline.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:knowledge-schema",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/knowledgeSchema.ts",
+      "source_path": "src/lib/knowledgeSchema.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:knowledge-taxonomy",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/knowledgeTaxonomy.ts",
+      "source_path": "src/lib/knowledgeTaxonomy.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:knowledge-writing",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/knowledgeWriting.ts",
+      "source_path": "src/lib/knowledgeWriting.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:main",
+      "type": "file",
+      "status": "active",
+      "label": "src/main.tsx",
+      "source_path": "src/main.tsx",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:render-obsidian-registry",
+      "type": "file",
+      "status": "active",
+      "label": "tools/extraction/render_obsidian_registry.js",
+      "source_path": "tools/extraction/render_obsidian_registry.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:render-topic-math",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/renderTopicMath.ts",
+      "source_path": "src/lib/renderTopicMath.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:repository",
+      "type": "file",
+      "status": "active",
+      "label": "mcp-server/src/repository.ts",
+      "source_path": "mcp-server/src/repository.ts",
+      "source_kind": "mcp-server-source",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:seed",
+      "type": "file",
+      "status": "active",
+      "label": "src/data/seed.ts",
+      "source_path": "src/data/seed.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:source-text",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/sourceText.ts",
+      "source_path": "src/lib/sourceText.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:src-supabase",
+      "type": "file",
+      "status": "active",
+      "label": "mcp-server/src/supabase.ts",
+      "source_path": "mcp-server/src/supabase.ts",
+      "source_kind": "mcp-server-source",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:storage",
+      "type": "file",
+      "status": "active",
+      "label": "src/data/storage.ts",
+      "source_path": "src/data/storage.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:supabase",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/supabase.ts",
+      "source_path": "src/lib/supabase.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:theme",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/theme.tsx",
+      "source_path": "src/lib/theme.tsx",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:topic-content-overrides",
+      "type": "file",
+      "status": "active",
+      "label": "src/data/topicContentOverrides.ts",
+      "source_path": "src/data/topicContentOverrides.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:topic-slug",
+      "type": "file",
+      "status": "active",
+      "label": "src/lib/topicSlug.ts",
+      "source_path": "src/lib/topicSlug.ts",
+      "source_kind": "github-repo",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:validate-obsidian-links",
+      "type": "file",
+      "status": "active",
+      "label": "tools/validation/validate_obsidian_links.js",
+      "source_path": "tools/validation/validate_obsidian_links.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:validate-registry-drift",
+      "type": "file",
+      "status": "active",
+      "label": "tools/validation/validate_registry_drift.js",
+      "source_path": "tools/validation/validate_registry_drift.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:validate-site-code-graph",
+      "type": "file",
+      "status": "active",
+      "label": "tools/validation/validate_site_code_graph.js",
+      "source_path": "tools/validation/validate_site_code_graph.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "file:validate-source-paths",
+      "type": "file",
+      "status": "active",
+      "label": "tools/validation/validate_source_paths.js",
+      "source_path": "tools/validation/validate_source_paths.js",
+      "source_kind": "harness-tool",
+      "generated_from": [
+        "git-ls-files",
+        "curated-core-file-list"
+      ]
+    },
+    {
+      "id": "page:graph-overview-page",
+      "type": "page",
+      "status": "active",
+      "label": "GraphOverviewPage",
+      "source_path": "src/pages/GraphOverviewPage.tsx",
+      "source_kind": "react-page",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "page:home",
+      "type": "page",
+      "status": "active",
+      "label": "Home",
+      "source_path": "src/pages/Home.tsx",
+      "source_kind": "react-page",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "page:timeline-page",
+      "type": "page",
+      "status": "active",
+      "label": "TimelinePage",
+      "source_path": "src/pages/TimelinePage.tsx",
+      "source_kind": "react-page",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "page:topic-page",
+      "type": "page",
+      "status": "active",
+      "label": "TopicPage",
+      "source_path": "src/pages/TopicPage.tsx",
+      "source_kind": "react-page",
+      "generated_from": [
+        "git-ls-files",
+        "file-path-convention"
+      ]
+    },
+    {
+      "id": "route:field-field-slug",
+      "type": "route",
+      "status": "active",
+      "label": "/field/:fieldSlug",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/field/:fieldSlug",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "route:graph",
+      "type": "route",
+      "status": "active",
+      "label": "/graph",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/graph",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "route:home",
+      "type": "route",
+      "status": "active",
+      "label": "/",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "route:not-found",
+      "type": "route",
+      "status": "active",
+      "label": "/*",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/*",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "route:root-layout",
+      "type": "route",
+      "status": "active",
+      "label": "/",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "route:topic-topic-slug",
+      "type": "route",
+      "status": "active",
+      "label": "/topic/:topicSlug",
+      "source_path": "src/App.tsx",
+      "source_kind": "route-definition",
+      "route_path": "/topic/:topicSlug",
+      "generated_from": [
+        "git-ls-files",
+        "route-definition"
+      ]
+    },
+    {
+      "id": "table:archive-graph-edges",
+      "type": "database",
+      "status": "active",
+      "label": "archive_graph_edges",
+      "source_path": "database/sql/archive/archive_graph_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:archive-graph-nodes",
+      "type": "database",
+      "status": "active",
+      "label": "archive_graph_nodes",
+      "source_path": "database/sql/archive/archive_graph_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:archive-topics",
+      "type": "database",
+      "status": "active",
+      "label": "archive_topics",
+      "source_path": "database/sql/archive/archive_graph_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:fields",
+      "type": "database",
+      "status": "active",
+      "label": "fields",
+      "source_path": "database/sql/schema/schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:graph-edges",
+      "type": "database",
+      "status": "active",
+      "label": "graph_edges",
+      "source_path": "database/sql/maintenance/clean_edges.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "table:graph-nodes",
+      "type": "database",
+      "status": "active",
+      "label": "graph_nodes",
+      "source_path": "database/sql/maintenance/safe_schema_update.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:knowledge-change-sets",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_change_sets",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:knowledge-ingestion-runs",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_ingestion_runs",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:knowledge-node-sources",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_node_sources",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:knowledge-repositories",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_repositories",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:knowledge-source-documents",
+      "type": "database",
+      "status": "active",
+      "label": "knowledge_source_documents",
+      "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-concept-evolution",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_concept_evolution",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-concept-links",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_concept_links",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-edges",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_edges",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-extraction-runs",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_extraction_runs",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-global-concepts",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_global_concepts",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-inter-paper-relations",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_inter_paper_relations",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-model-lineage",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_model_lineage",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-nodes",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_nodes",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-open-question-chains",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_open_question_chains",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-papers",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_papers",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:ontology-problem-solution-chains",
+      "type": "database",
+      "status": "active",
+      "label": "ontology_problem_solution_chains",
+      "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:profiles",
+      "type": "database",
+      "status": "active",
+      "label": "profiles",
+      "source_path": "database/sql/schema/schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:questions",
+      "type": "database",
+      "status": "active",
+      "label": "questions",
+      "source_path": "database/sql/schema/schema.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "sql-schema"
+      ]
+    },
+    {
+      "id": "table:topic-sections",
+      "type": "database",
+      "status": "active",
+      "label": "topic_sections",
+      "source_path": "database/sql/migrations/migration_add_light_content.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "table:topics",
+      "type": "database",
+      "status": "active",
+      "label": "topics",
+      "source_path": "database/sql/maintenance/safe_schema_update.sql",
+      "source_kind": "sql-table",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:api-author-topic-defined-in-file-index",
+      "from": "api:author-topic",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerPrompt('author_topic')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-create-concept-node-defined-in-file-index",
+      "from": "api:create-concept-node",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('create_concept_node')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-delete-graph-edge-defined-in-file-index",
+      "from": "api:delete-graph-edge",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('delete_graph_edge')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-get-graph-snapshot-defined-in-file-index",
+      "from": "api:get-graph-snapshot",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('get_graph_snapshot')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-get-topic-defined-in-file-index",
+      "from": "api:get-topic",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('get_topic')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-graph-overview-defined-in-file-index",
+      "from": "api:graph-overview",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerResource('graph-overview')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-list-topics-defined-in-file-index",
+      "from": "api:list-topics",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('list_topics')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-upsert-graph-edge-defined-in-file-index",
+      "from": "api:upsert-graph-edge",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('upsert_graph_edge')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-upsert-section-defined-in-file-index",
+      "from": "api:upsert-section",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('upsert_section')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-upsert-topic-defined-in-file-index",
+      "from": "api:upsert-topic",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('upsert_topic')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:api-write-topic-draft-defined-in-file-index",
+      "from": "api:write-topic-draft",
+      "to": "file:index",
+      "type": "defined-in",
+      "evidence": [
+        {
+          "kind": "api-handler-path",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "server.registerTool('write_topic_draft')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-button-imports-file-cn",
+      "from": "component:button",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/Button.tsx",
+          "detail": "../../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-dialog-imports-file-cn",
+      "from": "component:dialog",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/Dialog.tsx",
+          "detail": "../../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-directory-structure-manager-imports-file-graph-model",
+      "from": "component:directory-structure-manager",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/DirectoryStructureManager.tsx",
+          "detail": "../../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-directory-structure-manager-imports-file-seed",
+      "from": "component:directory-structure-manager",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/DirectoryStructureManager.tsx",
+          "detail": "../../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-directory-structure-manager-imports-file-storage",
+      "from": "component:directory-structure-manager",
+      "to": "file:storage",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/DirectoryStructureManager.tsx",
+          "detail": "../../data/storage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-directory-structure-manager-imports-file-topic-slug",
+      "from": "component:directory-structure-manager",
+      "to": "file:topic-slug",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/DirectoryStructureManager.tsx",
+          "detail": "../../lib/topicSlug"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-image-upload-imports-component-button",
+      "from": "component:image-upload",
+      "to": "component:button",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/ImageUpload.tsx",
+          "detail": "./Button"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-image-upload-imports-file-cn",
+      "from": "component:image-upload",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/ImageUpload.tsx",
+          "detail": "../../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-image-upload-imports-file-storage",
+      "from": "component:image-upload",
+      "to": "file:storage",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/ImageUpload.tsx",
+          "detail": "../../data/storage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-input-imports-file-cn",
+      "from": "component:input",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/ui/Input.tsx",
+          "detail": "../../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-knowledge-import-manager-imports-file-archive-schema",
+      "from": "component:knowledge-import-manager",
+      "to": "file:archive-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/KnowledgeImportManager.tsx",
+          "detail": "../../lib/archiveSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-knowledge-import-manager-imports-file-graph-model",
+      "from": "component:knowledge-import-manager",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/KnowledgeImportManager.tsx",
+          "detail": "../../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-knowledge-import-manager-imports-file-knowledge-pipeline",
+      "from": "component:knowledge-import-manager",
+      "to": "file:knowledge-pipeline",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/KnowledgeImportManager.tsx",
+          "detail": "../../lib/knowledgePipeline"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-knowledge-import-manager-imports-file-knowledge-schema",
+      "from": "component:knowledge-import-manager",
+      "to": "file:knowledge-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/admin/KnowledgeImportManager.tsx",
+          "detail": "../../lib/knowledgeSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-layout-imports-component-navbar",
+      "from": "component:layout",
+      "to": "component:navbar",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/layout/Layout.tsx",
+          "detail": "./Navbar"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-login-dialog-imports-file-auth",
+      "from": "component:login-dialog",
+      "to": "file:auth",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/auth/LoginDialog.tsx",
+          "detail": "../../lib/auth"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-navbar-imports-component-login-dialog",
+      "from": "component:navbar",
+      "to": "component:login-dialog",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/layout/Navbar.tsx",
+          "detail": "../auth/LoginDialog"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-navbar-imports-file-cn",
+      "from": "component:navbar",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/layout/Navbar.tsx",
+          "detail": "../../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-navbar-imports-file-seed",
+      "from": "component:navbar",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/layout/Navbar.tsx",
+          "detail": "../../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-navbar-imports-file-theme",
+      "from": "component:navbar",
+      "to": "file:theme",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/layout/Navbar.tsx",
+          "detail": "../../lib/theme"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-ontology-graph-view-imports-file-graph-model",
+      "from": "component:ontology-graph-view",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/graph/OntologyGraphView.tsx",
+          "detail": "../../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:component-ontology-graph-view-imports-file-theme",
+      "from": "component:ontology-graph-view",
+      "to": "file:theme",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/components/graph/OntologyGraphView.tsx",
+          "detail": "../../lib/theme"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-defines-table-archive-graph-edges",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-graph-edges",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "create table archive_graph_edges"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-migrates-table-archive-graph-edges",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "alter table archive_graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-defines-table-archive-graph-nodes",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-graph-nodes",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "create table archive_graph_nodes"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-migrates-table-archive-graph-nodes",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "alter table archive_graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-defines-table-archive-topics",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-topics",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "create table archive_topics"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-archive-graph-schema-migrates-table-archive-topics",
+      "from": "database:archive-graph-schema",
+      "to": "table:archive-topics",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/archive/archive_graph_schema.sql",
+          "detail": "alter table archive_topics"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-clean-edges-migrates-table-graph-edges",
+      "from": "database:clean-edges",
+      "to": "table:graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/maintenance/clean_edges.sql",
+          "detail": "alter table graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-complete-graph-schema-migrates-table-graph-edges",
+      "from": "database:complete-graph-schema",
+      "to": "table:graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/complete_graph_schema.sql",
+          "detail": "alter table graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-complete-graph-schema-migrates-table-graph-nodes",
+      "from": "database:complete-graph-schema",
+      "to": "table:graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/complete_graph_schema.sql",
+          "detail": "alter table graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-hierarchical-graph-schema-migrates-table-graph-edges",
+      "from": "database:hierarchical-graph-schema",
+      "to": "table:graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/hierarchical_graph_schema.sql",
+          "detail": "alter table graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-archive-graph-nodes",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:archive-graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table archive_graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-graph-nodes",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-defines-table-knowledge-change-sets",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-change-sets",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "create table knowledge_change_sets"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-knowledge-change-sets",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-change-sets",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table knowledge_change_sets"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-defines-table-knowledge-ingestion-runs",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-ingestion-runs",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "create table knowledge_ingestion_runs"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-knowledge-ingestion-runs",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-ingestion-runs",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table knowledge_ingestion_runs"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-defines-table-knowledge-node-sources",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-node-sources",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "create table knowledge_node_sources"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-knowledge-node-sources",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-node-sources",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table knowledge_node_sources"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-defines-table-knowledge-repositories",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-repositories",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "create table knowledge_repositories"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-knowledge-repositories",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-repositories",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table knowledge_repositories"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-defines-table-knowledge-source-documents",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-source-documents",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "create table knowledge_source_documents"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-knowledge-repository-schema-migrates-table-knowledge-source-documents",
+      "from": "database:knowledge-repository-schema",
+      "to": "table:knowledge-source-documents",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/knowledge_repository_schema.sql",
+          "detail": "alter table knowledge_source_documents"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-migration-add-content-migrates-table-topics",
+      "from": "database:migration-add-content",
+      "to": "table:topics",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/migrations/migration_add_content.sql",
+          "detail": "alter table topics"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-migration-add-light-content-migrates-table-topic-sections",
+      "from": "database:migration-add-light-content",
+      "to": "table:topic-sections",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/migrations/migration_add_light_content.sql",
+          "detail": "alter table topic_sections"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-migration-add-sync-trigger-migrates-table-topics",
+      "from": "database:migration-add-sync-trigger",
+      "to": "table:topics",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/migrations/migration_add_sync_trigger.sql",
+          "detail": "alter table topics"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-concept-evolution",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-concept-evolution",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_concept_evolution"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-concept-evolution",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-concept-evolution",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_concept_evolution"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-concept-links",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-concept-links",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_concept_links"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-concept-links",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-concept-links",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_concept_links"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-edges",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-edges",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_edges"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-edges",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-extraction-runs",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-extraction-runs",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_extraction_runs"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-extraction-runs",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-extraction-runs",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_extraction_runs"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-global-concepts",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-global-concepts",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_global_concepts"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-global-concepts",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-global-concepts",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_global_concepts"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-inter-paper-relations",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-inter-paper-relations",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_inter_paper_relations"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-inter-paper-relations",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-inter-paper-relations",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_inter_paper_relations"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-model-lineage",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-model-lineage",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_model_lineage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-model-lineage",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-model-lineage",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_model_lineage"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-nodes",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-nodes",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_nodes"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-nodes",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-open-question-chains",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-open-question-chains",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_open_question_chains"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-open-question-chains",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-open-question-chains",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_open_question_chains"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-papers",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-papers",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_papers"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-papers",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-papers",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_papers"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-defines-table-ontology-problem-solution-chains",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-problem-solution-chains",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "create table ontology_problem_solution_chains"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-ontology-paper-system-schema-migrates-table-ontology-problem-solution-chains",
+      "from": "database:ontology-paper-system-schema",
+      "to": "table:ontology-problem-solution-chains",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/ontology_paper_system_schema.sql",
+          "detail": "alter table ontology_problem_solution_chains"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-safe-schema-update-defines-table-graph-edges",
+      "from": "database:safe-schema-update",
+      "to": "table:graph-edges",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/maintenance/safe_schema_update.sql",
+          "detail": "create table graph_edges"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-safe-schema-update-migrates-table-graph-edges",
+      "from": "database:safe-schema-update",
+      "to": "table:graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/maintenance/safe_schema_update.sql",
+          "detail": "alter table graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-safe-schema-update-defines-table-graph-nodes",
+      "from": "database:safe-schema-update",
+      "to": "table:graph-nodes",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/maintenance/safe_schema_update.sql",
+          "detail": "create table graph_nodes"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-safe-schema-update-migrates-table-graph-nodes",
+      "from": "database:safe-schema-update",
+      "to": "table:graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/maintenance/safe_schema_update.sql",
+          "detail": "alter table graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-safe-schema-update-migrates-table-topics",
+      "from": "database:safe-schema-update",
+      "to": "table:topics",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/maintenance/safe_schema_update.sql",
+          "detail": "alter table topics"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-fields",
+      "from": "database:schema",
+      "to": "table:fields",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table fields"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-defines-table-graph-edges",
+      "from": "database:schema",
+      "to": "table:graph-edges",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table graph_edges"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-graph-edges",
+      "from": "database:schema",
+      "to": "table:graph-edges",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table graph_edges"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-graph-nodes",
+      "from": "database:schema",
+      "to": "table:graph-nodes",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table graph_nodes"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-graph-nodes",
+      "from": "database:schema",
+      "to": "table:graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-profiles",
+      "from": "database:schema",
+      "to": "table:profiles",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table profiles"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-profiles",
+      "from": "database:schema",
+      "to": "table:profiles",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table profiles"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-questions",
+      "from": "database:schema",
+      "to": "table:questions",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table questions"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-questions",
+      "from": "database:schema",
+      "to": "table:questions",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table questions"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-topic-sections",
+      "from": "database:schema",
+      "to": "table:topic-sections",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table topic_sections"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-topic-sections",
+      "from": "database:schema",
+      "to": "table:topic-sections",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table topic_sections"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-schema-defines-table-topics",
+      "from": "database:schema",
+      "to": "table:topics",
+      "type": "defines",
+      "evidence": [
+        {
+          "kind": "sql-schema",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "create table topics"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:database-schema-migrates-table-topics",
+      "from": "database:schema",
+      "to": "table:topics",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/schema.sql",
+          "detail": "alter table topics"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:database-update-graph-schema-migrates-table-graph-nodes",
+      "from": "database:update-graph-schema",
+      "to": "table:graph-nodes",
+      "type": "migrates",
+      "evidence": [
+        {
+          "kind": "migration",
+          "source_path": "database/sql/schema/update_graph_schema.sql",
+          "detail": "alter table graph_nodes"
+        }
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "edge:file-app-imports-component-layout",
+      "from": "file:app",
+      "to": "component:layout",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/App.tsx",
+          "detail": "./components/layout/Layout"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-app-imports-page-graph-overview-page",
+      "from": "file:app",
+      "to": "page:graph-overview-page",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/App.tsx",
+          "detail": "./pages/GraphOverviewPage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-app-imports-page-home",
+      "from": "file:app",
+      "to": "page:home",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/App.tsx",
+          "detail": "./pages/Home"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-app-imports-page-timeline-page",
+      "from": "file:app",
+      "to": "page:timeline-page",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/App.tsx",
+          "detail": "./pages/TimelinePage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-app-imports-page-topic-page",
+      "from": "file:app",
+      "to": "page:topic-page",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/App.tsx",
+          "detail": "./pages/TopicPage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-archive-fundamentals-imports-file-graph-model",
+      "from": "file:archive-fundamentals",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/archiveFundamentals.ts",
+          "detail": "../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-archive-fundamentals-imports-file-render-topic-math",
+      "from": "file:archive-fundamentals",
+      "to": "file:render-topic-math",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/archiveFundamentals.ts",
+          "detail": "../lib/renderTopicMath"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-archive-schema-imports-file-supabase",
+      "from": "file:archive-schema",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/archiveSchema.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-auth-imports-file-supabase",
+      "from": "file:auth",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/auth.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-auth-queries-table-profiles",
+      "from": "file:auth",
+      "to": "table:profiles",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/auth.ts",
+          "detail": ".from('profiles')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-concepts-imports-file-graph-model",
+      "from": "file:concepts",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/concepts.ts",
+          "detail": "./graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-concepts-imports-file-supabase",
+      "from": "file:concepts",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/concepts.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-layouts-imports-file-graph-model",
+      "from": "file:graph-layouts",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphLayouts.ts",
+          "detail": "./graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-archive-fundamentals",
+      "from": "file:graph-model",
+      "to": "file:archive-fundamentals",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "../data/archiveFundamentals"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-archive-schema",
+      "from": "file:graph-model",
+      "to": "file:archive-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "./archiveSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-backlinks",
+      "from": "file:graph-model",
+      "to": "file:backlinks",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "./backlinks"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-graph-spheres",
+      "from": "file:graph-model",
+      "to": "file:graph-spheres",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "./graphSpheres"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-seed",
+      "from": "file:graph-model",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-supabase",
+      "from": "file:graph-model",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-topic-content-overrides",
+      "from": "file:graph-model",
+      "to": "file:topic-content-overrides",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "../data/topicContentOverrides"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-imports-file-topic-slug",
+      "from": "file:graph-model",
+      "to": "file:topic-slug",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": "./topicSlug"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-queries-table-ontology-edges",
+      "from": "file:graph-model",
+      "to": "table:ontology-edges",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": ".from('ontology_edges')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-queries-table-ontology-nodes",
+      "from": "file:graph-model",
+      "to": "table:ontology-nodes",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": ".from('ontology_nodes')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-model-queries-table-ontology-papers",
+      "from": "file:graph-model",
+      "to": "table:ontology-papers",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/graphModel.ts",
+          "detail": ".from('ontology_papers')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-graph-spheres-imports-file-graph-model",
+      "from": "file:graph-spheres",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/graphSpheres.ts",
+          "detail": "./graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-index-imports-file-repository",
+      "from": "file:index",
+      "to": "file:repository",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "mcp-server/src/index.ts",
+          "detail": "./repository.js"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-archive-schema",
+      "from": "file:knowledge-pipeline",
+      "to": "file:archive-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./archiveSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-concepts",
+      "from": "file:knowledge-pipeline",
+      "to": "file:concepts",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./concepts"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-graph-model",
+      "from": "file:knowledge-pipeline",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-knowledge-schema",
+      "from": "file:knowledge-pipeline",
+      "to": "file:knowledge-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./knowledgeSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-knowledge-taxonomy",
+      "from": "file:knowledge-pipeline",
+      "to": "file:knowledge-taxonomy",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./knowledgeTaxonomy"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-knowledge-writing",
+      "from": "file:knowledge-pipeline",
+      "to": "file:knowledge-writing",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./knowledgeWriting"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-seed",
+      "from": "file:knowledge-pipeline",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-source-text",
+      "from": "file:knowledge-pipeline",
+      "to": "file:source-text",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./sourceText"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-storage",
+      "from": "file:knowledge-pipeline",
+      "to": "file:storage",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "../data/storage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-supabase",
+      "from": "file:knowledge-pipeline",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-imports-file-topic-slug",
+      "from": "file:knowledge-pipeline",
+      "to": "file:topic-slug",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": "./topicSlug"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-fields",
+      "from": "file:knowledge-pipeline",
+      "to": "table:fields",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('fields')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-knowledge-change-sets",
+      "from": "file:knowledge-pipeline",
+      "to": "table:knowledge-change-sets",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('knowledge_change_sets')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-knowledge-ingestion-runs",
+      "from": "file:knowledge-pipeline",
+      "to": "table:knowledge-ingestion-runs",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('knowledge_ingestion_runs')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-knowledge-node-sources",
+      "from": "file:knowledge-pipeline",
+      "to": "table:knowledge-node-sources",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('knowledge_node_sources')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-knowledge-repositories",
+      "from": "file:knowledge-pipeline",
+      "to": "table:knowledge-repositories",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('knowledge_repositories')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-pipeline-queries-table-knowledge-source-documents",
+      "from": "file:knowledge-pipeline",
+      "to": "table:knowledge-source-documents",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/lib/knowledgePipeline.ts",
+          "detail": ".from('knowledge_source_documents')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-schema-imports-file-supabase",
+      "from": "file:knowledge-schema",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgeSchema.ts",
+          "detail": "./supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-writing-imports-file-knowledge-taxonomy",
+      "from": "file:knowledge-writing",
+      "to": "file:knowledge-taxonomy",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgeWriting.ts",
+          "detail": "./knowledgeTaxonomy"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-knowledge-writing-imports-file-render-topic-math",
+      "from": "file:knowledge-writing",
+      "to": "file:render-topic-math",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/lib/knowledgeWriting.ts",
+          "detail": "./renderTopicMath"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-main-imports-file-app",
+      "from": "file:main",
+      "to": "file:app",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/main.tsx",
+          "detail": "./App.tsx"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-main-imports-file-theme",
+      "from": "file:main",
+      "to": "file:theme",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/main.tsx",
+          "detail": "./lib/theme.tsx"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-repository-imports-file-src-supabase",
+      "from": "file:repository",
+      "to": "file:src-supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "mcp-server/src/repository.ts",
+          "detail": "./supabase.js"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-repository-queries-table-graph-edges",
+      "from": "file:repository",
+      "to": "table:graph-edges",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "mcp-server/src/repository.ts",
+          "detail": ".from('graph_edges')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-repository-queries-table-graph-nodes",
+      "from": "file:repository",
+      "to": "table:graph-nodes",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "mcp-server/src/repository.ts",
+          "detail": ".from('graph_nodes')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-repository-queries-table-topic-sections",
+      "from": "file:repository",
+      "to": "table:topic-sections",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "mcp-server/src/repository.ts",
+          "detail": ".from('topic_sections')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-repository-queries-table-topics",
+      "from": "file:repository",
+      "to": "table:topics",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "mcp-server/src/repository.ts",
+          "detail": ".from('topics')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-archive-fundamentals",
+      "from": "file:storage",
+      "to": "file:archive-fundamentals",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "./archiveFundamentals"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-archive-schema",
+      "from": "file:storage",
+      "to": "file:archive-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/archiveSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-backlinks",
+      "from": "file:storage",
+      "to": "file:backlinks",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/backlinks"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-concepts",
+      "from": "file:storage",
+      "to": "file:concepts",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/concepts"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-graph-model",
+      "from": "file:storage",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-graph-spheres",
+      "from": "file:storage",
+      "to": "file:graph-spheres",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/graphSpheres"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-seed",
+      "from": "file:storage",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "./seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-supabase",
+      "from": "file:storage",
+      "to": "file:supabase",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/supabase"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-topic-content-overrides",
+      "from": "file:storage",
+      "to": "file:topic-content-overrides",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "./topicContentOverrides"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-imports-file-topic-slug",
+      "from": "file:storage",
+      "to": "file:topic-slug",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/data/storage.ts",
+          "detail": "../lib/topicSlug"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-fields",
+      "from": "file:storage",
+      "to": "table:fields",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('fields')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-graph-edges",
+      "from": "file:storage",
+      "to": "table:graph-edges",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('graph_edges')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-graph-nodes",
+      "from": "file:storage",
+      "to": "table:graph-nodes",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('graph_nodes')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-questions",
+      "from": "file:storage",
+      "to": "table:questions",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('questions')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-topic-sections",
+      "from": "file:storage",
+      "to": "table:topic-sections",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('topic_sections')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:file-storage-queries-table-topics",
+      "from": "file:storage",
+      "to": "table:topics",
+      "type": "queries",
+      "evidence": [
+        {
+          "kind": "supabase-query",
+          "source_path": "src/data/storage.ts",
+          "detail": ".from('topics')"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-graph-overview-page-imports-component-directory-structure-manager",
+      "from": "page:graph-overview-page",
+      "to": "component:directory-structure-manager",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/GraphOverviewPage.tsx",
+          "detail": "../components/admin/DirectoryStructureManager"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-graph-overview-page-imports-component-knowledge-import-manager",
+      "from": "page:graph-overview-page",
+      "to": "component:knowledge-import-manager",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/GraphOverviewPage.tsx",
+          "detail": "../components/admin/KnowledgeImportManager"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-graph-overview-page-imports-component-ontology-graph-view",
+      "from": "page:graph-overview-page",
+      "to": "component:ontology-graph-view",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/GraphOverviewPage.tsx",
+          "detail": "../components/graph/OntologyGraphView"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-graph-overview-page-imports-file-auth",
+      "from": "page:graph-overview-page",
+      "to": "file:auth",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/GraphOverviewPage.tsx",
+          "detail": "../lib/auth"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-graph-overview-page-imports-file-graph-model",
+      "from": "page:graph-overview-page",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/GraphOverviewPage.tsx",
+          "detail": "../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-home-imports-file-cn",
+      "from": "page:home",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/Home.tsx",
+          "detail": "../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-home-imports-file-theme",
+      "from": "page:home",
+      "to": "file:theme",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/Home.tsx",
+          "detail": "../lib/theme"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-timeline-page-imports-component-image-upload",
+      "from": "page:timeline-page",
+      "to": "component:image-upload",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TimelinePage.tsx",
+          "detail": "../components/ui/ImageUpload"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-timeline-page-imports-file-auth",
+      "from": "page:timeline-page",
+      "to": "file:auth",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TimelinePage.tsx",
+          "detail": "../lib/auth"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-timeline-page-imports-file-seed",
+      "from": "page:timeline-page",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TimelinePage.tsx",
+          "detail": "../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-timeline-page-imports-file-storage",
+      "from": "page:timeline-page",
+      "to": "file:storage",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TimelinePage.tsx",
+          "detail": "../data/storage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-archive-fundamentals",
+      "from": "page:topic-page",
+      "to": "file:archive-fundamentals",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../data/archiveFundamentals"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-archive-schema",
+      "from": "page:topic-page",
+      "to": "file:archive-schema",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../lib/archiveSchema"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-cn",
+      "from": "page:topic-page",
+      "to": "file:cn",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../lib/cn"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-graph-model",
+      "from": "page:topic-page",
+      "to": "file:graph-model",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../lib/graphModel"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-render-topic-math",
+      "from": "page:topic-page",
+      "to": "file:render-topic-math",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../lib/renderTopicMath"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-seed",
+      "from": "page:topic-page",
+      "to": "file:seed",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../data/seed"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-storage",
+      "from": "page:topic-page",
+      "to": "file:storage",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../data/storage"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:page-topic-page-imports-file-theme",
+      "from": "page:topic-page",
+      "to": "file:theme",
+      "type": "imports",
+      "evidence": [
+        {
+          "kind": "static-import",
+          "source_path": "src/pages/TopicPage.tsx",
+          "detail": "../lib/theme"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:route-field-field-slug-renders-page-timeline-page",
+      "from": "route:field-field-slug",
+      "to": "page:timeline-page",
+      "type": "renders",
+      "evidence": [
+        {
+          "kind": "route-definition",
+          "source_path": "src/App.tsx",
+          "detail": "<Route path=\"field/:fieldSlug\" element={<TimelinePage />"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:route-graph-renders-page-graph-overview-page",
+      "from": "route:graph",
+      "to": "page:graph-overview-page",
+      "type": "renders",
+      "evidence": [
+        {
+          "kind": "route-definition",
+          "source_path": "src/App.tsx",
+          "detail": "<Route path=\"graph\" element={<GraphOverviewPage />"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:route-home-renders-page-home",
+      "from": "route:home",
+      "to": "page:home",
+      "type": "renders",
+      "evidence": [
+        {
+          "kind": "route-definition",
+          "source_path": "src/App.tsx",
+          "detail": "<Route index element={<Home />"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:route-root-layout-renders-component-layout",
+      "from": "route:root-layout",
+      "to": "component:layout",
+      "type": "renders",
+      "evidence": [
+        {
+          "kind": "route-definition",
+          "source_path": "src/App.tsx",
+          "detail": "<Route path=\"/\" element={<Layout />"
+        }
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "edge:route-topic-topic-slug-renders-page-topic-page",
+      "from": "route:topic-topic-slug",
+      "to": "page:topic-page",
+      "type": "renders",
+      "evidence": [
+        {
+          "kind": "route-definition",
+          "source_path": "src/App.tsx",
+          "detail": "<Route path=\"topic/:topicSlug\" element={<TopicPage />"
+        }
+      ],
+      "confidence": "high"
+    }
+  ],
+  "file_index": [
+    {
+      "path": ".codex/agents/category_graph_designer.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/citation_grounder.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/corpus_profiler.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/derivation_reconstructor.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/equation_extractor.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/file_reader.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/graph_expansion_planner.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/graph_merger.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/graph_normalizer.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/knowledge_reconstruction_orchestrator.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/knowledge_repository_manager.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/learning_path_builder.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/logical_structure_validator.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/markdown_packager.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/node_doc_planner.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/node_doc_reviewer.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/node_doc_writer.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/node_reuse_resolver.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/node_spec_builder.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/recursive_subclassifier.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/scope_judge.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/top_classifier.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/upload_delta_analyzer.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/web_mapper.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/config.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:config"
+      ]
+    },
+    {
+      "path": ".codex/project_pipeline_config.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:project-pipeline-config"
+      ]
+    },
+    {
+      "path": ".codex/skills/frontend-site-implementation/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/frontend-site-implementation/references/frontend-map.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/graph-data-stewardship/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/graph-data-stewardship/references/db-and-mcp-rules.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/harness-memory/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/harness-memory/references/log-template.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/knowledge-reconstruction/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/knowledge-reconstruction/references/artifact-contracts.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/obsidian-site-code-registry/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/obsidian-site-code-registry/references/registry-contract.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/website-content-authoring/SKILL.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/skills/website-content-authoring/references/quill-katex-checklist.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "AGENTS.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "README.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "database/sql/README.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": []
+    },
+    {
+      "path": "database/sql/archive/archive_graph_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:archive-graph-schema",
+        "table:archive-topics",
+        "table:archive-graph-nodes",
+        "table:archive-graph-edges"
+      ]
+    },
+    {
+      "path": "database/sql/maintenance/check_purge_status.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:check-purge-status"
+      ]
+    },
+    {
+      "path": "database/sql/maintenance/clean_edges.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:clean-edges",
+        "table:graph-edges"
+      ]
+    },
+    {
+      "path": "database/sql/maintenance/purge_legacy_sections.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:purge-legacy-sections"
+      ]
+    },
+    {
+      "path": "database/sql/maintenance/safe_schema_update.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:safe-schema-update",
+        "table:graph-nodes",
+        "table:topics"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_add_content.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-add-content"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_add_light_content.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-add-light-content",
+        "table:topic-sections"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_add_sync_trigger.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-add-sync-trigger"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_fix_wave_particle.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-fix-wave-particle"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_prune_orphans.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-prune-orphans"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_purge_function.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-purge-function"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_sync_fields.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-sync-fields"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_sync_graph.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-sync-graph"
+      ]
+    },
+    {
+      "path": "database/sql/schema/complete_graph_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:complete-graph-schema"
+      ]
+    },
+    {
+      "path": "database/sql/schema/hierarchical_graph_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:hierarchical-graph-schema"
+      ]
+    },
+    {
+      "path": "database/sql/schema/knowledge_repository_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:knowledge-repository-schema",
+        "table:knowledge-repositories",
+        "table:knowledge-source-documents",
+        "table:knowledge-ingestion-runs",
+        "table:knowledge-node-sources",
+        "table:knowledge-change-sets"
+      ]
+    },
+    {
+      "path": "database/sql/schema/ontology_paper_system_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:ontology-paper-system-schema",
+        "table:ontology-papers",
+        "table:ontology-global-concepts",
+        "table:ontology-nodes",
+        "table:ontology-edges",
+        "table:ontology-concept-links",
+        "table:ontology-inter-paper-relations",
+        "table:ontology-concept-evolution",
+        "table:ontology-model-lineage",
+        "table:ontology-problem-solution-chains",
+        "table:ontology-open-question-chains",
+        "table:ontology-extraction-runs"
+      ]
+    },
+    {
+      "path": "database/sql/schema/schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:schema",
+        "table:fields",
+        "table:questions",
+        "table:profiles"
+      ]
+    },
+    {
+      "path": "database/sql/schema/update_graph_schema.sql",
+      "tracked": false,
+      "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:update-graph-schema"
+      ]
+    },
+    {
+      "path": "docs/file_to_website_markdown_pipeline.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/index.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/reference-rules.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/system-catalog.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/trial-and-error-log.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/harness/verification.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/knowledge_reconstruction_architecture.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step1_Draft.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step1_Light.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step2_Draft.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step2_Light.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step3_Draft.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/Planck_Step3_Light.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/topic_authoring_guidelines.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/reference/website_structure.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "docs",
+      "node_ids": []
+    },
+    {
+      "path": "docs/registry/site-code-graph.schema.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:site-code-graph-schema"
+      ]
+    },
+    {
+      "path": "eslint.config.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:eslint-config"
+      ]
+    },
+    {
+      "path": "mcp-server/README.md",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/package-lock.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/package.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:mcp-server-package"
+      ]
+    },
+    {
+      "path": "mcp-server/src/constants.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/src/env.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/src/index.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": [
+        "file:index",
+        "api:list-topics",
+        "api:get-topic",
+        "api:upsert-topic",
+        "api:write-topic-draft",
+        "api:upsert-section",
+        "api:create-concept-node",
+        "api:upsert-graph-edge",
+        "api:delete-graph-edge",
+        "api:get-graph-snapshot",
+        "api:graph-overview",
+        "api:author-topic"
+      ]
+    },
+    {
+      "path": "mcp-server/src/repository.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": [
+        "file:repository"
+      ]
+    },
+    {
+      "path": "mcp-server/src/slug.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/src/supabase.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": [
+        "file:src-supabase"
+      ]
+    },
+    {
+      "path": "mcp-server/src/types.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "mcp-source",
+      "node_ids": []
+    },
+    {
+      "path": "mcp-server/tsconfig.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:mcp-server-tsconfig"
+      ]
+    },
+    {
+      "path": "package-lock.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "package.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:package"
+      ]
+    },
+    {
+      "path": "postcss.config.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:postcss-config"
+      ]
+    },
+    {
+      "path": "scripts/seed-mosfet-ontology.mjs",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "scripts/verify-mosfet-ontology.mjs",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "src/App.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:app",
+        "route:root-layout",
+        "route:home",
+        "route:graph",
+        "route:field-field-slug",
+        "route:topic-topic-slug",
+        "route:not-found"
+      ]
+    },
+    {
+      "path": "src/components/admin/DirectoryStructureManager.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:directory-structure-manager"
+      ]
+    },
+    {
+      "path": "src/components/admin/KnowledgeImportManager.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:knowledge-import-manager"
+      ]
+    },
+    {
+      "path": "src/components/auth/LoginDialog.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:login-dialog"
+      ]
+    },
+    {
+      "path": "src/components/graph/OntologyGraphView.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:ontology-graph-view"
+      ]
+    },
+    {
+      "path": "src/components/layout/Layout.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:layout"
+      ]
+    },
+    {
+      "path": "src/components/layout/Navbar.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:navbar"
+      ]
+    },
+    {
+      "path": "src/components/ui/Button.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:button"
+      ]
+    },
+    {
+      "path": "src/components/ui/Dialog.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:dialog"
+      ]
+    },
+    {
+      "path": "src/components/ui/ImageUpload.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:image-upload"
+      ]
+    },
+    {
+      "path": "src/components/ui/Input.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": [
+        "component:input"
+      ]
+    },
+    {
+      "path": "src/components/ui/index.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "component-source",
+      "node_ids": []
+    },
+    {
+      "path": "src/data/archiveFundamentals.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:archive-fundamentals"
+      ]
+    },
+    {
+      "path": "src/data/archiveFundamentalsGrounding.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "src/data/seed.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:seed"
+      ]
+    },
+    {
+      "path": "src/data/storage.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:storage"
+      ]
+    },
+    {
+      "path": "src/data/topicContentOverrides.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:topic-content-overrides"
+      ]
+    },
+    {
+      "path": "src/index.css",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "src/lib/archiveSchema.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:archive-schema"
+      ]
+    },
+    {
+      "path": "src/lib/auth.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:auth"
+      ]
+    },
+    {
+      "path": "src/lib/backlinks.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:backlinks"
+      ]
+    },
+    {
+      "path": "src/lib/cn.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:cn"
+      ]
+    },
+    {
+      "path": "src/lib/concepts.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:concepts"
+      ]
+    },
+    {
+      "path": "src/lib/graphLayouts.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:graph-layouts"
+      ]
+    },
+    {
+      "path": "src/lib/graphModel.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:graph-model"
+      ]
+    },
+    {
+      "path": "src/lib/graphSpheres.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:graph-spheres"
+      ]
+    },
+    {
+      "path": "src/lib/knowledgePipeline.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:knowledge-pipeline"
+      ]
+    },
+    {
+      "path": "src/lib/knowledgeSchema.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:knowledge-schema"
+      ]
+    },
+    {
+      "path": "src/lib/knowledgeTaxonomy.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:knowledge-taxonomy"
+      ]
+    },
+    {
+      "path": "src/lib/knowledgeWriting.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:knowledge-writing"
+      ]
+    },
+    {
+      "path": "src/lib/renderTopicMath.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:render-topic-math"
+      ]
+    },
+    {
+      "path": "src/lib/sourceText.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:source-text"
+      ]
+    },
+    {
+      "path": "src/lib/supabase.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:supabase"
+      ]
+    },
+    {
+      "path": "src/lib/theme.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:theme"
+      ]
+    },
+    {
+      "path": "src/lib/topicSlug.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:topic-slug"
+      ]
+    },
+    {
+      "path": "src/main.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": [
+        "file:main"
+      ]
+    },
+    {
+      "path": "src/pages/GraphOverviewPage.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "page-source",
+      "node_ids": [
+        "page:graph-overview-page"
+      ]
+    },
+    {
+      "path": "src/pages/Home.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "page-source",
+      "node_ids": [
+        "page:home"
+      ]
+    },
+    {
+      "path": "src/pages/TimelinePage.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "page-source",
+      "node_ids": [
+        "page:timeline-page"
+      ]
+    },
+    {
+      "path": "src/pages/TopicPage.tsx",
+      "tracked": false,
+      "untracked": true,
+      "kind": "page-source",
+      "node_ids": [
+        "page:topic-page"
+      ]
+    },
+    {
+      "path": "src/types/quill.d.ts",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": "tailwind.config.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:tailwind-config"
+      ]
+    },
+    {
+      "path": "tools/extraction/extract_db_schema.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
+    },
+    {
+      "path": "tools/extraction/extract_import_graph.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
+    },
+    {
+      "path": "tools/extraction/extract_repo_structure.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
+    },
+    {
+      "path": "tools/extraction/extract_routes.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
+    },
+    {
+      "path": "tools/extraction/generate_site_code_graph.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:generate-site-code-graph"
+      ]
+    },
+    {
+      "path": "tools/extraction/registry_core.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
+    },
+    {
+      "path": "tools/extraction/render_obsidian_registry.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:render-obsidian-registry"
+      ]
+    },
+    {
+      "path": "tools/validation/validate_obsidian_links.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:validate-obsidian-links"
+      ]
+    },
+    {
+      "path": "tools/validation/validate_registry_drift.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:validate-registry-drift"
+      ]
+    },
+    {
+      "path": "tools/validation/validate_site_code_graph.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:validate-site-code-graph"
+      ]
+    },
+    {
+      "path": "tools/validation/validate_source_paths.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": [
+        "file:validate-source-paths"
+      ]
+    },
+    {
+      "path": "tsconfig.app.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:tsconfig-app"
+      ]
+    },
+    {
+      "path": "tsconfig.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:tsconfig"
+      ]
+    },
+    {
+      "path": "tsconfig.node.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:tsconfig-node"
+      ]
+    },
+    {
+      "path": "vercel.json",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:vercel"
+      ]
+    },
+    {
+      "path": "vite.config.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "config",
+      "node_ids": [
+        "config:vite-config"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "level": "warning",
+      "source_path": ".git",
+      "message": "Node child_process could not execute git ls-files in this sandbox, so extraction used a filesystem fallback and manual .git metadata parsing."
+    }
+  ]
+}

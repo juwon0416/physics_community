@@ -1,0 +1,33 @@
+name = "derivation_reconstructor"
+kind = "worker"
+parallel_safe = true
+objective = "Reconstruct the logical route from definitions and assumptions to the main equations or claims of each node."
+
+reads = [
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/equations/*.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/derivations/*.json"
+]
+
+[contracts]
+inputs = [
+  "node spec",
+  "equation pack",
+  "source chunk inventory"
+]
+outputs = [
+  "derivation roadmap",
+  "intermediate lemma list",
+  "assumption-to-conclusion dependency chain"
+]
+
+[quality]
+checks = [
+  "Derivation roadmaps must expose the intermediate logical pivots instead of jumping from premise to final equation.",
+  "When a full derivation is impossible from the source, the gap must be named explicitly rather than hidden.",
+  "Reconstructed derivations must stay within the declared scope of the node."
+]

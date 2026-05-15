@@ -1,0 +1,45 @@
+name = "category_graph_designer"
+kind = "worker"
+parallel_safe = true
+objective = "Design the incremental subgraph for one affected sphere or cluster, extending the existing repository with new nodes, edges, and hierarchy only where the upload adds genuine knowledge."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/expansion/expansion_plan.json",
+  "knowledge_reconstruction/work/classification/scope_tree.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/graphs/per_category/*.json"
+]
+
+[internal_phases]
+sequence = [
+  "concept_extractor",
+  "hierarchy_builder",
+  "relation_builder",
+  "prerequisite_builder",
+  "crosslink_builder"
+]
+
+[contracts]
+inputs = [
+  "one scope leaf",
+  "source chunks belonging to that leaf"
+]
+outputs = [
+  "sphere and cluster draft",
+  "node draft set",
+  "typed edge draft set",
+  "source evidence map",
+  "existing anchor references"
+]
+
+[quality]
+checks = [
+  "Every node must have a stable canonical id and a clear type.",
+  "Existing clusters should be extended before a parallel near-duplicate cluster is created.",
+  "Edge labels must use a controlled vocabulary such as prereq, related, parent_child, or cross_domain.",
+  "The draft graph must be rich enough for document writing but sparse enough to stay navigable."
+]

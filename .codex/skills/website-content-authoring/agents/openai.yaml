@@ -1,0 +1,4 @@
+interface:
+  display_name: "Website Content Authoring"
+  short_description: "Quill and KaTeX topic content imports."
+  default_prompt: "Use this skill to author or import website topic content."

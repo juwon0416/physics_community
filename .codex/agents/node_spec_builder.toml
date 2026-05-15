@@ -1,0 +1,41 @@
+name = "node_spec_builder"
+kind = "worker"
+parallel_safe = true
+objective = "Convert affected graph nodes into documentable node specifications while preserving stable scope, prerequisites, and source basis for reused canonical nodes."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/graphs/per_category/*.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json",
+  "knowledge_reconstruction/work/reuse/node_mapping.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/node_specs/changed_node_set.json"
+]
+
+[contracts]
+inputs = [
+  "per-category graph drafts",
+  "source evidence map"
+]
+outputs = [
+  "node specification files",
+  "required section schema per node",
+  "symbol glossary seed",
+  "equation obligations",
+  "derivation goals",
+  "mastery outcomes",
+  "source chunk assignments",
+  "changed node set"
+]
+
+[quality]
+checks = [
+  "Every node spec must define node_type, sphere, cluster, prerequisites, related nodes, and source chunks.",
+  "Every node spec must also define symbols, assumptions, equation targets, logical dependencies, misconception targets, and mastery outcomes.",
+  "Required sections must be appropriate to the node type, not generic boilerplate.",
+  "Node specs must be detailed enough that different writers would converge on the same document scope.",
+  "Unchanged canonical nodes should not be rewritten unless the new upload alters their scope, relationships, or evidence materially."
+]

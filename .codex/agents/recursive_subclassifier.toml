@@ -1,0 +1,34 @@
+name = "recursive_subclassifier"
+kind = "worker"
+parallel_safe = true
+objective = "Break overscoped units into smaller spheres, clusters, or subclusters until graph-designable units emerge."
+
+reads = [
+  "knowledge_reconstruction/work/classification/scope_decisions.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/classification/scope_tree.json"
+]
+
+[execution]
+max_depth = 2
+unit_types = ["sphere", "cluster", "subcluster"]
+
+[contracts]
+inputs = [
+  "overscoped unit definitions",
+  "evidence chunks"
+]
+outputs = [
+  "hierarchical scope tree",
+  "leaf units for graph design"
+]
+
+[quality]
+checks = [
+  "Leaf units must be semantically coherent and documentable.",
+  "Sibling units should minimize overlap while preserving legitimate cross-links.",
+  "The scope tree must preserve ancestry for later parent and child links."
+]

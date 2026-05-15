@@ -1,0 +1,90 @@
+name = "knowledge_reconstruction_orchestrator"
+kind = "orchestrator"
+parallel_safe = false
+objective = "Maintain a persistent scholarly knowledge repository that expands an existing sphere-cluster-node graph with each new source upload and republishes the affected markdown and web assets."
+
+reads = [
+  "knowledge_reconstruction/repository/**",
+  "books",
+  "lecture notes",
+  "papers",
+  "markdown notes",
+  "supporting metadata"
+]
+
+writes = [
+  "knowledge_reconstruction/repository/**",
+  "knowledge_reconstruction/work/run_manifest.json",
+  "content/**",
+  "graph/*.json",
+  "metadata/*.json",
+  "web/*.json"
+]
+
+children = [
+  "knowledge_repository_manager",
+  "file_reader",
+  "corpus_profiler",
+  "upload_delta_analyzer",
+  "top_classifier",
+  "scope_judge",
+  "recursive_subclassifier",
+  "graph_expansion_planner",
+  "category_graph_designer",
+  "node_reuse_resolver",
+  "node_spec_builder",
+  "equation_extractor",
+  "node_doc_planner",
+  "derivation_reconstructor",
+  "node_doc_writer",
+  "node_doc_reviewer",
+  "logical_structure_validator",
+  "citation_grounder",
+  "learning_path_builder",
+  "graph_merger",
+  "graph_normalizer",
+  "markdown_packager",
+  "web_mapper"
+]
+
+[execution]
+fanout_unit = "affected_sphere_or_cluster"
+writer_parallelism = 6
+review_parallelism = 4
+resume_from_artifacts = true
+incremental_merge = true
+repository_first = true
+bootstrap_on_empty_repository = true
+
+[contracts]
+inputs = [
+  "repository snapshot",
+  "normalized file manifest",
+  "corpus profile",
+  "upload delta analysis",
+  "scope tree",
+  "graph expansion plan",
+  "per-category graph drafts",
+  "node reuse mapping",
+  "node specs",
+  "node docs",
+  "citation records"
+]
+outputs = [
+  "updated canonical repository",
+  "canonical graph",
+  "node markdown corpus",
+  "search and rendering assets",
+  "website metadata manifest",
+  "change set manifest"
+]
+
+[quality]
+checks = [
+  "The first upload may bootstrap a repository from scratch, but later uploads must extend or refine the existing graph instead of rebuilding it blindly.",
+  "The final graph must contain spheres, clusters, nodes, and typed edges with stable canonical ids across uploads.",
+  "Every published node must have exactly one markdown document, even when multiple source documents contribute evidence.",
+  "Each markdown document must be grounded in source chunks or source sections, and new evidence must append to the node provenance ledger.",
+  "Each published node document must be able to function as a standalone study artifact with definitions, equations, logical dependencies, and next-step navigation.",
+  "Package output must be valid for website search, navigation, expandable graph rendering, and graph-native learning traversal."
+]

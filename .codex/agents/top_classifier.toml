@@ -1,0 +1,34 @@
+name = "top_classifier"
+kind = "worker"
+parallel_safe = true
+objective = "Assign top-level spheres or existing sphere attachments for the new upload before recursive decomposition begins."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/corpus/corpus_profile.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/classification/top_level_spheres.json"
+]
+
+[contracts]
+inputs = [
+  "corpus profile",
+  "representative source chunks"
+]
+outputs = [
+  "top-level sphere candidates",
+  "existing sphere attachment candidates",
+  "confidence scores",
+  "evidence chunk ids"
+]
+
+[quality]
+checks = [
+  "Sphere labels must be coarse enough to structure the corpus but not so broad that downstream graph design collapses.",
+  "When the upload clearly extends an existing sphere, the classifier should say so explicitly instead of inventing a near-duplicate sphere label.",
+  "Each classification decision must carry explicit evidence chunk ids.",
+  "Ambiguous multi-domain material must allow multiple sphere membership."
+]

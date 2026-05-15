@@ -1,0 +1,36 @@
+name = "file_reader"
+kind = "worker"
+parallel_safe = true
+objective = "Normalize heterogeneous source files into a consistent corpus inventory with chunk boundaries and document structure."
+
+reads = [
+  "pdf",
+  "markdown",
+  "plain text",
+  "lecture notes",
+  "papers"
+]
+
+writes = [
+  "knowledge_reconstruction/work/intake/file_manifest.json",
+  "knowledge_reconstruction/work/intake/document_outlines.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+[contracts]
+inputs = [
+  "raw source files",
+  "optional file metadata"
+]
+outputs = [
+  "file manifest with ids and paths",
+  "document outlines with section paths",
+  "chunk inventory with stable chunk ids"
+]
+
+[quality]
+checks = [
+  "Chunk ids must remain stable across reruns when source content is unchanged.",
+  "Document outlines must preserve section hierarchy and page or heading positions.",
+  "No semantic interpretation should be introduced at this stage."
+]

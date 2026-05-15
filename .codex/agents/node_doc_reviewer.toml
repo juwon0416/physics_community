@@ -1,0 +1,36 @@
+name = "node_doc_reviewer"
+kind = "worker"
+parallel_safe = true
+objective = "Review node markdown drafts for correctness, depth, consistency, and overlap before packaging."
+
+reads = [
+  "knowledge_reconstruction/work/node_docs/*.md",
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/node_doc_plans/*.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/reviews/node_doc_reviews/*.json"
+]
+
+[contracts]
+inputs = [
+  "node markdown draft",
+  "node spec",
+  "node plan"
+]
+outputs = [
+  "review report",
+  "rewrite instructions when needed",
+  "approval status"
+]
+
+[quality]
+checks = [
+  "Definitions, prerequisites, and graph links must agree with the node spec.",
+  "The document must be deep enough to stand alone as a scholarly reference entry.",
+  "Reviewer must flag redundancy against sibling or parent nodes.",
+  "Reviewer must reject shallow summaries disguised as node documents.",
+  "Reviewer must reject drafts whose equations are introduced before symbols are defined or whose derivation skips key logical steps.",
+  "Reviewer must verify that the node can be used for graph-native self-study without the reader needing the original source open."
+]

@@ -1,12 +1,16 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ChevronRight } from 'lucide-react';
+import { Home, ChevronRight, Moon, Sun } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { FIELDS, TIMELINE_TOPICS } from '../../data/seed';
 import { LoginDialog } from '../auth/LoginDialog';
+import { useTheme } from '../../lib/theme';
 
 export function Navbar() {
     const location = useLocation();
+    const isHome = location.pathname === '/';
+    const isGraphRoute = location.pathname === '/graph';
+    const { theme, toggleTheme } = useTheme();
 
     // Breadcrumb Logic
     const pathnames = location.pathname.split('/').filter((x) => x);
@@ -42,15 +46,30 @@ export function Navbar() {
     const breadcrumbs = getBreadcrumbs();
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className={cn(
+            "sticky top-0 z-50 w-full transition-colors duration-300",
+            isHome
+                ? "bg-transparent border-transparent"
+                : "border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        )}>
             <div className="container flex h-14 max-w-screen-2xl items-center px-4">
                 <div className="mr-4 flex overflow-hidden">
                     <Link to="/" className="mr-6 flex items-center space-x-2 font-display font-bold text-lg hover:text-primary transition-colors flex-shrink-0">
-                        <span className="inline-block">PhysComm</span>
+                        <span className="inline-block">Ph.D</span>
                     </Link>
-                    <Link to="/graph" className="mr-6 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors inline-block flex-shrink-0">
-                        Graph View
-                    </Link>
+                    <div className="mr-6 flex items-center gap-2 text-sm">
+                        <Link
+                            to="/graph"
+                            className={cn(
+                                'inline-block flex-shrink-0 rounded-full border px-3 py-1 text-sm font-medium transition-colors',
+                                isGraphRoute
+                                    ? 'border-foreground/20 bg-foreground text-background'
+                                    : 'border-transparent text-muted-foreground hover:text-foreground',
+                            )}
+                        >
+                            Graph View
+                        </Link>
+                    </div>
 
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground overflow-hidden whitespace-nowrap mask-linear-fade">
                         <Link to="/" className="hover:text-foreground transition-colors flex-shrink-0">
@@ -74,7 +93,28 @@ export function Navbar() {
                 </div>
 
                 <div className="flex flex-1 items-center justify-end space-x-2">
-                    <LoginDialog />
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className={cn(
+                            'inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-medium uppercase tracking-[0.14em] shadow-sm backdrop-blur transition',
+                            isHome
+                                ? 'border-transparent bg-transparent text-foreground/75 shadow-none hover:bg-foreground/5 hover:text-foreground'
+                                : 'border-border/70 bg-card/70 text-muted-foreground hover:border-foreground/20 hover:text-foreground',
+                        )}
+                        aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+                        title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+                    >
+                        {theme === 'light' ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+                        <span className="hidden sm:inline">{theme === 'light' ? 'Dark' : 'Light'}</span>
+                    </button>
+                    <LoginDialog
+                        triggerClassName={cn(
+                            isHome
+                                ? 'border-transparent bg-transparent text-foreground/75 shadow-none hover:bg-foreground/5 hover:text-foreground'
+                                : undefined,
+                        )}
+                    />
                 </div>
             </div>
         </nav>

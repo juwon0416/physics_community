@@ -1,0 +1,38 @@
+name = "upload_delta_analyzer"
+kind = "worker"
+parallel_safe = true
+objective = "Compare the new upload against the current repository and determine which spheres, clusters, nodes, and document neighborhoods are likely to be extended, revised, or created."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/intake/file_manifest.json",
+  "knowledge_reconstruction/work/intake/document_outlines.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json",
+  "knowledge_reconstruction/work/corpus/corpus_profile.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/delta/upload_delta.json",
+  "knowledge_reconstruction/work/delta/affected_neighborhoods.json"
+]
+
+[contracts]
+inputs = [
+  "repository snapshot",
+  "new upload manifest",
+  "new upload chunk inventory",
+  "corpus profile"
+]
+outputs = [
+  "delta summary",
+  "likely existing spheres to extend",
+  "novel topic candidates",
+  "affected subgraph neighborhoods"
+]
+
+[quality]
+checks = [
+  "The analyzer must distinguish between evidence that enriches an existing node and evidence that warrants a new node.",
+  "The delta summary must explicitly list which current spheres or clusters are being extended before proposing new ones.",
+  "The affected neighborhood output must be narrow enough that downstream document rewriting can stay incremental."
+]

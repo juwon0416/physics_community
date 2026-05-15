@@ -1,0 +1,33 @@
+name = "corpus_profiler"
+kind = "worker"
+parallel_safe = true
+objective = "Profile the corpus to determine domain mix, mathematical density, source style, and decomposition risk."
+
+reads = [
+  "knowledge_reconstruction/work/intake/file_manifest.json",
+  "knowledge_reconstruction/work/intake/document_outlines.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/corpus/corpus_profile.json"
+]
+
+[contracts]
+inputs = [
+  "file manifest",
+  "chunk inventory",
+  "document outlines"
+]
+outputs = [
+  "corpus profile",
+  "size and complexity estimates",
+  "decomposition strategy hints"
+]
+
+[quality]
+checks = [
+  "Profile must estimate whether the corpus should be processed whole, by sphere, or by cluster.",
+  "Profile must detect when mathematical derivations are central instead of peripheral.",
+  "Profile must surface likely multilingual or notation-heavy risks."
+]

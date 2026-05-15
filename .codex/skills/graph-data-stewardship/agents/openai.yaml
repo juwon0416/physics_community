@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graph Data Stewardship"
+  short_description: "Safe graph schema, Supabase, and MCP updates."
+  default_prompt: "Use this skill when changing graph models, SQL schema, or MCP data tools."

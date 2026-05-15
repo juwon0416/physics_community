@@ -1,0 +1,25 @@
+version = "0.1"
+project = "physics_community"
+entry_agent = "knowledge_reconstruction_orchestrator"
+
+[agents]
+directory = ".codex/agents"
+max_threads = 10
+max_depth = 2
+default_model = "gpt-5.4"
+default_reasoning_effort = "high"
+
+[pipeline]
+mode = "knowledge_reconstruction"
+incremental_merge = true
+preserve_source_trace = true
+allow_parallel_node_writing = true
+
+[paths]
+raw_input_dir = "ingest"
+working_dir = "knowledge_reconstruction/work"
+content_dir = "content"
+graph_dir = "graph"
+metadata_dir = "metadata"
+web_dir = "web"
+docs_dir = "docs"

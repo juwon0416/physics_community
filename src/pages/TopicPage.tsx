@@ -1,435 +1,184 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { Clock, MessageCircle, Send, Database, BookOpen, Layers, Edit2, Save } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { storage, type Topic } from '../data/storage';
+import { Loader2, ChevronLeft } from 'lucide-react';
+import { ARCHIVE_SCHEMA_SETUP_MESSAGE, checkArchiveSchemaReady } from '../lib/archiveSchema';
+import { normalizeGraphViewScope } from '../lib/graphModel';
+import { renderTopicMathHtml } from '../lib/renderTopicMath';
+import { getArchiveFundamentalsTopics } from '../data/archiveFundamentals';
+import { TIMELINE_TOPICS } from '../data/seed';
+import { cn } from '../lib/cn';
+import { useTheme } from '../lib/theme';
 import 'katex/dist/katex.min.css';
 
-import { FIELDS, TIMELINE_TOPICS, KEYWORD_SECTIONS } from '../data/seed';
-import { storage, type Question, type Topic } from '../data/storage';
-import { useAuth } from '../lib/auth';
-import { Button, Input, Badge, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
-import { RichTextEditor } from '../components/editor/RichTextEditor'; // Import RichTextEditor
-import { PHYSICS_MACROS } from '../lib/latexMacros';
-import { processConceptLinks, MarkdownLink } from '../lib/markdownUtils';
-import { conceptAPI } from '../lib/concepts';
+function ReadOnlyTopicDocument({
+    title,
+    content,
+    graphView,
+    onBack,
+}: {
+    title: string;
+    content: string;
+    graphView: 'legacy' | 'archive';
+    onBack: () => void;
+}) {
+    const { isLight } = useTheme();
+    const resolveWikiTarget = useMemo(() => {
+        const entries =
+            graphView === 'archive'
+                ? getArchiveFundamentalsTopics().map((topic) => [topic.title, topic.slug] as const)
+                : TIMELINE_TOPICS.map((topic) => [topic.title, topic.slug] as const);
+
+        const topicHrefByTitle = new Map<string, string>();
+        entries.forEach(([entryTitle, slug]) => {
+            topicHrefByTitle.set(entryTitle.trim().toLowerCase(), `/topic/${slug}?view=${graphView}`);
+        });
+
+        return (targetText: string) => topicHrefByTitle.get(targetText.trim().toLowerCase()) || null;
+    }, [graphView]);
+
+    const renderedContent = useMemo(
+        () => renderTopicMathHtml(content, { resolveWikiTarget }),
+        [content, resolveWikiTarget],
+    );
+
+    return (
+        <div className="flex h-screen flex-col bg-background text-foreground">
+            <header className="relative flex h-14 shrink-0 items-center border-b border-border px-4 shadow-sm">
+                <button onClick={onBack} className="z-10 mr-4 rounded-md p-2 transition hover:bg-muted">
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+                    <div className="text-lg font-semibold px-4 line-clamp-1">{title}</div>
+                </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto">
+                <div className="mx-auto w-full max-w-4xl px-6 py-10">
+                    <article
+                        className={cn(
+                            'prose max-w-none rounded-[2rem] border border-border bg-card/80 px-6 py-8 shadow-xl prose-headings:font-semibold prose-h1:text-3xl prose-h2:mt-10 prose-h2:text-xl prose-p:my-5 prose-p:leading-8 prose-table:table-auto [&_.katex-display]:my-8 [&_.katex-display]:overflow-x-auto [&_.katex-display_.katex]:text-[1.14em] [&_.math-block]:my-8 [&_.ql-align-center]:text-center',
+                            isLight
+                                ? 'prose-slate prose-p:text-slate-700 prose-li:text-slate-700 prose-pre:border prose-pre:border-slate-200 prose-pre:bg-slate-50 prose-code:text-blue-700 prose-th:text-slate-700 prose-td:text-slate-700'
+                                : 'prose-invert prose-p:text-white/78 prose-li:text-white/72 prose-pre:border prose-pre:border-white/10 prose-pre:bg-black/35 prose-code:text-cyan-200 prose-th:text-white/72 prose-td:text-white/70',
+                        )}
+                        dangerouslySetInnerHTML={{ __html: renderedContent }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export function TopicPage() {
     const { topicSlug } = useParams();
-    const { isAdmin, nickname } = useAuth();
-    // Topic State
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const graphView = normalizeGraphViewScope(searchParams.get('view'));
+    
     const [topic, setTopic] = useState<Topic | null>(null);
-    const field = FIELDS.find(f => f.id === topic?.field_id); // Use field_id from DB topic
+    const [isLoadingTopic, setIsLoadingTopic] = useState(true);
+    const [isArchiveSchemaReady, setIsArchiveSchemaReady] = useState(true);
 
-    const [questions, setQuestions] = useState<Question[]>([]);
+    useEffect(() => {
+        let isMounted = true;
 
-    // Editor State
-    const [isEditing, setIsEditing] = useState(false);
-    const [editContent, setEditContent] = useState('');
-    const [isSaving, setIsSaving] = useState(false);
+        if (graphView !== 'archive') {
+            setIsArchiveSchemaReady(true);
+            return () => {
+                isMounted = false;
+            };
+        }
 
-    // View Mode State
-    const [viewMode, setViewMode] = useState<'light' | 'detailed'>('light');
+        const loadArchiveSchemaState = async () => {
+            try {
+                const ready = await checkArchiveSchemaReady();
+                if (isMounted) {
+                    setIsArchiveSchemaReady(ready);
+                }
+            } catch {
+                if (isMounted) {
+                    setIsArchiveSchemaReady(false);
+                }
+            }
+        };
 
-    // CMS Logic
-    const [isMigrating, setIsMigrating] = useState(false);
+        void loadArchiveSchemaState();
 
-    // QnA logic
-    const [newQTitle, setNewQTitle] = useState('');
-    const [newQBody, setNewQBody] = useState('');
-    const [submitError, setSubmitError] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+        return () => {
+            isMounted = false;
+        };
+    }, [graphView]);
 
-    // Initial Load
     useEffect(() => {
         if (!topicSlug) return;
         const load = async () => {
-            let data = await storage.getTopicBySlug(topicSlug);
-
-            // Fallback: If DB returns null, try to find in SEED data
-            if (!data) {
-                const seedTopic = TIMELINE_TOPICS.find(t => t.slug === topicSlug);
-                if (seedTopic) {
-                    console.log("Topic not found in DB, falling back to SEED:", seedTopic.title);
-
-                    // Generate Content from Sections
-                    const sections = KEYWORD_SECTIONS.filter(k => k.topicId === seedTopic.id);
-                    let generatedContent = seedTopic.summary + "\n\n";
-                    if (sections.length > 0) {
-                        generatedContent += sections.map(s => `## ${s.title}\n\n${s.content}`).join("\n\n");
-                    } else {
-                        generatedContent += "## Overview\n\nNo detailed sections available for this topic in the archives.";
-                    }
-
-                    // Mock a Topic object
-                    data = {
-                        id: seedTopic.id,
-                        field_id: seedTopic.fieldId,
-                        year: seedTopic.year,
-                        title: seedTopic.title,
-                        slug: seedTopic.slug,
-                        summary: seedTopic.summary,
-                        tags: seedTopic.tags,
-                        content: generatedContent
-                    };
-                }
-            }
-
-            if (data) {
-                setTopic(data);
-                setEditContent(data.content || '');
-            } else {
-                console.error("Topic not found:", topicSlug);
-            }
+            setIsLoadingTopic(true);
+            const data = await storage.getTopicBySlug(topicSlug, graphView);
+            setTopic(data);
+            setIsLoadingTopic(false);
         };
-        load();
-    }, [topicSlug]);
+        void load();
+    }, [graphView, topicSlug]);
 
-    const loadQuestions = React.useCallback(async () => {
-        if (!topic) return;
-        const qData = await storage.getQuestions(topic.id);
-        setQuestions(qData);
-    }, [topic]);
-
-    useEffect(() => {
-        if (topic) {
-            // eslint-disable-next-line
-            loadQuestions();
-        }
-    }, [topic, loadQuestions]);
-
-    const handleMigrateFromSections = async () => {
-        if (!topic) return;
-        if (!confirm('This will concatenate existing sections into the main content field. Continue?')) return;
-
-        setIsMigrating(true);
-        const { content, error } = await storage.migrateSectionsToContent(topic.id);
-        setIsMigrating(false);
-
-        if (!error && content) {
-            setTopic(prev => prev ? { ...prev, content } : null);
-            setEditContent(content);
-            alert('Migration successful!');
-        } else if (error) {
-            alert('Migration failed: ' + error.message);
-        } else {
-            alert('No sections found to migrate.');
-        }
-    };
-
-    const handleSave = async () => {
-        if (!topic) return;
-        setIsSaving(true);
-
-        // 1. Update Content
-        const { error } = await storage.updateTopic(topic.id, {
-            content: editContent
-        });
-
-        if (error) {
-            alert('Failed to save content');
-            setIsSaving(false);
-            return;
-        }
-
-        // 2. Sync Graph Edges (Topic -> Concepts)
-        try {
-            await conceptAPI.syncContentEdges(
-                { id: topic.id, type: 'topic', label: topic.title, fieldId: topic.field_id },
-                editContent
-            );
-        } catch (e) {
-            console.error("Graph sync failed", e);
-            // Warn user but don't block
-        }
-
-        setTopic(prev => prev ? { ...prev, content: editContent } : null);
-        setIsEditing(false);
-        setIsSaving(false);
-    };
-
-    const handlePostQuestion = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitError(null);
-        if (!newQTitle.trim() || !newQBody.trim()) return;
-        if (!topic) return;
-
-        setIsSubmitting(true);
-        const { data, error } = await storage.addQuestion({
-            topic_id: topic.id,
-            title: newQTitle,
-            body: newQBody,
-            nickname: nickname || 'Anonymous'
-        });
-        setIsSubmitting(false);
-
-        if (error) {
-            setSubmitError(error.message);
-            return;
-        }
-
-        if (data) {
-            setQuestions(prev => [data, ...prev]);
-            setNewQTitle('');
-            setNewQBody('');
-        }
-    };
-
-    // Processed Content for View
-    const processedContent = useMemo(() => {
-        if (!topic?.content) return '';
-        return processConceptLinks(topic.content);
-    }, [topic]);
-
-
-    if (!topic) {
-        // Only show loading if we are actually waiting, else redirect?
-        // For simplicity, just return null or loader
-        return null;
+    if (isLoadingTopic) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-background text-foreground">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        );
     }
 
-    return (
-        <div className="container px-4 py-8 max-w-screen-xl mx-auto">
-            {/* View Mode Toggle (Bookmark Style) */}
-            {!isEditing && (
-                <div className="sticky top-[80px] z-30 flex justify-end md:justify-start -mb-6 md:mb-0 pointer-events-none">
-                    <div className="pointer-events-auto bg-background/95 backdrop-blur shadow-lg border border-border/50 rounded-b-xl px-3 py-2 md:px-4 md:py-3 flex gap-1 md:gap-2 items-center transform -translate-y-2 md:-translate-y-4 hover:translate-y-0 transition-transform duration-300">
-                        <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1 md:mr-2">Mode</span>
-                        <Button
-                            size="sm"
-                            variant={viewMode === 'light' ? 'default' : 'ghost'}
-                            onClick={() => setViewMode('light')}
-                            className={viewMode === 'light' ? "bg-[#c15b4d] text-white hover:bg-[#a94b3e] h-8 text-xs md:text-sm md:h-9" : "h-8 text-xs md:text-sm md:h-9"}
-                        >
-                            <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" /> Light
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant={viewMode === 'detailed' ? 'default' : 'ghost'}
-                            onClick={() => setViewMode('detailed')}
-                            className={viewMode === 'detailed' ? "bg-[#1f1b1f] text-white hover:bg-black h-8 text-xs md:text-sm md:h-9" : "h-8 text-xs md:text-sm md:h-9"}
-                        >
-                            <Layers className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" /> Detailed
-                        </Button>
-                    </div>
-                </div>
-            )}
-
-            {/* Hero */}
-            <div className="mb-8 pt-6 md:mb-12 md:pt-12 space-y-3 md:space-y-4 border-b border-border/50 pb-6 md:pb-8 relative">
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`text-${field?.color ? 'primary' : 'foreground'}`}>
-                        {field?.name || 'Physics'}
-                    </Badge>
-                    <span className="text-muted-foreground">•</span>
-                    <Badge variant="secondary">{topic.year}</Badge>
-                </div>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-bold leading-tight">{topic.title}</h1>
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                    <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl font-serif leading-relaxed">{topic.summary}</p>
-
-                    {/* Admin Controls */}
-                    {isAdmin && !isEditing && (
-                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                            <Button variant="outline" size="sm" onClick={handleMigrateFromSections} disabled={isMigrating}>
-                                <Database className="w-4 h-4 mr-2" />
-                                {isMigrating ? 'Migrating...' : 'Migrate Sections'}
-                            </Button>
-                            <Button variant="secondary" size="sm" className="text-destructive bg-destructive/10 hover:bg-destructive/20 border-destructive/20" onClick={async () => {
-                                if (confirm("Reset graph nodes for THIS topic only?\n\nThis will delete only the concept nodes directly linked to this topic. It is safe and will not affect other parts of the graph.")) {
-                                    const res = await conceptAPI.purgeTopicNodes(topic.id);
-                                    const error = res?.error;
-
-                                    if (error) {
-                                        alert("Purge failed: " + error.message);
-                                    } else {
-                                        alert(`Reset complete.\nDeleted ${res.data?.deleted_concepts ?? 0} concepts linked to this topic.`);
-                                        window.location.reload();
-                                    }
-                                }
-                            }}>
-                                Reset Topic Graph
-                            </Button>
-                            <Button onClick={() => setIsEditing(true)}>
-                                <Edit2 className="w-4 h-4 mr-2" /> Edit Article
-                            </Button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-4">
-                    <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {viewMode === 'light' ? '2 min read' : '10 min read'}</span>
-                    <span className="flex items-center gap-1"><MessageCircle className="h-4 w-4" /> {questions.length} Questions</span>
+    if (!topic) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-background px-6 text-foreground">
+                <div className="max-w-md rounded-2xl border border-border bg-card/80 p-8 text-center shadow-xl">
+                    <h1 className="text-xl font-semibold">
+                        {graphView === 'archive' && !isArchiveSchemaReady ? 'Archive DB Not Ready' : 'Topic Not Found'}
+                    </h1>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                        {graphView === 'archive' && !isArchiveSchemaReady
+                            ? ARCHIVE_SCHEMA_SETUP_MESSAGE
+                            : `The requested topic does not exist in the ${graphView} graph database.`}
+                    </p>
+                    <button
+                        onClick={() => navigate('/graph')}
+                        className="mt-6 inline-flex items-center rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition hover:border-foreground/30 hover:text-foreground"
+                    >
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        Back to Graph
+                    </button>
                 </div>
             </div>
+        );
+    }
 
-            <div className="flex flex-col lg:grid lg:grid-cols-[1fr_250px] gap-8 md:gap-12">
-                {/* Main Content */}
-                <div className="space-y-12 md:space-y-16">
-                    {isEditing ? (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-secondary/10 p-4 rounded-lg mb-4 border border-border/50">
-                                <h3 className="font-bold mb-2">Editing: {topic.title}</h3>
-                                <p className="text-xs text-muted-foreground mb-4">
-                                    You are editing the full article. Changes here will be synced to the knowledge graph (mentions).
-                                </p>
-                                <RichTextEditor
-                                    value={editContent}
-                                    onChange={setEditContent}
-                                    className="min-h-[600px]"
-                                />
-                                <div className="flex justify-end gap-4 mt-4">
-                                    <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
-                                    <Button onClick={handleSave} disabled={isSaving}>
-                                        {isSaving ? 'Saving...' : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <article className="prose prose-base sm:prose-lg prose-invert max-w-none text-foreground/90 font-serif leading-loose break-words">
-                            {(!topic.content || topic.content.trim() === '') ? (
-                                <div className="py-12 text-center text-muted-foreground bg-secondary/10 rounded-xl border border-dashed border-border/50">
-                                    <p>No content yet.</p>
-                                    {isAdmin && (
-                                        <p className="mt-2 text-sm">
-                                            Click "Edit Article" to start writing or "Migrate Sections" if you have old data.
-                                        </p>
-                                    )}
-                                </div>
-                            ) : (
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkMath]}
-                                    rehypePlugins={[[rehypeKatex, { macros: PHYSICS_MACROS }]]}
-                                    components={{
-                                        img: ({ ...props }) => (
-                                            <figure className="my-8">
-                                                <img {...props} className="rounded-xl border border-border/50 w-full max-h-[500px] object-contain bg-black/5" />
-                                                {props.alt && <figcaption className="text-center text-sm text-muted-foreground mt-2 font-sans">{props.alt}</figcaption>}
-                                            </figure>
-                                        ),
-                                        h1: ({ ...props }) => <h3 className="text-2xl font-bold mt-8 mb-4" {...props} />,
-                                        h2: ({ ...props }) => <h4 className="text-xl font-bold mt-6 mb-3" {...props} />,
-                                        p: ({ ...props }) => <p className="mb-6 whitespace-pre-wrap" {...props} />,
-                                        blockquote: ({ ...props }) => <blockquote className="border-l-4 border-[#c15b4d]/50 pl-6 italic my-8 text-muted-foreground bg-muted/10 p-4 rounded-r-lg" {...props} />,
-                                        a: MarkdownLink
-                                    }}
-                                >
-                                    {processedContent}
-                                </ReactMarkdown>
-                            )}
-                        </article>
-                    )}
+    if (topic.content && topic.content.trim().length > 0) {
+        return (
+            <ReadOnlyTopicDocument
+                title={topic.title}
+                content={topic.content}
+                graphView={graphView}
+                onBack={() => navigate(-1)}
+            />
+        );
+    }
 
-                    {/* Related Topics / Context */}
-                    {topic && (
-                        <div className="pt-8 border-t border-border/50">
-                            <h3 className="text-lg md:text-xl font-bold font-display mb-4">Related Topics in {field?.name}</h3>
-                            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-4">
-                                {TIMELINE_TOPICS
-                                    .filter(t => t.fieldId === topic.field_id && t.id !== topic.id)
-                                    // Simple logic: same field, limit to 4 prev/next
-                                    .sort((a, b) => Math.abs(parseInt(a.year) - parseInt(topic.year)) - Math.abs(parseInt(b.year) - parseInt(topic.year)))
-                                    .slice(0, 4)
-                                    .map(rel => (
-                                        <a key={rel.id} href={`/topic/${rel.slug}`} className="block group">
-                                            <Card className="w-full md:w-[200px] h-full hover:border-primary/50 transition-colors bg-secondary/5">
-                                                <CardContent className="p-3 md:p-4 space-y-1.5 md:space-y-2">
-                                                    <Badge variant="outline" className="text-[10px] md:text-xs">{rel.year}</Badge>
-                                                    <h4 className="font-bold text-xs md:text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2 md:line-clamp-none">{rel.title}</h4>
-                                                </CardContent>
-                                            </Card>
-                                        </a>
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    )}
-
-                    {/* QnA Section */}
-                    <div className="pt-12 border-t border-border/50" id="qna">
-                        <h2 className="text-2xl font-bold font-display mb-6">Community Q&A</h2>
-
-                        {/* Ask Form */}
-                        <Card className="mb-8 border-dashed bg-transparent shadow-none">
-                            <CardHeader>
-                                <CardTitle className="text-base">Ask a question about this topic</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <form onSubmit={handlePostQuestion} className="space-y-4">
-                                    <Input
-                                        placeholder="What's your question title?"
-                                        value={newQTitle}
-                                        onChange={e => setNewQTitle(e.target.value)}
-                                        required
-                                        minLength={5}
-                                        className="bg-transparent"
-                                    />
-                                    <textarea
-                                        className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                        placeholder="Elaborate on your question..."
-                                        value={newQBody}
-                                        onChange={e => setNewQBody(e.target.value)}
-                                        required
-                                        minLength={10}
-                                    />
-                                    {submitError && (
-                                        <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-                                            Failed to post: {submitError}
-                                        </div>
-                                    )}
-                                    <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-                                        <Send className="mr-2 h-4 w-4" /> {isSubmitting ? 'Posting...' : 'Post Question'}
-                                    </Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-
-                        {/* Question List */}
-                        <div className="space-y-4">
-                            {questions.length === 0 ? (
-                                <p className="text-center text-muted-foreground py-8">No questions yet. Be the first to ask!</p>
-                            ) : (
-                                questions.map(q => (
-                                    <div key={q.id} className="p-4 rounded-xl border border-secondary bg-secondary/10 space-y-2">
-                                        <div className="flex items-start justify-between">
-                                            <h3 className="font-semibold text-foreground">{q.title}</h3>
-                                            <Badge variant={q.status === 'answered' ? 'default' : 'outline'}>{q.status}</Badge>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">{q.body}</p>
-                                        <div className="text-xs text-muted-foreground pt-2 flex items-center justify-between">
-                                            <span>by {q.nickname}</span>
-                                            <span>{new Date(q.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
+    // No editor content attached
+    return (
+        <div className="flex h-screen flex-col bg-background font-sans text-foreground">
+            <header className="relative flex h-14 shrink-0 items-center border-b border-border px-4 shadow-sm">
+                <button onClick={() => navigate(-1)} className="z-10 mr-4 rounded-md p-2 transition hover:bg-muted">
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+                    <div className="text-lg font-semibold px-4 line-clamp-1">{topic.title}</div>
                 </div>
-
-                {/* Sidebar Navigation (Simple) */}
-                <div className="hidden md:block">
-                    <div className="sticky top-32 space-y-8">
-                        <div>
-                            <p className="font-semibold text-xs uppercase tracking-widest text-muted-foreground/80 mb-4">On this page</p>
-                            <nav className="flex flex-col space-y-2 border-l border-border/50 pl-4">
-                                <a
-                                    href="#"
-                                    className="text-sm py-1 text-muted-foreground hover:text-foreground hover:translate-x-1 transition-all block"
-                                >
-                                    Topic Content
-                                </a>
-                                <a
-                                    href="#qna"
-                                    className="text-sm py-1 text-muted-foreground hover:text-foreground hover:translate-x-1 transition-all block"
-                                >
-                                    Community Q&A
-                                </a>
-                            </nav>
-                        </div>
-                    </div>
+            </header>
+            <div className="flex-1 flex flex-col items-center justify-center p-6">
+                <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card/80 p-8 text-center shadow-xl">
+                    <h2 className="font-display text-xl font-bold text-foreground md:text-2xl">No Content Available</h2>
+                    <p className="text-sm text-muted-foreground">Editor content has not been written for this topic yet.</p>
                 </div>
             </div>
         </div>

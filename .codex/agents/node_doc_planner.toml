@@ -1,0 +1,46 @@
+name = "node_doc_planner"
+kind = "worker"
+parallel_safe = true
+objective = "Plan the structure of each node document using node type aware section templates and graph context."
+
+reads = [
+  "knowledge_reconstruction/work/node_specs/*.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/node_doc_plans/*.json"
+]
+
+[templates]
+node_types = [
+  "law",
+  "concept",
+  "quantity",
+  "formalism",
+  "theorem",
+  "problem_class",
+  "canonical_example"
+]
+
+[contracts]
+inputs = [
+  "node spec"
+]
+outputs = [
+  "document outline",
+  "section intents",
+  "definition order",
+  "equation insertion plan",
+  "derivation sequence",
+  "link insertion plan",
+  "coverage checklist"
+]
+
+[quality]
+checks = [
+  "Plans must change with node type instead of reusing one universal outline.",
+  "Each plan must allocate space for prerequisite review and downstream links.",
+  "Plans must explicitly mark where examples, equations, caveats, misconceptions, and derivation pivots belong.",
+  "Plans must order sections so that definitions and symbols appear before the equations and arguments that use them.",
+  "Plans must reserve explicit slots for equation commentary, proof or derivation checkpoints, and self-study validation prompts."
+]

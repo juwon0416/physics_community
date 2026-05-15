@@ -1,0 +1,35 @@
+name = "node_reuse_resolver"
+kind = "worker"
+parallel_safe = false
+objective = "Resolve whether incoming concepts should map onto existing canonical nodes, become aliases of them, or create new canonical nodes in the expanding repository."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/expansion/expansion_plan.json",
+  "knowledge_reconstruction/work/graphs/per_category/*.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/reuse/node_mapping.json",
+  "knowledge_reconstruction/work/reuse/new_node_candidates.json",
+  "knowledge_reconstruction/work/reuse/alias_registry_updates.json"
+]
+
+[contracts]
+inputs = [
+  "repository snapshot",
+  "expansion plan",
+  "per-category graph drafts"
+]
+outputs = [
+  "canonical node reuse mapping",
+  "new node candidate list",
+  "alias and synonym updates"
+]
+
+[quality]
+checks = [
+  "Semantically equivalent concepts from different uploads should reuse the same canonical node id unless a documented scope split is necessary.",
+  "When a concept is narrower or broader than an existing node, the resolver must record the relationship instead of forcing an incorrect merge.",
+  "Alias handling must allow future uploads to match established nodes even when terminology varies across textbooks or papers."
+]

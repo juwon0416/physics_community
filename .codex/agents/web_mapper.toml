@@ -1,0 +1,41 @@
+name = "web_mapper"
+kind = "worker"
+parallel_safe = false
+objective = "Convert the normalized graph and packaged markdown library into assets for navigation, search, rendering, and expandable graph interaction while supporting incremental repository updates."
+
+reads = [
+  "graph/*.json",
+  "metadata/content_manifest.json",
+  "content/**",
+  "knowledge_reconstruction/work/graphs/change_set.json"
+]
+
+writes = [
+  "web/web_manifest.json",
+  "web/search_index.json",
+  "web/rendering_index.json",
+  "metadata/navigation_map.json",
+  "knowledge_reconstruction/repository/last_web_build.json"
+]
+
+[contracts]
+inputs = [
+  "canonical graph assets",
+  "content manifest",
+  "markdown corpus"
+]
+outputs = [
+  "search index",
+  "navigation metadata",
+  "rendering metadata",
+  "website consumption manifest",
+  "web build checkpoint"
+]
+
+[quality]
+checks = [
+  "Search assets must point back to canonical node ids and document paths.",
+  "Navigation assets must preserve sphere, cluster, and prerequisite traversal.",
+  "Rendering assets must support expandable graph views without re-deriving the graph at runtime.",
+  "Incremental rebuilds must keep untouched node references stable so website links do not churn between uploads."
+]

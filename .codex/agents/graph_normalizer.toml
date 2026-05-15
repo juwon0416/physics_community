@@ -1,0 +1,39 @@
+name = "graph_normalizer"
+kind = "worker"
+parallel_safe = false
+objective = "Normalize the merged graph into canonical ids, controlled edge labels, deduplicated nodes, and repository-safe website assets without breaking previously published ids."
+
+reads = [
+  "knowledge_reconstruction/work/graphs/merged_graph.json",
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/repository/repository_snapshot.json"
+]
+
+writes = [
+  "knowledge_reconstruction/repository/canonical_graph.json",
+  "knowledge_reconstruction/repository/node_registry.json",
+  "graph/spheres.json",
+  "graph/clusters.json",
+  "graph/nodes.json",
+  "graph/edges.json",
+  "graph/knowledge_map.json"
+]
+
+[contracts]
+inputs = [
+  "merged graph draft",
+  "node specs",
+  "repository snapshot"
+]
+outputs = [
+  "canonical graph json files",
+  "updated repository registries"
+]
+
+[quality]
+checks = [
+  "Duplicate nodes must be resolved without losing provenance.",
+  "Canonical graph ids must align with markdown document ids.",
+  "Edge labels and node types must be normalized to a closed vocabulary.",
+  "Previously published ids must survive incremental updates unless a documented merge or split decision requires remapping."
+]

@@ -1,0 +1,39 @@
+name = "markdown_packager"
+kind = "worker"
+parallel_safe = false
+objective = "Package grounded node documents into a linked markdown knowledge library with consistent frontmatter, partial rebuild support, and stable paths for previously published nodes."
+
+reads = [
+  "knowledge_reconstruction/work/node_docs_grounded/*.md",
+  "graph/knowledge_map.json",
+  "knowledge_reconstruction/work/graphs/change_set.json",
+  "content/**"
+]
+
+writes = [
+  "content/**",
+  "metadata/content_manifest.json",
+  "knowledge_reconstruction/repository/document_registry.json"
+]
+
+[contracts]
+inputs = [
+  "grounded node markdown drafts",
+  "canonical graph"
+]
+outputs = [
+  "node markdown library",
+  "sphere index files",
+  "cluster index files",
+  "content manifest",
+  "updated document registry"
+]
+
+[quality]
+checks = [
+  "Each node must map to exactly one markdown file.",
+  "Frontmatter must expose id, title, type, sphere, cluster, prerequisites, related_nodes, and source_basis.",
+  "Directory structure must remain predictable for web routing and offline inspection.",
+  "Unchanged node documents should retain their paths and only affected nodes or indexes should be rewritten.",
+  "Packaged documents should expose enough metadata for graph-native learning paths, difficulty-aware navigation, and equation-aware search."
+]

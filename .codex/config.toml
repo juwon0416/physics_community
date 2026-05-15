@@ -1,0 +1,31 @@
+model = "gpt-5.4-mini"
+model_reasoning_effort = "high"
+
+[agents]
+max_threads = 10
+max_depth = 2
+
+[knowledge_reconstruction]
+operating_mode = "persistent_network"
+repository_root = "knowledge_reconstruction/repository"
+work_root = "knowledge_reconstruction/work"
+graph_root = "graph"
+content_root = "content"
+metadata_root = "metadata"
+web_root = "web"
+merge_policy = "extend_existing_first"
+node_identity_policy = "reuse_when_semantically_equivalent"
+document_update_policy = "affected_nodes_only"
+provenance_policy = "append_evidence_dont_overwrite"
+
+[execution]
+resume_from_artifacts = true
+incremental_updates = true
+repository_bootstrap = "create_on_first_upload"
+sphere_creation_policy = "only_when_existing_spheres_cannot_absorb_scope"
+
+[knowledge_reconstruction.node_documents]
+document_standard = "logic_complete_equation_rich"
+self_study_target = true
+equation_policy = "required_when_material"
+learning_path_policy = "emit_prerequisite_aware_next_steps"

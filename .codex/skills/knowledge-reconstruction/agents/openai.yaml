@@ -1,0 +1,4 @@
+interface:
+  display_name: "Knowledge Reconstruction"
+  short_description: "Canonical graph and node document updates."
+  default_prompt: "Use this skill to plan or update canonical physics knowledge reconstruction artifacts."

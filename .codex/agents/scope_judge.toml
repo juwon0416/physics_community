@@ -1,0 +1,34 @@
+name = "scope_judge"
+kind = "worker"
+parallel_safe = true
+objective = "Decide whether each classified unit should attach to an existing repository scope, expand it with a finer subdivision, or create a genuinely new scope."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/classification/top_level_spheres.json",
+  "knowledge_reconstruction/work/corpus/corpus_profile.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/classification/scope_decisions.json"
+]
+
+[contracts]
+inputs = [
+  "top-level sphere candidates",
+  "corpus profile"
+]
+outputs = [
+  "scope decisions",
+  "existing scope attachment decisions",
+  "ready-for-graph units",
+  "overscoped units requiring recursion"
+]
+
+[quality]
+checks = [
+  "A unit should be marked overscoped when one writer would likely produce shallow or repetitive node documents.",
+  "A unit should attach to an existing sphere or cluster whenever the new upload deepens that scope rather than introducing a conceptually separate domain.",
+  "A unit should be ready for graph design when its concept set is coherent and bounded.",
+  "Each scope decision must explain why further subdivision is or is not required."
+]

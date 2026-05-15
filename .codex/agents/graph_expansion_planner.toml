@@ -1,0 +1,39 @@
+name = "graph_expansion_planner"
+kind = "worker"
+parallel_safe = false
+objective = "Plan how the repository should grow from the new upload by deciding when to extend existing spheres and clusters, when to create new ones, and which node documents must be regenerated."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/delta/upload_delta.json",
+  "knowledge_reconstruction/work/delta/affected_neighborhoods.json",
+  "knowledge_reconstruction/work/classification/top_level_spheres.json",
+  "knowledge_reconstruction/work/classification/scope_decisions.json",
+  "knowledge_reconstruction/work/classification/scope_tree.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/expansion/expansion_plan.json",
+  "knowledge_reconstruction/work/expansion/affected_nodes.json",
+  "knowledge_reconstruction/work/expansion/new_scope_candidates.json"
+]
+
+[contracts]
+inputs = [
+  "repository snapshot",
+  "delta analysis",
+  "classification outputs",
+  "scope tree"
+]
+outputs = [
+  "expansion plan",
+  "reuse-versus-create decisions",
+  "affected node and document set"
+]
+
+[quality]
+checks = [
+  "Existing spheres and clusters should be expanded before a new top-level sphere is introduced.",
+  "Every proposed new sphere or cluster must include a justification for why existing structure cannot absorb the new material.",
+  "The plan must name the exact nodes and markdown documents that should be revised, not just the new ones to create."
+]

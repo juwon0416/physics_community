@@ -1,0 +1,36 @@
+name = "citation_grounder"
+kind = "worker"
+parallel_safe = true
+objective = "Attach source provenance to nodes and markdown documents so every reconstructed document remains traceable to original material."
+
+reads = [
+  "knowledge_reconstruction/work/node_docs/*.md",
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/citations/*.json",
+  "knowledge_reconstruction/work/node_docs_grounded/*.md"
+]
+
+[contracts]
+inputs = [
+  "approved node markdown draft",
+  "node spec",
+  "source chunk inventory"
+]
+outputs = [
+  "source basis records",
+  "equation provenance map",
+  "grounded frontmatter fields",
+  "citation metadata files"
+]
+
+[quality]
+checks = [
+  "Every node document must preserve at least chunk-level provenance.",
+  "Grounding metadata must be machine-readable and stable across rebuilds.",
+  "Grounding should support auditability without turning documents into citation clutter.",
+  "When a central equation or derivation claim appears, its source basis should be recoverable at least to the chunk or section level."
+]

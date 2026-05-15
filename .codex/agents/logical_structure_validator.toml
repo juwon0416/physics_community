@@ -1,0 +1,33 @@
+name = "logical_structure_validator"
+kind = "worker"
+parallel_safe = true
+objective = "Validate that each node document presents a complete logical ordering: definitions before use, assumptions before conclusions, and equations before examples that depend on them."
+
+reads = [
+  "knowledge_reconstruction/work/node_docs/*.md",
+  "knowledge_reconstruction/work/node_doc_plans/*.json",
+  "knowledge_reconstruction/work/derivations/*.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/reviews/logical_structure/*.json"
+]
+
+[contracts]
+inputs = [
+  "node markdown draft",
+  "node plan",
+  "derivation roadmap"
+]
+outputs = [
+  "logical ordering report",
+  "missing-bridge warnings",
+  "rewrite requirements"
+]
+
+[quality]
+checks = [
+  "The validator must flag missing definitions, undefined symbols, and skipped argument steps.",
+  "The validator must reject drafts whose examples presuppose equations or concepts not yet introduced.",
+  "The validator must ensure the final document reads as a coherent argument, not a bag of sections."
+]

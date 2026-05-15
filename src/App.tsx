@@ -1,13 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { Home } from './pages/Home';
-// Import placeholders for now, will replace as I build them
 import { TimelinePage } from './pages/TimelinePage';
 import { TopicPage } from './pages/TopicPage';
 import { GraphOverviewPage } from './pages/GraphOverviewPage';
 
 function App() {
-  console.log('App Mounted'); // Debug logic
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

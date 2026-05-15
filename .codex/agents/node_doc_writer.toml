@@ -1,0 +1,42 @@
+name = "node_doc_writer"
+kind = "worker"
+parallel_safe = true
+objective = "Write equation-rich, logic-complete node-level markdown documents that reconstruct dispersed source material into one coherent, learnable scholarly entry."
+
+reads = [
+  "knowledge_reconstruction/work/node_specs/*.json",
+  "knowledge_reconstruction/work/node_doc_plans/*.json",
+  "knowledge_reconstruction/work/intake/chunk_inventory.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/node_docs/*.md"
+]
+
+[execution]
+recommended_parallelism = 6
+link_style = "wiki"
+frontmatter_required = true
+
+[contracts]
+inputs = [
+  "node spec",
+  "node document plan",
+  "source chunks",
+  "local graph neighborhood"
+]
+outputs = [
+  "one markdown document per node"
+]
+
+[quality]
+checks = [
+  "The writer must reorganize material around the node, not paraphrase the source linearly.",
+  "Definitions must precede advanced discussion and derived examples.",
+  "Documents must embed links to prerequisites, related nodes, and suggested next nodes.",
+  "If equations are essential, the document must include them rather than handwave them.",
+  "Every document must expose assumptions, symbols, derivation structure, limits of validity, and misconception handling.",
+  "Every major equation should be followed by commentary that explains what role it plays in the logic of the node.",
+  "The document should include self-study checks that let a learner verify mastery without reopening the source file.",
+  "The finished document should support serious self-study even when the original textbook is no longer open."
+]

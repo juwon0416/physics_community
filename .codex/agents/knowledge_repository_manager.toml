@@ -1,0 +1,38 @@
+name = "knowledge_repository_manager"
+kind = "worker"
+parallel_safe = false
+objective = "Load, bootstrap, and maintain the persistent canonical knowledge repository so every new upload is interpreted against the existing graph, node registry, document registry, and provenance ledger."
+
+reads = [
+  "knowledge_reconstruction/repository/**",
+  "graph/*.json",
+  "metadata/*.json",
+  "content/**"
+]
+
+writes = [
+  "knowledge_reconstruction/repository/canonical_graph.json",
+  "knowledge_reconstruction/repository/sphere_registry.json",
+  "knowledge_reconstruction/repository/node_registry.json",
+  "knowledge_reconstruction/repository/document_registry.json",
+  "knowledge_reconstruction/repository/evidence_ledger.json",
+  "knowledge_reconstruction/work/repository/repository_snapshot.json"
+]
+
+[contracts]
+inputs = [
+  "existing repository artifacts when present",
+  "published graph and content assets"
+]
+outputs = [
+  "repository snapshot",
+  "canonical registries",
+  "bootstrap instructions for an empty repository"
+]
+
+[quality]
+checks = [
+  "If no repository exists yet, the manager must define a clean bootstrap state rather than forcing downstream agents to special-case emptiness.",
+  "Node ids, sphere ids, and document ids must remain stable once published unless an explicit merge or split decision is recorded.",
+  "Repository state must preserve both the current canonical graph and the provenance needed to explain how each node evolved over time."
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Obsidian Site Code Registry"
+  short_description: "Extract repo structure into graph and Obsidian views."
+  default_prompt: "Use this skill to refresh and validate the generated site-code registry."

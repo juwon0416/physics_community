@@ -1,0 +1,4 @@
+interface:
+  display_name: "Harness Memory"
+  short_description: "Log failures, decisions, and guardrails."
+  default_prompt: "Use this skill after failures, workarounds, or non-trivial tasks to update the project learning ledger."

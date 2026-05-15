@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Physics Community Site Code Graph",
+  "type": "object",
+  "required": ["meta", "nodes", "edges"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["branch", "commit", "generated_at", "extractor_version"],
+      "properties": {
+        "branch": { "type": "string" },
+        "commit": { "type": "string" },
+        "generated_at": { "type": "string" },
+        "extractor_version": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "status", "source_path", "source_kind"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z]+:[a-z0-9-]+$" },
+          "type": { "type": "string" },
+          "status": { "type": "string" },
+          "source_path": { "type": "string" },
+          "source_kind": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "type", "evidence", "confidence"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "type": { "type": "string" },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["kind", "source_path"],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "static-import",
+                    "dynamic-import",
+                    "route-definition",
+                    "file-path-convention",
+                    "api-handler-path",
+                    "supabase-query",
+                    "sql-schema",
+                    "migration",
+                    "config",
+                    "manual-curated-note"
+                  ]
+                },
+                "source_path": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

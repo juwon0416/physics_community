@@ -1,0 +1,35 @@
+name = "graph_merger"
+kind = "worker"
+parallel_safe = false
+objective = "Merge affected subgraph drafts into the current canonical knowledge graph while preserving existing sphere and cluster boundaries outside the touched neighborhood."
+
+reads = [
+  "knowledge_reconstruction/work/repository/repository_snapshot.json",
+  "knowledge_reconstruction/work/graphs/per_category/*.json",
+  "knowledge_reconstruction/work/reuse/node_mapping.json"
+]
+
+writes = [
+  "knowledge_reconstruction/work/graphs/merged_graph.json",
+  "knowledge_reconstruction/work/graphs/change_set.json"
+]
+
+[contracts]
+inputs = [
+  "repository snapshot",
+  "per-category graph drafts",
+  "node reuse mapping"
+]
+outputs = [
+  "merged graph draft",
+  "merge conflict log",
+  "change set"
+]
+
+[quality]
+checks = [
+  "Node ids must remain stable across category merges.",
+  "Sphere and cluster ancestry must survive the merge.",
+  "Conflicts must be logged instead of silently collapsed.",
+  "The merger must preserve untouched parts of the repository graph exactly as they were before the new upload."
+]

@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# Physics Community
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Physics Community is a Vite + React + TypeScript site for browsing physics topics, reading archived topic documents, and managing ontology-style graph content backed by Supabase.
 
-Currently, two official plugins are available:
+## Where To Look
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Website entry and routes: `src/App.tsx`
+- Page-level screens: `src/pages/`
+- Active graph page: `src/pages/GraphOverviewPage.tsx`
+- Active graph UI: `src/components/graph/OntologyGraphView.tsx`
+- Graph admin tools: `src/components/admin/KnowledgeImportManager.tsx`, `src/components/admin/DirectoryStructureManager.tsx`
+- Topic rendering and storage: `src/data/`, `src/lib/`
+- SQL source files: `database/sql/`
+- Repo-derived structure map: `docs/registry/site-code-graph.json`
+- Human-readable structure notes: `docs/obsidian/generated/`, `docs/reference/website_structure.md`
 
-## React Compiler
+## Current Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+physics_community/
+├── src/
+│   ├── components/
+│   │   ├── admin/      # graph import and directory admin panels
+│   │   ├── auth/       # sign-in dialog
+│   │   ├── graph/      # active ontology graph view
+│   │   ├── layout/     # navbar and page shell
+│   │   └── ui/         # shared UI controls
+│   ├── data/           # topic storage, archive access, seed fallbacks
+│   ├── lib/            # Supabase client, graph helpers, render helpers
+│   └── pages/          # Home, Timeline, Topic, Graph pages
+├── public/             # runtime static assets
+├── database/
+│   └── sql/
+│       ├── archive/    # archive-only schema
+│       ├── maintenance/# cleanup and one-off maintenance SQL
+│       ├── migrations/ # incremental schema changes
+│       ├── schema/     # baseline and variant schemas
+│       └── README.md   # SQL file index
+├── docs/
+│   ├── harness/        # harness operating rules and checks
+│   ├── obsidian/       # generated + curated structure notes
+│   ├── reference/      # human-authored reference docs
+│   └── registry/       # machine-readable repo graph
+├── mcp-server/         # MCP server for content and graph operations
+└── trash/              # retired code and scratch artifacts kept out of active flow
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Commands
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
+npm run build
+npm run lint
 ```
+
+## MCP Server
+
+```bash
+cd mcp-server
+npm install
+npm run build
+node build/index.js
+```
+
+Setup details live in `mcp-server/README.md`.
+
+## Notes
+
+- `docs/reference/website_structure.md` is the short human guide to the active website structure.
+- `docs/registry/site-code-graph.json` is the source-of-truth manifest for the derived structure registry.
+- Retired experiments are preserved under `trash/` rather than mixed into active source folders.
