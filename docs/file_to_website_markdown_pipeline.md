@@ -8,6 +8,8 @@ Convert a user-provided file, such as `.tex`, `.pdf`, `.docx`, or plain text, in
 
 The final website content should usually be **Quill-compatible HTML**, not raw Markdown, because the editor and the already-working `Wave-Particle Duality` file use Quill HTML.
 
+For large graph-view ontology inputs, read `docs/reference/large_file_ontology_workflow.md` first. Large files should be ingested through a manifest, structure-preserving extraction, chunk inventory, and ontology expansion plan before any final file or edge writes.
+
 ## Important Repo Files
 
 - `src/data/topicContentOverrides.ts`
