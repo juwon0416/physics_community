@@ -1,0 +1,14 @@
+.git
+.agents
+.codex
+node_modules
+mcp-server/node_modules
+dist
+dist-ssr
+mcp-server/build
+npm-debug.log*
+.env
+.env.*
+!.env.example
+coverage
+.DS_Store

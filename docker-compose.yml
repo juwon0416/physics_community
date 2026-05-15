@@ -1,0 +1,36 @@
+services:
+  web:
+    build:
+      context: .
+      target: app-dev
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-true}
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+  mcp:
+    profiles:
+      - mcp
+    build:
+      context: .
+      target: mcp-dev
+    environment:
+      MCP_SUPABASE_URL: ${MCP_SUPABASE_URL:-}
+      MCP_SUPABASE_SERVICE_ROLE_KEY: ${MCP_SUPABASE_SERVICE_ROLE_KEY:-}
+      MCP_SUPABASE_ANON_KEY: ${MCP_SUPABASE_ANON_KEY:-}
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    volumes:
+      - .:/app
+      - mcp_node_modules:/app/mcp-server/node_modules
+    command: sh -c "npm run build && npm run dev"
+
+volumes:
+  web_node_modules:
+  mcp_node_modules:

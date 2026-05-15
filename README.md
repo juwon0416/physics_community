@@ -54,6 +54,36 @@ npm run build
 npm run lint
 ```
 
+## Docker Development
+
+The Docker setup runs the Vite app in a Node 22 container with the repo mounted
+for live editing. Supabase values are read from your shell environment or a
+local `.env` file. Do not commit real `.env` files.
+
+```bash
+cp .env.example .env
+docker compose up --build web
+```
+
+Then open `http://localhost:5173`.
+
+Useful commands:
+
+```bash
+docker compose run --rm web npm run build
+docker compose run --rm web npm run lint
+docker compose run --rm web npm run security:check
+```
+
+The MCP server is optional and uses the `mcp` profile:
+
+```bash
+docker compose --profile mcp up --build mcp
+```
+
+Set `MCP_SUPABASE_URL` and `MCP_SUPABASE_SERVICE_ROLE_KEY` before running the
+MCP container if it needs write access.
+
 ## MCP Server
 
 ```bash
