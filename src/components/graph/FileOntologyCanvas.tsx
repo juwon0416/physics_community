@@ -508,8 +508,12 @@ function ToolbarButton({
 
 export default function FileOntologyCanvas({ isEditable, currentUserLabel }: FileOntologyCanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null);
+    const sceneRef = useRef<HTMLDivElement>(null);
     const filesRef = useRef<FileOntologyFile[]>([]);
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+    const dragPointerIdRef = useRef<number | null>(null);
+    const dragCaptureTargetRef = useRef<Element | null>(null);
+    const viewportRef = useRef<Viewport>({ x: 80, y: 40, scale: 0.92 });
     const [files, setFiles] = useState<FileOntologyFile[]>([]);
     const [edges, setEdges] = useState<FileOntologyEdge[]>([]);
     const [drafts, setDrafts] = useState<Record<string, FileDraft>>({});
@@ -524,6 +528,14 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const [isSavingId, setIsSavingId] = useState<string | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [linkDialog, setLinkDialog] = useState<LinkDialogState | null>(null);
+
+    const applySceneTransform = useCallback((nextViewport: Viewport) => {
+        viewportRef.current = nextViewport;
+
+        if (sceneRef.current) {
+            sceneRef.current.style.transform = `translate(${nextViewport.x}px, ${nextViewport.y}px) scale(${nextViewport.scale})`;
+        }
+    }, []);
 
     const fileById = useMemo(() => {
         const map = new Map<string, FileOntologyFile>();
@@ -615,15 +627,23 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [files]);
 
     useEffect(() => {
+        applySceneTransform(viewport);
+    }, [applySceneTransform, viewport]);
+
+    useEffect(() => {
         if (!dragState) return;
 
         const handlePointerMove = (event: PointerEvent) => {
+            if (dragPointerIdRef.current !== null && event.pointerId !== dragPointerIdRef.current) {
+                return;
+            }
+
             if (dragState.kind === 'pan') {
-                setViewport((current) => ({
-                    ...current,
+                applySceneTransform({
+                    ...viewportRef.current,
                     x: dragState.originX + event.clientX - dragState.startClientX,
                     y: dragState.originY + event.clientY - dragState.startClientY,
-                }));
+                });
                 return;
             }
 
@@ -661,7 +681,27 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             );
         };
 
-        const handlePointerUp = () => {
+        const releasePointerCapture = () => {
+            const captureTarget = dragCaptureTargetRef.current;
+            const activePointerId = dragPointerIdRef.current;
+
+            if (
+                captureTarget instanceof Element &&
+                activePointerId !== null &&
+                'releasePointerCapture' in captureTarget
+            ) {
+                try {
+                    captureTarget.releasePointerCapture(activePointerId);
+                } catch {
+                    // Pointer may already be released.
+                }
+            }
+
+            dragCaptureTargetRef.current = null;
+            dragPointerIdRef.current = null;
+        };
+
+        const finishDrag = () => {
             if ((dragState.kind === 'move' || dragState.kind === 'resize') && isEditable) {
                 const file = filesRef.current.find((candidate) => candidate.id === dragState.fileId);
                 if (file) {
@@ -672,17 +712,54 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 }
             }
 
+            if (dragState.kind === 'pan') {
+                setViewport(viewportRef.current);
+            }
+
+            releasePointerCapture();
             setDragState(null);
         };
 
+        const handlePointerUp = (event: PointerEvent) => {
+            if (dragPointerIdRef.current !== null && event.pointerId !== dragPointerIdRef.current) {
+                return;
+            }
+
+            finishDrag();
+        };
+
+        const handlePointerCancel = (event: PointerEvent) => {
+            if (dragPointerIdRef.current !== null && event.pointerId !== dragPointerIdRef.current) {
+                return;
+            }
+
+            finishDrag();
+        };
+
+        const handleWindowBlur = () => {
+            finishDrag();
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState !== 'visible') {
+                finishDrag();
+            }
+        };
+
         window.addEventListener('pointermove', handlePointerMove);
-        window.addEventListener('pointerup', handlePointerUp, { once: true });
+        window.addEventListener('pointerup', handlePointerUp);
+        window.addEventListener('pointercancel', handlePointerCancel);
+        window.addEventListener('blur', handleWindowBlur);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             window.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('pointerup', handlePointerUp);
+            window.removeEventListener('pointercancel', handlePointerCancel);
+            window.removeEventListener('blur', handleWindowBlur);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [dragState, isEditable, viewport.scale]);
+    }, [applySceneTransform, dragState, isEditable, viewport.scale]);
 
     const focusFile = useCallback((fileId: string) => {
         const file = filesRef.current.find((candidate) => candidate.id === fileId);
@@ -694,12 +771,17 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
 
-        setViewport((current) => ({
-            ...current,
-            x: rect.width * 0.42 - (file.x + file.width / 2) * current.scale,
-            y: rect.height * 0.5 - (file.y + file.height / 2) * current.scale,
-        }));
-    }, []);
+        setViewport((current) => {
+            const nextViewport = {
+                ...current,
+                x: rect.width * 0.42 - (file.x + file.width / 2) * current.scale,
+                y: rect.height * 0.5 - (file.y + file.height / 2) * current.scale,
+            };
+
+            applySceneTransform(nextViewport);
+            return nextViewport;
+        });
+    }, [applySceneTransform]);
 
     const handleHoverLink = useCallback((file: FileOntologyFile | null, event?: ReactMouseEvent) => {
         if (!file || !event) {
@@ -715,18 +797,32 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, []);
 
     const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-        if (!event.ctrlKey && Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
         event.preventDefault();
+        event.stopPropagation();
 
         const zoomFactor = event.deltaY > 0 ? 0.92 : 1.08;
-        setViewport((current) => ({
-            ...current,
-            scale: clamp(current.scale * zoomFactor, MIN_SCALE, MAX_SCALE),
-        }));
+        setViewport((current) => {
+            const nextViewport = {
+                ...current,
+                scale: clamp(current.scale * zoomFactor, MIN_SCALE, MAX_SCALE),
+            };
+
+            applySceneTransform(nextViewport);
+            return nextViewport;
+        });
     };
 
     const handleCanvasPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) return;
+
+        dragPointerIdRef.current = event.pointerId;
+        dragCaptureTargetRef.current = event.currentTarget;
+
+        try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+            // Some browsers may fail to capture when the pointer is already transitioning.
+        }
 
         setDragState({
             kind: 'pan',
@@ -746,6 +842,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
 
         if (!isEditable || event.button !== 0 || maximizedFileId) return;
 
+        dragPointerIdRef.current = event.pointerId;
+        dragCaptureTargetRef.current = event.currentTarget;
+
+        try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+            // Pointer capture is best-effort for drag stability.
+        }
+
         setDragState({
             kind: 'move',
             fileId: file.id,
@@ -764,6 +869,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         if (!isEditable || event.button !== 0 || maximizedFileId) return;
 
         setSelectedFileId(file.id);
+        dragPointerIdRef.current = event.pointerId;
+        dragCaptureTargetRef.current = event.currentTarget;
+
+        try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+            // Pointer capture is best-effort for drag stability.
+        }
+
         setDragState({
             kind: 'resize',
             fileId: file.id,
@@ -972,10 +1086,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     };
 
     const zoomBy = (factor: number) => {
-        setViewport((current) => ({
-            ...current,
-            scale: clamp(current.scale * factor, MIN_SCALE, MAX_SCALE),
-        }));
+        setViewport((current) => {
+            const nextViewport = {
+                ...current,
+                scale: clamp(current.scale * factor, MIN_SCALE, MAX_SCALE),
+            };
+
+            applySceneTransform(nextViewport);
+            return nextViewport;
+        });
     };
 
     const renderNodeEditor = (file: FileOntologyFile, expanded = false) => {
@@ -1189,8 +1308,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     return (
         <div
             ref={canvasRef}
-            className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-background text-foreground"
-            onWheel={handleWheel}
+            className="relative h-[calc(100dvh-56px)] w-full overflow-hidden overscroll-none touch-none bg-background text-foreground"
+            onWheelCapture={handleWheel}
         >
             <div
                 className="absolute inset-0"
@@ -1202,10 +1321,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             />
 
             <div
-                className="absolute inset-0 cursor-grab active:cursor-grabbing"
+                className="absolute inset-0 cursor-grab touch-none active:cursor-grabbing"
                 onPointerDown={handleCanvasPointerDown}
             >
                 <div
+                    ref={sceneRef}
                     className="absolute left-0 top-0 origin-top-left"
                     style={{
                         width: worldSize.width,

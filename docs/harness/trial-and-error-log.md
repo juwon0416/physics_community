@@ -177,3 +177,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Apply the idempotent SQL schema to Supabase with a server-side database connection, then verify public read and editor/admin write paths without printing secrets.
 - Prevention: For new DB-backed frontend features, perform both code deploy and database rollout; a frontend deploy alone will not create Supabase tables.
 - Related files: `database/sql/schema/file_ontology_schema.sql`, `src/lib/fileOntology.ts`, `src/components/graph/FileOntologyCanvas.tsx`
+
+### 2026-05-15 - Full-viewport graph routes must disable document scroll and capture pointer exit states
+
+- Context: `/graph` uses a canvas-like workspace with fixed top controls, wheel zoom, and drag navigation.
+- False assumption or risk: Keeping the normal route footer or relying on `window` `pointerup` alone is enough for a stable canvas interaction model.
+- Signal: The page gained a browser-side vertical scrollbar, the floating toolbar could drift under the sticky navbar, and pan drag occasionally stayed active after mouse release during lag or pointer loss.
+- Correction: Treat `/graph` as a true viewport-owned route by removing page overflow sources there, handling wheel zoom at the canvas capture layer, and ending drags on pointer capture release, `pointercancel`, `blur`, and visibility changes.
+- Prevention: For any full-screen graph/editor route, verify that the document itself does not scroll and that pointer interactions recover cleanly when the cursor leaves the window.
+- Related files: `src/components/layout/Layout.tsx`, `src/components/graph/FileOntologyCanvas.tsx`

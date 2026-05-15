@@ -1,8 +1,8 @@
 {
   "branch": "master",
-  "commit": "dbf5b7ea74e0693e94fc3fd1ffe0440942152e54",
+  "commit": "e5c000a265077ae3311d0c9139bc886aeb82ec71",
   "extraction_command": "node tools/extraction/generate_site_code_graph.js",
-  "extraction_timestamp": "2026-05-15T12:40:52.267Z",
+  "extraction_timestamp": "2026-05-15T12:53:52.931Z",
   "extractor_version": "0.1.0",
   "scanned_paths": [
     "src/",
