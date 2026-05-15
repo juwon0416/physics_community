@@ -41,9 +41,15 @@ import {
     saveFileOntologyEdge,
     saveFileOntologyFile,
     saveFileOntologyFilePosition,
+    saveFileOntologyWorkflowMetadata,
     type FileOntologyEdge,
     type FileOntologyFile,
 } from '../../lib/fileOntology';
+import {
+    buildOntologyWorkflow,
+    type OntologyWorkflowMode,
+    type OntologyWorkflowResult,
+} from '../../lib/ontologyWorkflow';
 
 interface FileOntologyCanvasProps {
     isEditable: boolean;
@@ -104,6 +110,14 @@ type MarkdownBlock =
 interface LinkDialogState {
     fileId: string;
     search: string;
+}
+
+interface WorkflowDraftState {
+    mode: OntologyWorkflowMode;
+    title: string;
+    userGoal: string;
+    researchNotes: string;
+    paperMarkdown: string;
 }
 
 const MIN_SCALE = 0.45;
@@ -528,6 +542,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const [isSavingId, setIsSavingId] = useState<string | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [linkDialog, setLinkDialog] = useState<LinkDialogState | null>(null);
+    const [isWorkflowDialogOpen, setIsWorkflowDialogOpen] = useState(false);
+    const [workflowDraft, setWorkflowDraft] = useState<WorkflowDraftState>({
+        mode: 'auto',
+        title: '',
+        userGoal: '',
+        researchNotes: '',
+        paperMarkdown: '',
+    });
+    const [workflowResult, setWorkflowResult] = useState<OntologyWorkflowResult | null>(null);
+    const [isWorkflowWriting, setIsWorkflowWriting] = useState(false);
 
     const applySceneTransform = useCallback((nextViewport: Viewport) => {
         viewportRef.current = nextViewport;
@@ -891,6 +915,111 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const reportWriteError = (action: string, error: unknown) => {
         const message = error instanceof Error ? error.message : 'Unknown database error';
         setStatusMessage(`${action} failed: ${message}`);
+    };
+
+    const updateWorkflowDraft = (patch: Partial<WorkflowDraftState>) => {
+        setWorkflowDraft((current) => ({ ...current, ...patch }));
+        setWorkflowResult(null);
+    };
+
+    const handleBuildWorkflowPreview = () => {
+        const result = buildOntologyWorkflow({
+            ...workflowDraft,
+            existingFiles: files,
+            existingEdges: edges,
+        });
+
+        setWorkflowResult(result);
+        setStatusMessage(
+            `Workflow preview ready: ${result.files.length} files, ${result.edges.filter((draft) => draft.action === 'create').length} new edges.`,
+        );
+    };
+
+    const handleWriteWorkflowResult = async () => {
+        if (!isEditable || !workflowResult) return;
+
+        setIsWorkflowWriting(true);
+        setStatusMessage('Writing ontology workflow result...');
+
+        try {
+            const savedFiles: FileOntologyFile[] = [];
+            for (const draft of workflowResult.files) {
+                savedFiles.push(await saveFileOntologyFile(draft.file));
+            }
+
+            const savedEdges: FileOntologyEdge[] = [];
+            for (const draft of workflowResult.edges) {
+                if (draft.action !== 'create') continue;
+                savedEdges.push(await saveFileOntologyEdge(draft.edge));
+            }
+
+            const metadataResult = await saveFileOntologyWorkflowMetadata({
+                run: {
+                    id: workflowResult.runId,
+                    intent: workflowResult.intent,
+                    sourceType: workflowResult.sourceType,
+                    title: workflowResult.title,
+                    userGoal: workflowDraft.userGoal,
+                    status: 'published',
+                },
+                artifacts: workflowResult.artifacts.map((artifact) => ({
+                    id: `${workflowResult.runId}-${normalizeFileOntologyLookup(artifact.artifactType)}`,
+                    runId: workflowResult.runId,
+                    artifactType: artifact.artifactType,
+                    contentJson: artifact.content,
+                })),
+                linkMentions: workflowResult.highlights.map((highlight) => ({
+                    id: `${workflowResult.runId}-${normalizeFileOntologyLookup(highlight.sourceFileId)}-${normalizeFileOntologyLookup(highlight.targetFileId)}-${normalizeFileOntologyLookup(highlight.anchorText)}`,
+                    sourceFileId: highlight.sourceFileId,
+                    targetFileId: highlight.targetFileId,
+                    anchorText: highlight.anchorText,
+                    relation: highlight.relation,
+                    contextExcerpt: highlight.context,
+                    generationRunId: workflowResult.runId,
+                })),
+            });
+
+            setFiles((current) => {
+                const next = new Map(current.map((file) => [file.id, file]));
+                savedFiles.forEach((file) => next.set(file.id, file));
+                return Array.from(next.values());
+            });
+            setDrafts((current) => ({
+                ...current,
+                ...Object.fromEntries(savedFiles.map((file) => [file.id, draftFromFile(file)])),
+            }));
+            setEdges((current) => {
+                const next = [...current];
+                savedEdges.forEach((edge) => {
+                    const exists = next.some(
+                        (candidate) =>
+                            candidate.sourceFileId === edge.sourceFileId &&
+                            candidate.targetFileId === edge.targetFileId &&
+                            candidate.label === edge.label,
+                    );
+                    if (!exists) next.push(edge);
+                });
+                return next;
+            });
+
+            const primaryFile = savedFiles[0] ?? null;
+            if (primaryFile) {
+                setSelectedFileId(primaryFile.id);
+                focusFile(primaryFile.id);
+            }
+
+            setWorkflowResult(null);
+            setIsWorkflowDialogOpen(false);
+            setStatusMessage(
+                metadataResult.warning
+                    ? `Workflow files saved. ${metadataResult.warning}`
+                    : 'Ontology workflow files, edges, and highlight metadata saved.',
+            );
+        } catch (error) {
+            reportWriteError('Workflow write', error);
+        } finally {
+            setIsWorkflowWriting(false);
+        }
     };
 
     const handleAddFile = async () => {
@@ -1423,6 +1552,19 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <Plus className="h-4 w-4" />
                         File
                     </button>
+                    <button
+                        type="button"
+                        className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-40"
+                        onClick={() => {
+                            setWorkflowResult(null);
+                            setIsWorkflowDialogOpen(true);
+                        }}
+                        disabled={!isEditable}
+                        title={isEditable ? 'Run ontology workflow' : 'Admin access required to edit'}
+                    >
+                        <GitBranch className="h-4 w-4" />
+                        Workflow
+                    </button>
                     <ToolbarButton onClick={() => zoomBy(1.1)} title="Zoom in">
                         <ZoomIn className="h-4 w-4" />
                     </ToolbarButton>
@@ -1514,6 +1656,206 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     </div>
                 </div>
             ) : null}
+
+            <Dialog open={isWorkflowDialogOpen} onOpenChange={setIsWorkflowDialogOpen}>
+                <DialogContent className="max-h-[92vh] max-w-5xl overflow-hidden border-border bg-background text-foreground">
+                    <DialogHeader>
+                        <DialogTitle>Ontology Workflow</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid min-h-0 gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+                        <div className="file-ontology-scrollbar max-h-[74vh] space-y-4 overflow-y-auto pr-1">
+                            <label className="space-y-1 text-xs font-medium text-muted-foreground">
+                                Mode
+                                <select
+                                    value={workflowDraft.mode}
+                                    onChange={(event) =>
+                                        updateWorkflowDraft({ mode: event.target.value as OntologyWorkflowMode })
+                                    }
+                                    className="h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-foreground"
+                                >
+                                    <option value="auto">Auto</option>
+                                    <option value="concept">Concept file</option>
+                                    <option value="paper">Paper integration</option>
+                                </select>
+                            </label>
+
+                            <label className="space-y-1 text-xs font-medium text-muted-foreground">
+                                Title
+                                <Input
+                                    value={workflowDraft.title}
+                                    onChange={(event) => updateWorkflowDraft({ title: event.target.value })}
+                                    placeholder="Schrodinger Equation"
+                                    className="border-border bg-background text-foreground"
+                                />
+                            </label>
+
+                            <label className="space-y-1 text-xs font-medium text-muted-foreground">
+                                Goal
+                                <textarea
+                                    value={workflowDraft.userGoal}
+                                    onChange={(event) => updateWorkflowDraft({ userGoal: event.target.value })}
+                                    className="file-ontology-scrollbar min-h-[92px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-foreground"
+                                    placeholder="Create or integrate this node with prerequisite and neighboring concepts."
+                                />
+                            </label>
+
+                            <label className="space-y-1 text-xs font-medium text-muted-foreground">
+                                Research notes
+                                <textarea
+                                    value={workflowDraft.researchNotes}
+                                    onChange={(event) => updateWorkflowDraft({ researchNotes: event.target.value })}
+                                    className="file-ontology-scrollbar min-h-[120px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-foreground"
+                                    placeholder="Source cards, search findings, DOI/arXiv notes, or extracted concept relations."
+                                />
+                            </label>
+
+                            <label className="space-y-1 text-xs font-medium text-muted-foreground">
+                                Paper markdown
+                                <textarea
+                                    value={workflowDraft.paperMarkdown}
+                                    onChange={(event) => updateWorkflowDraft({ paperMarkdown: event.target.value })}
+                                    className="file-ontology-scrollbar min-h-[180px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 font-mono text-xs leading-5 text-foreground outline-none focus:border-foreground"
+                                    placeholder="# Paper Title&#10;&#10;Abstract...&#10;&#10;## 1. Introduction..."
+                                />
+                            </label>
+
+                            <button
+                                type="button"
+                                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-foreground bg-foreground px-3 text-sm font-medium text-background transition hover:opacity-80"
+                                onClick={handleBuildWorkflowPreview}
+                            >
+                                <GitBranch className="h-4 w-4" />
+                                Build Preview
+                            </button>
+                        </div>
+
+                        <div className="file-ontology-scrollbar max-h-[74vh] min-h-[480px] overflow-y-auto rounded-lg border border-border bg-background p-4">
+                            {workflowResult ? (
+                                <div className="space-y-5">
+                                    <div>
+                                        <div className="text-sm font-semibold text-foreground">{workflowResult.title}</div>
+                                        <div className="mt-1 text-xs text-muted-foreground">
+                                            {workflowResult.intent.replace(/_/g, ' ')} · {workflowResult.summary}
+                                        </div>
+                                    </div>
+
+                                    {workflowResult.warnings.length > 0 ? (
+                                        <div className="rounded-md border border-border bg-muted p-3 text-xs text-muted-foreground">
+                                            {workflowResult.warnings.join(' ')}
+                                        </div>
+                                    ) : null}
+
+                                    <div className="grid gap-3 md:grid-cols-3">
+                                        <div className="rounded-md border border-border p-3">
+                                            <div className="text-xs uppercase text-muted-foreground">Files</div>
+                                            <div className="mt-1 text-2xl font-semibold text-foreground">
+                                                {workflowResult.files.length}
+                                            </div>
+                                        </div>
+                                        <div className="rounded-md border border-border p-3">
+                                            <div className="text-xs uppercase text-muted-foreground">New Edges</div>
+                                            <div className="mt-1 text-2xl font-semibold text-foreground">
+                                                {workflowResult.edges.filter((draft) => draft.action === 'create').length}
+                                            </div>
+                                        </div>
+                                        <div className="rounded-md border border-border p-3">
+                                            <div className="text-xs uppercase text-muted-foreground">Highlights</div>
+                                            <div className="mt-1 text-2xl font-semibold text-foreground">
+                                                {workflowResult.highlights.length}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="text-xs font-semibold uppercase text-muted-foreground">File Drafts</div>
+                                        {workflowResult.files.map((draft) => (
+                                            <div key={draft.file.id} className="rounded-md border border-border p-3">
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <div className="truncate text-sm font-medium text-foreground">
+                                                            {draft.file.title}
+                                                        </div>
+                                                        <div className="truncate text-xs text-muted-foreground">
+                                                            {draft.file.id}
+                                                        </div>
+                                                    </div>
+                                                    <span className="shrink-0 rounded-full border border-border px-2 py-1 text-xs text-muted-foreground">
+                                                        {draft.kind} · {draft.action}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                                    {draft.file.summary}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="text-xs font-semibold uppercase text-muted-foreground">Edges</div>
+                                        <div className="space-y-1">
+                                            {workflowResult.edges.map((draft) => (
+                                                <div
+                                                    key={draft.edge.id}
+                                                    className="rounded-md border border-border px-3 py-2 text-xs text-muted-foreground"
+                                                >
+                                                    <span className="text-foreground">{draft.edge.sourceFileId}</span>
+                                                    {' -> '}
+                                                    <span className="text-foreground">{draft.edge.targetFileId}</span>
+                                                    {' · '}
+                                                    {draft.edge.label}
+                                                    {draft.action === 'skip_existing' ? ' · existing' : ''}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="text-xs font-semibold uppercase text-muted-foreground">Highlight Plan</div>
+                                        <div className="space-y-1">
+                                            {workflowResult.highlights.map((highlight) => (
+                                                <div
+                                                    key={`${highlight.sourceFileId}-${highlight.targetFileId}-${highlight.anchorText}`}
+                                                    className="rounded-md border border-border px-3 py-2 text-xs text-muted-foreground"
+                                                >
+                                                    <span className="text-foreground">{highlight.anchorText}</span>
+                                                    {' -> '}
+                                                    {highlight.targetFileId}
+                                                    {' · '}
+                                                    {highlight.relation}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+                                        <button
+                                            type="button"
+                                            className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium text-foreground transition hover:bg-muted"
+                                            onClick={() => setWorkflowResult(null)}
+                                            disabled={isWorkflowWriting}
+                                        >
+                                            Reset
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-foreground bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-80 disabled:opacity-40"
+                                            onClick={() => void handleWriteWorkflowResult()}
+                                            disabled={isWorkflowWriting}
+                                        >
+                                            {isWorkflowWriting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                            Write to Graph
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex h-full min-h-[420px] items-center justify-center rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                                    No workflow preview yet.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={Boolean(linkDialog)} onOpenChange={(open) => !open && setLinkDialog(null)}>
                 <DialogContent className="max-w-lg border-border bg-background text-foreground">

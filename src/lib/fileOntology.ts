@@ -22,6 +22,38 @@ export interface FileOntologyEdge {
     updatedAt?: string | null;
 }
 
+export interface FileOntologyGenerationRunRecord {
+    id: string;
+    intent: string;
+    sourceType: string;
+    title: string;
+    userGoal: string;
+    status: string;
+}
+
+export interface FileOntologyGenerationArtifactRecord {
+    id: string;
+    runId: string;
+    artifactType: string;
+    contentJson: Record<string, unknown>;
+}
+
+export interface FileOntologyLinkMentionRecord {
+    id: string;
+    sourceFileId: string;
+    targetFileId: string;
+    anchorText: string;
+    relation: string;
+    contextExcerpt: string;
+    generationRunId?: string | null;
+}
+
+export interface FileOntologyWorkflowMetadataInput {
+    run: FileOntologyGenerationRunRecord;
+    artifacts: FileOntologyGenerationArtifactRecord[];
+    linkMentions: FileOntologyLinkMentionRecord[];
+}
+
 export interface FileOntologyModel {
     files: FileOntologyFile[];
     edges: FileOntologyEdge[];
@@ -57,12 +89,17 @@ interface FileOntologyEdgeRow {
 
 const FILE_TABLE = 'file_ontology_files';
 const EDGE_TABLE = 'file_ontology_edges';
+const GENERATION_RUN_TABLE = 'file_ontology_generation_runs';
+const GENERATION_ARTIFACT_TABLE = 'file_ontology_generation_artifacts';
+const LINK_MENTION_TABLE = 'file_ontology_link_mentions';
 
 const FILE_SELECT = 'id,title,summary,content,x,y,width,height,created_at,updated_at';
 const EDGE_SELECT = 'id,source_file_id,target_file_id,label,created_at,updated_at';
 
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
     'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
+export const FILE_ONTOLOGY_WORKFLOW_SCHEMA_SETUP_MESSAGE =
+    'File ontology workflow metadata tables are not available yet. Apply database/sql/migrations/migration_add_file_ontology_workflow.sql in Supabase to persist workflow runs and highlight mentions.';
 
 function cloneFile(file: FileOntologyFile): FileOntologyFile {
     return { ...file };
@@ -109,16 +146,30 @@ export function getStarterFileOntologyModel(): FileOntologyModel {
     };
 }
 
-function isMissingRelationError(error: { message?: string; code?: string } | null | undefined) {
+function isMissingAnyRelationError(
+    error: { message?: string; code?: string } | null | undefined,
+    relationNames: string[],
+) {
     if (!error) return false;
 
     const message = (error.message || '').toLowerCase();
     return (
         error.code === '42P01' ||
         message.includes('does not exist') ||
-        message.includes(FILE_TABLE) ||
-        message.includes(EDGE_TABLE)
+        relationNames.some((relationName) => message.includes(relationName))
     );
+}
+
+function isMissingRelationError(error: { message?: string; code?: string } | null | undefined) {
+    return isMissingAnyRelationError(error, [FILE_TABLE, EDGE_TABLE]);
+}
+
+function isMissingWorkflowRelationError(error: { message?: string; code?: string } | null | undefined) {
+    return isMissingAnyRelationError(error, [
+        GENERATION_RUN_TABLE,
+        GENERATION_ARTIFACT_TABLE,
+        LINK_MENTION_TABLE,
+    ]);
 }
 
 function toFile(row: FileOntologyFileRow): FileOntologyFile {
@@ -323,4 +374,58 @@ export async function saveFileOntologyEdge(edge: FileOntologyEdge) {
 export async function deleteFileOntologyEdge(edgeId: string) {
     const { error } = await supabase.from(EDGE_TABLE).delete().eq('id', edgeId);
     if (error) throw new Error(error.message);
+}
+
+export async function saveFileOntologyWorkflowMetadata(input: FileOntologyWorkflowMetadataInput) {
+    const { error: runError } = await supabase.from(GENERATION_RUN_TABLE).upsert(
+        {
+            id: input.run.id,
+            intent: input.run.intent,
+            source_type: input.run.sourceType,
+            title: input.run.title,
+            user_goal: input.run.userGoal,
+            status: input.run.status,
+        },
+        { onConflict: 'id' },
+    );
+
+    if (runError) {
+        if (isMissingWorkflowRelationError(runError)) {
+            return { warning: FILE_ONTOLOGY_WORKFLOW_SCHEMA_SETUP_MESSAGE };
+        }
+        throw new Error(runError.message);
+    }
+
+    if (input.artifacts.length > 0) {
+        const { error: artifactError } = await supabase.from(GENERATION_ARTIFACT_TABLE).upsert(
+            input.artifacts.map((artifact) => ({
+                id: artifact.id,
+                run_id: artifact.runId,
+                artifact_type: artifact.artifactType,
+                content_json: artifact.contentJson,
+            })),
+            { onConflict: 'id' },
+        );
+
+        if (artifactError) throw new Error(artifactError.message);
+    }
+
+    if (input.linkMentions.length > 0) {
+        const { error: mentionError } = await supabase.from(LINK_MENTION_TABLE).upsert(
+            input.linkMentions.map((mention) => ({
+                id: mention.id,
+                source_file_id: mention.sourceFileId,
+                target_file_id: mention.targetFileId,
+                anchor_text: mention.anchorText,
+                relation: mention.relation,
+                context_excerpt: mention.contextExcerpt,
+                generation_run_id: mention.generationRunId,
+            })),
+            { onConflict: 'id' },
+        );
+
+        if (mentionError) throw new Error(mentionError.message);
+    }
+
+    return {};
 }

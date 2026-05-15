@@ -22,6 +22,7 @@
 | [[component-directory-structure-manager]] | imports | [[file-storage]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | [[component-directory-structure-manager]] | imports | [[file-topic-slug]] | high | static-import @ src/components/admin/DirectoryStructureManager.tsx |
 | [[component-file-ontology-canvas]] | imports | [[file-cn]] | high | static-import @ src/components/graph/FileOntologyCanvas.tsx |
+| [[component-file-ontology-canvas]] | imports | [[file-file-ontology]] | high | static-import @ src/components/graph/FileOntologyCanvas.tsx |
 | [[component-image-upload]] | imports | [[component-button]] | high | static-import @ src/components/ui/ImageUpload.tsx |
 | [[component-image-upload]] | imports | [[file-cn]] | high | static-import @ src/components/ui/ImageUpload.tsx |
 | [[component-image-upload]] | imports | [[file-storage]] | high | static-import @ src/components/ui/ImageUpload.tsx |
@@ -65,6 +66,12 @@
 | [[database-knowledge-repository-schema]] | defines | [[table-knowledge-source-documents]] | high | sql-schema @ database/sql/schema/knowledge_repository_schema.sql |
 | [[database-knowledge-repository-schema]] | migrates | [[table-knowledge-source-documents]] | medium | migration @ database/sql/schema/knowledge_repository_schema.sql |
 | [[database-migration-add-content]] | migrates | [[table-topics]] | medium | migration @ database/sql/migrations/migration_add_content.sql |
+| [[database-migration-add-file-ontology-workflow]] | defines | [[table-file-ontology-generation-artifacts]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
+| [[database-migration-add-file-ontology-workflow]] | migrates | [[table-file-ontology-generation-artifacts]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
+| [[database-migration-add-file-ontology-workflow]] | defines | [[table-file-ontology-generation-runs]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
+| [[database-migration-add-file-ontology-workflow]] | migrates | [[table-file-ontology-generation-runs]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
+| [[database-migration-add-file-ontology-workflow]] | defines | [[table-file-ontology-link-mentions]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
+| [[database-migration-add-file-ontology-workflow]] | migrates | [[table-file-ontology-link-mentions]] | medium | migration @ database/sql/migrations/migration_add_file_ontology_workflow.sql |
 | [[database-migration-add-light-content]] | migrates | [[table-topic-sections]] | medium | migration @ database/sql/migrations/migration_add_light_content.sql |
 | [[database-migration-add-sync-trigger]] | migrates | [[table-topics]] | medium | migration @ database/sql/migrations/migration_add_sync_trigger.sql |
 | [[database-ontology-paper-system-schema]] | defines | [[table-ontology-concept-evolution]] | high | sql-schema @ database/sql/schema/ontology_paper_system_schema.sql |
@@ -120,6 +127,7 @@
 | [[file-auth]] | queries | [[table-profiles]] | high | supabase-query @ src/lib/auth.ts |
 | [[file-concepts]] | imports | [[file-graph-model]] | high | static-import @ src/lib/concepts.ts |
 | [[file-concepts]] | imports | [[file-supabase]] | high | static-import @ src/lib/concepts.ts |
+| [[file-file-ontology]] | imports | [[file-supabase]] | high | static-import @ src/lib/fileOntology.ts |
 | [[file-graph-layouts]] | imports | [[file-graph-model]] | high | static-import @ src/lib/graphLayouts.ts |
 | [[file-graph-model]] | imports | [[file-archive-fundamentals]] | high | static-import @ src/lib/graphModel.ts |
 | [[file-graph-model]] | imports | [[file-archive-schema]] | high | static-import @ src/lib/graphModel.ts |

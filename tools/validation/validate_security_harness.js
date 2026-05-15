@@ -65,6 +65,7 @@ function isPlaceholder(value) {
     /^DUMMY/i,
     /^\.\.\.$/,
     /^<.+>$/,
+    /^\$\{[A-Za-z_][A-Za-z0-9_]*(?::-[^}]*)?\}$/,
     /placeholder/i,
     /example/i,
     /localhost/i,

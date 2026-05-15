@@ -14,6 +14,7 @@ relations:
     - file:archive-schema
     - file:auth
     - file:concepts
+    - file:file-ontology
     - file:graph-model
     - file:knowledge-pipeline
     - file:knowledge-schema
@@ -40,6 +41,7 @@ confidence: high
 | in | imports | [[file-archive-schema]] | high | static-import @ src/lib/archiveSchema.ts |
 | in | imports | [[file-auth]] | high | static-import @ src/lib/auth.ts |
 | in | imports | [[file-concepts]] | high | static-import @ src/lib/concepts.ts |
+| in | imports | [[file-file-ontology]] | high | static-import @ src/lib/fileOntology.ts |
 | in | imports | [[file-graph-model]] | high | static-import @ src/lib/graphModel.ts |
 | in | imports | [[file-knowledge-pipeline]] | high | static-import @ src/lib/knowledgePipeline.ts |
 | in | imports | [[file-knowledge-schema]] | high | static-import @ src/lib/knowledgeSchema.ts |

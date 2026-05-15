@@ -2,9 +2,9 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 157
-- Nodes generated: 126
-- Edges generated: 194
+- Files scanned: 159
+- Nodes generated: 131
+- Edges generated: 202
 
 ## .codex
 
@@ -23,8 +23,8 @@
 
 ## database
 
-- Files scanned: 21
-- Registry nodes: 20
+- Files scanned: 22
+- Registry nodes: 21
 
 - `database/sql/archive/archive_graph_schema.sql` -> [[database-archive-graph-schema]], [[table-archive-topics]], [[table-archive-graph-nodes]], [[table-archive-graph-edges]]
 - `database/sql/maintenance/check_purge_status.sql` -> [[database-check-purge-status]]
@@ -32,6 +32,7 @@
 - `database/sql/maintenance/purge_legacy_sections.sql` -> [[database-purge-legacy-sections]]
 - `database/sql/maintenance/safe_schema_update.sql` -> [[database-safe-schema-update]], [[table-graph-nodes]], [[table-topics]]
 - `database/sql/migrations/migration_add_content.sql` -> [[database-migration-add-content]]
+- `database/sql/migrations/migration_add_file_ontology_workflow.sql` -> [[database-migration-add-file-ontology-workflow]], [[table-file-ontology-generation-runs]], [[table-file-ontology-generation-artifacts]], [[table-file-ontology-link-mentions]]
 - `database/sql/migrations/migration_add_light_content.sql` -> [[database-migration-add-light-content]], [[table-topic-sections]]
 - `database/sql/migrations/migration_add_sync_trigger.sql` -> [[database-migration-add-sync-trigger]]
 - `database/sql/migrations/migration_fix_wave_particle.sql` -> [[database-migration-fix-wave-particle]]
@@ -109,8 +110,8 @@
 
 ## src
 
-- Files scanned: 43
-- Registry nodes: 38
+- Files scanned: 44
+- Registry nodes: 39
 
 - `src/App.tsx` -> [[file-app]], [[route-root-layout]], [[route-home]], [[route-graph]], [[route-field-field-slug]], [[route-topic-topic-slug]], [[route-not-found]]
 - `src/components/admin/DirectoryStructureManager.tsx` -> [[component-directory-structure-manager]]
@@ -133,10 +134,10 @@
 - `src/lib/backlinks.ts` -> [[file-backlinks]]
 - `src/lib/cn.ts` -> [[file-cn]]
 - `src/lib/concepts.ts` -> [[file-concepts]]
+- `src/lib/fileOntology.ts` -> [[file-file-ontology]]
 - `src/lib/graphLayouts.ts` -> [[file-graph-layouts]]
 - `src/lib/graphModel.ts` -> [[file-graph-model]]
 - `src/lib/graphSpheres.ts` -> [[file-graph-spheres]]
-- `src/lib/knowledgePipeline.ts` -> [[file-knowledge-pipeline]]
 
 ## tailwind.config.js
 

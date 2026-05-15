@@ -10,12 +10,16 @@ generated_from:
 relations:
   outgoing:
     - file:cn
+    - file:file-ontology
   incoming:
     - page:graph-overview-page
 evidence:
   - kind: static-import
     source_path: src/components/graph/FileOntologyCanvas.tsx
     detail: "../../lib/cn"
+  - kind: static-import
+    source_path: src/components/graph/FileOntologyCanvas.tsx
+    detail: "../../lib/fileOntology"
 confidence: high
 ---
 
@@ -33,4 +37,5 @@ confidence: high
 | Direction | Type | Node | Confidence | Evidence |
 | --- | --- | --- | --- | --- |
 | out | imports | [[file-cn]] | high | static-import @ src/components/graph/FileOntologyCanvas.tsx |
+| out | imports | [[file-file-ontology]] | high | static-import @ src/components/graph/FileOntologyCanvas.tsx |
 | in | imports | [[page-graph-overview-page]] | high | static-import @ src/pages/GraphOverviewPage.tsx |
