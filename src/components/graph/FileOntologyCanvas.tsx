@@ -131,6 +131,16 @@ function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
 }
 
+function isInteractiveCanvasTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) return false;
+
+    return Boolean(
+        target.closest(
+            'button, input, textarea, select, a, [role="button"], [data-no-canvas-pan="true"]',
+        ),
+    );
+}
+
 function draftFromFile(file: FileOntologyFile): FileDraft {
     return {
         title: file.title,
@@ -656,9 +666,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
 
     useEffect(() => {
         if (!dragState) return;
+        const activeCaptureTarget = dragCaptureTargetRef.current;
 
         const handlePointerMove = (event: PointerEvent) => {
             if (dragPointerIdRef.current !== null && event.pointerId !== dragPointerIdRef.current) {
+                return;
+            }
+
+            if (event.buttons === 0) {
+                finishDrag();
                 return;
             }
 
@@ -760,6 +776,14 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             finishDrag();
         };
 
+        const handleLostPointerCapture = ((event: PointerEvent) => {
+            if (dragPointerIdRef.current !== null && event.pointerId !== dragPointerIdRef.current) {
+                return;
+            }
+
+            finishDrag();
+        }) as EventListener;
+
         const handleWindowBlur = () => {
             finishDrag();
         };
@@ -774,6 +798,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         window.addEventListener('pointerup', handlePointerUp);
         window.addEventListener('pointercancel', handlePointerCancel);
         window.addEventListener('blur', handleWindowBlur);
+        activeCaptureTarget?.addEventListener('lostpointercapture', handleLostPointerCapture);
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
@@ -781,6 +806,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             window.removeEventListener('pointerup', handlePointerUp);
             window.removeEventListener('pointercancel', handlePointerCancel);
             window.removeEventListener('blur', handleWindowBlur);
+            activeCaptureTarget?.removeEventListener('lostpointercapture', handleLostPointerCapture);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, [applySceneTransform, dragState, isEditable, viewport.scale]);
@@ -838,6 +864,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
 
     const handleCanvasPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) return;
+        if (isInteractiveCanvasTarget(event.target)) return;
 
         dragPointerIdRef.current = event.pointerId;
         dragCaptureTargetRef.current = event.currentTarget;
@@ -1504,7 +1531,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                         width="192"
                                         height="40"
                                     >
-                                        <div className="flex h-full items-center justify-center gap-1">
+                                        <div
+                                            className="flex h-full items-center justify-center gap-1"
+                                            data-no-canvas-pan="true"
+                                            onPointerDown={(event) => event.stopPropagation()}
+                                        >
                                             <button
                                                 type="button"
                                                 className="max-w-[142px] truncate rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground"
