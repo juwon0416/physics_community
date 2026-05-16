@@ -214,6 +214,18 @@ function isSelectedNodeScrollTarget(
     return Boolean(scrollArea && fileId && (fileId === selectedFileId || fileId === maximizedFileId));
 }
 
+function isScrollbarGutterPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    const element = event.currentTarget;
+    if (element.scrollHeight <= element.clientHeight) return false;
+
+    const rect = element.getBoundingClientRect();
+    return event.clientX >= rect.right - 16;
+}
+
+function clearGraphTextSelection() {
+    window.getSelection()?.removeAllRanges();
+}
+
 function draftFromFile(file: FileOntologyFile): FileDraft {
     return {
         title: file.title,
@@ -973,10 +985,19 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         });
     };
 
+    const handleDragStartCapture = (event: React.DragEvent<HTMLDivElement>) => {
+        if (isInteractiveCanvasTarget(event.target)) return;
+        clearGraphTextSelection();
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
     const handleCanvasPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) return;
         if (isInteractiveCanvasTarget(event.target)) return;
 
+        clearGraphTextSelection();
+        event.preventDefault();
         dragPointerIdRef.current = event.pointerId;
         dragCaptureTargetRef.current = event.currentTarget;
 
@@ -1482,12 +1503,25 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         return (
             <div
                 className={cn(
-                    'min-h-0 flex-1 p-4',
+                    'h-full min-h-0 flex-1 select-none p-4',
                     scrollable
                         ? 'file-ontology-scrollbar overflow-y-auto overflow-x-hidden'
                         : 'overflow-hidden',
                 )}
                 data-file-node-scroll={scrollable ? 'true' : undefined}
+                onDragStartCapture={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }}
+                onPointerDown={
+                    scrollable
+                        ? (event) => {
+                              if (isScrollbarGutterPointerDown(event)) {
+                                  event.stopPropagation();
+                              }
+                          }
+                        : undefined
+                }
                 style={{ fontSize: adaptiveFontSize, lineHeight: 1.55 }}
             >
                 <MarkdownPreview
@@ -1582,7 +1616,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <div className="max-w-full truncate text-lg font-semibold text-foreground">{file.title}</div>
                     </div>
                 ) : (
-                    <div className="min-h-0 flex-1 p-0">
+                    <div className="flex min-h-0 flex-1 flex-col p-0">
                         {isEditing ? (
                             <div
                                 className="file-ontology-scrollbar flex h-full flex-col overflow-auto p-3"
@@ -1613,6 +1647,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         <div
             ref={canvasRef}
             className="relative h-[calc(100dvh-56px)] w-full overflow-hidden overscroll-none touch-none bg-background text-foreground"
+            onDragStartCapture={handleDragStartCapture}
             onWheelCapture={handleWheel}
         >
             <div

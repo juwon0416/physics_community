@@ -195,3 +195,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Re-run the same commands with elevated execution when the first failure is an OS-level process or Git access denial, then record the successful result.
 - Prevention: Treat `EPERM` from esbuild or Git-backed validation as a sandbox permission issue before chasing code changes.
 - Related files: `package.json`, `tools/validation/validate_security_harness.js`, `docs/harness/verification.md`
+
+### 2026-05-17 - File ontology scroll bugs can be layout and native-drag issues, not only wheel handlers
+
+- Context: A `/graph` file node still would not scroll in normal node mode, and dragging near node content could show the browser's prohibited drag cursor after an earlier event-propagation fix.
+- False assumption or risk: Allowing selected-node wheel events through the canvas capture handler is enough to make embedded file content scrollable.
+- Signal: The normal node preview had `overflow-y-auto`, but its parent was not a flex column and the preview did not receive a constrained height; video evidence also showed native text/drag behavior entering the canvas interaction path.
+- Correction: Make the node body a constrained flex column, give the preview `h-full min-h-0`, suppress preview native drag/text selection, and clear any browser text selection before starting canvas pan.
+- Prevention: For canvas-like nodes with embedded content, verify DOM height constraints, native `dragstart`, text selection state, wheel capture, and pointer pan behavior together in a browser.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `docs/harness/verification.md`
