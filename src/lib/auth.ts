@@ -128,6 +128,7 @@ export function useAuth() {
         signInWithID,
         signOut,
         isAdmin: profile?.role === 'admin',
+        canEditGraph: profile?.role === 'admin' || profile?.role === 'editor',
         nickname: profile?.nickname || user?.email?.split('@')[0] || 'User'
     };
 }

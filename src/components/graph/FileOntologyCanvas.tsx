@@ -120,8 +120,9 @@ interface WorkflowDraftState {
     paperMarkdown: string;
 }
 
-const MIN_SCALE = 0.45;
-const MAX_SCALE = 1.65;
+const MIN_SCALE = 0.08;
+const MAX_SCALE = 4;
+const TITLE_ONLY_SCALE = 0.26;
 const MIN_NODE_WIDTH = 280;
 const MIN_NODE_HEIGHT = 210;
 const MAX_NODE_WIDTH = 1200;
@@ -197,6 +198,20 @@ function isInteractiveCanvasTarget(target: EventTarget | null) {
             'button, input, textarea, select, a, [role="button"], [data-no-canvas-pan="true"]',
         ),
     );
+}
+
+function isSelectedNodeScrollTarget(
+    target: EventTarget | null,
+    selectedFileId: string | null,
+    maximizedFileId: string | null,
+) {
+    if (!(target instanceof HTMLElement)) return false;
+
+    const scrollArea = target.closest<HTMLElement>('[data-file-node-scroll="true"]');
+    const node = target.closest<HTMLElement>('[data-file-node-id]');
+    const fileId = node?.dataset.fileNodeId;
+
+    return Boolean(scrollArea && fileId && (fileId === selectedFileId || fileId === maximizedFileId));
 }
 
 function draftFromFile(file: FileOntologyFile): FileDraft {
@@ -444,12 +459,14 @@ function MarkdownPreview({
     onNavigate,
     onHoverLink,
     compact = false,
+    centered = false,
 }: {
     content: string;
     files: FileOntologyFile[];
     onNavigate: (fileId: string) => void;
     onHoverLink: (file: FileOntologyFile | null, event?: ReactMouseEvent) => void;
     compact?: boolean;
+    centered?: boolean;
 }) {
     const lookup = useMemo(() => buildFileLookup(files), [files]);
     const blocks = useMemo(() => parseMarkdownBlocks(content), [content]);
@@ -459,7 +476,13 @@ function MarkdownPreview({
     }
 
     return (
-        <div className={cn('space-y-3 leading-6 text-foreground', compact ? 'text-sm' : 'text-base')}>
+        <div
+            className={cn(
+                'space-y-3 leading-6 text-left text-foreground',
+                compact ? 'text-sm' : 'text-base',
+                centered ? 'mx-auto w-full max-w-[72ch]' : null,
+            )}
+        >
             {blocks.map((block, index) => {
                 const key = `${block.type}-${index}`;
 
@@ -570,6 +593,7 @@ function ToolbarButton({
     return (
         <button
             type="button"
+            onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => {
                 event.stopPropagation();
                 onClick();
@@ -926,6 +950,14 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, []);
 
     const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        if (
+            isInteractiveCanvasTarget(event.target) ||
+            isSelectedNodeScrollTarget(event.target, selectedFileId, maximizedFileId)
+        ) {
+            event.stopPropagation();
+            return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -1442,16 +1474,21 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         );
     };
 
-    const renderNodePreview = (file: FileOntologyFile, expanded = false) => {
+    const renderNodePreview = (file: FileOntologyFile, expanded = false, scrollable = false) => {
         const adaptiveFontSize = expanded
             ? 16
             : clamp(Math.round(file.width / 34), 12, 17);
 
         return (
             <div
-                className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-4"
+                className={cn(
+                    'min-h-0 flex-1 p-4',
+                    scrollable
+                        ? 'file-ontology-scrollbar overflow-y-auto overflow-x-hidden'
+                        : 'overflow-hidden',
+                )}
+                data-file-node-scroll={scrollable ? 'true' : undefined}
                 style={{ fontSize: adaptiveFontSize, lineHeight: 1.55 }}
-                onPointerDown={(event) => event.stopPropagation()}
             >
                 <MarkdownPreview
                     content={file.content}
@@ -1459,6 +1496,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     onNavigate={focusFile}
                     onHoverLink={handleHoverLink}
                     compact={!expanded}
+                    centered
                 />
             </div>
         );
@@ -1468,6 +1506,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const isSelected = selectedFileId === file.id;
         const isConnectSource = connectFromFileId === file.id;
         const isEditing = editingFileId === file.id;
+        const isTitleOnly = viewport.scale < TITLE_ONLY_SCALE;
 
         return (
             <div
@@ -1483,6 +1522,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     width: file.width,
                     height: file.height,
                 }}
+                data-file-node-id={file.id}
                 onClick={(event) => {
                     event.stopPropagation();
                     setSelectedFileId(file.id);
@@ -1499,53 +1539,65 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                             <div className="truncate text-[11px] text-muted-foreground">{file.id}</div>
                         </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                        <ToolbarButton
-                            onClick={() => setEditingFileId(isEditing ? null : file.id)}
-                            disabled={!isEditable}
-                            title={isEditing ? 'Close editor' : 'Edit file'}
-                            active={isEditing}
-                        >
-                            <Edit3 className="h-4 w-4" />
-                        </ToolbarButton>
-                        <ToolbarButton
-                            onClick={() => void handleConnectFile(file)}
-                            disabled={!isEditable}
-                            title="Connect file edge"
-                            active={isConnectSource}
-                        >
-                            <GitBranch className="h-4 w-4" />
-                        </ToolbarButton>
-                        <ToolbarButton
-                            onClick={() => setMaximizedFileId(file.id)}
-                            title="Maximize file"
-                        >
-                            <Maximize2 className="h-4 w-4" />
-                        </ToolbarButton>
-                        <ToolbarButton
-                            onClick={() => void handleDeleteFile(file)}
-                            disabled={!isEditable}
-                            title="Delete file"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </ToolbarButton>
-                    </div>
-                </div>
-
-                <div className="min-h-0 flex-1 p-0">
-                    {isEditing ? (
-                        <div
-                            className="file-ontology-scrollbar flex h-full flex-col overflow-auto p-3"
-                            onPointerDown={(event) => event.stopPropagation()}
-                        >
-                            {renderNodeEditor(file)}
+                    {!isTitleOnly ? (
+                        <div className="flex shrink-0 items-center gap-1">
+                            <ToolbarButton
+                                onClick={() => setEditingFileId(isEditing ? null : file.id)}
+                                disabled={!isEditable}
+                                title={isEditing ? 'Close editor' : 'Edit file'}
+                                active={isEditing}
+                            >
+                                <Edit3 className="h-4 w-4" />
+                            </ToolbarButton>
+                            <ToolbarButton
+                                onClick={() => void handleConnectFile(file)}
+                                disabled={!isEditable}
+                                title="Connect file edge"
+                                active={isConnectSource}
+                            >
+                                <GitBranch className="h-4 w-4" />
+                            </ToolbarButton>
+                            <ToolbarButton
+                                onClick={() => {
+                                    setSelectedFileId(file.id);
+                                    setMaximizedFileId(file.id);
+                                }}
+                                title="Maximize file"
+                            >
+                                <Maximize2 className="h-4 w-4" />
+                            </ToolbarButton>
+                            <ToolbarButton
+                                onClick={() => void handleDeleteFile(file)}
+                                disabled={!isEditable}
+                                title="Delete file"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </ToolbarButton>
                         </div>
-                    ) : (
-                        renderNodePreview(file)
-                    )}
+                    ) : null}
                 </div>
 
-                {isEditable ? (
+                {isTitleOnly ? (
+                    <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center">
+                        <div className="max-w-full truncate text-lg font-semibold text-foreground">{file.title}</div>
+                    </div>
+                ) : (
+                    <div className="min-h-0 flex-1 p-0">
+                        {isEditing ? (
+                            <div
+                                className="file-ontology-scrollbar flex h-full flex-col overflow-auto p-3"
+                                data-file-node-scroll="true"
+                                onPointerDown={(event) => event.stopPropagation()}
+                            >
+                                {renderNodeEditor(file)}
+                            </div>
+                        ) : (
+                            renderNodePreview(file, false, isSelected)
+                        )}
+                    </div>
+                )}
+
+                {isEditable && !isTitleOnly ? (
                     <button
                         type="button"
                         className="absolute bottom-1.5 right-1.5 h-4 w-4 cursor-nwse-resize border-b-2 border-r-2 border-foreground/50 bg-transparent"
@@ -1742,7 +1794,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             ) : null}
 
             {maximizedFile ? (
-                <div className="absolute inset-4 z-[80] flex flex-col overflow-hidden rounded-lg border border-foreground bg-background text-foreground shadow-none">
+                <div
+                    className="absolute inset-4 z-[80] flex flex-col overflow-hidden rounded-lg border border-foreground bg-background text-foreground shadow-none"
+                    data-file-node-id={maximizedFile.id}
+                    onPointerDown={(event) => event.stopPropagation()}
+                >
                     <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
                         <div className="flex min-w-0 items-center gap-2">
                             <FileText className="h-4 w-4 shrink-0" />
@@ -1770,10 +1826,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                             </ToolbarButton>
                         </div>
                     </div>
-                    <div className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-5">
+                    <div
+                        className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-5"
+                        data-file-node-scroll="true"
+                    >
                         {editingFileId === maximizedFile.id
                             ? renderNodeEditor(maximizedFile, true)
-                            : renderNodePreview(maximizedFile, true)}
+                            : renderNodePreview(maximizedFile, true, true)}
                     </div>
                 </div>
             ) : null}
