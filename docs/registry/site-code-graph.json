@@ -1,14 +1,14 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "956ed52ccdf703692fd3859ffbb5e49832905031",
-    "generated_at": "2026-05-16T02:53:52.233Z",
+    "commit": "a6ec20a8090a6db7bb6f0973d0190c4eae2bd5c9",
+    "generated_at": "2026-05-16T09:32:00.450Z",
     "extractor_version": "0.1.0",
-    "file_list_mode": "filesystem-fallback",
-    "tracked_file_count": 0,
-    "untracked_file_count": 188,
-    "scanned_file_count": 162,
-    "node_count": 131,
+    "file_list_mode": "git-ls-files",
+    "tracked_file_count": 378,
+    "untracked_file_count": 2,
+    "scanned_file_count": 163,
+    "node_count": 132,
     "edge_count": 202
   },
   "framework": {
@@ -576,6 +576,18 @@
       "status": "active",
       "label": "migration_add_sync_trigger",
       "source_path": "database/sql/migrations/migration_add_sync_trigger.sql",
+      "source_kind": "migration",
+      "generated_from": [
+        "git-ls-files",
+        "migration"
+      ]
+    },
+    {
+      "id": "database:migration-consolidate-fundamentals-chapter-1-file-ontology",
+      "type": "database",
+      "status": "active",
+      "label": "migration_consolidate_fundamentals_chapter1_file_ontology",
+      "source_path": "database/sql/migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql",
       "source_kind": "migration",
       "generated_from": [
         "git-ls-files",
@@ -4430,176 +4442,176 @@
   "file_index": [
     {
       "path": ".codex/agents/category_graph_designer.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/citation_grounder.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/corpus_profiler.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/derivation_reconstructor.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/equation_extractor.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/file_reader.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/graph_expansion_planner.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/graph_merger.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/graph_normalizer.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/knowledge_reconstruction_orchestrator.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/knowledge_repository_manager.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/learning_path_builder.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/logical_structure_validator.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/markdown_packager.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/node_doc_planner.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/node_doc_reviewer.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/node_doc_writer.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/node_reuse_resolver.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/node_spec_builder.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/recursive_subclassifier.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/scope_judge.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/top_classifier.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/upload_delta_analyzer.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/agents/web_mapper.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/config.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:config"
@@ -4607,8 +4619,8 @@
     },
     {
       "path": ".codex/project_pipeline_config.toml",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:project-pipeline-config"
@@ -4616,120 +4628,120 @@
     },
     {
       "path": ".codex/skills/frontend-site-implementation/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/frontend-site-implementation/references/frontend-map.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/graph-data-stewardship/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/graph-data-stewardship/references/db-and-mcp-rules.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/harness-memory/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/harness-memory/references/log-template.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/knowledge-reconstruction/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/knowledge-reconstruction/references/artifact-contracts.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/obsidian-site-code-registry/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/obsidian-site-code-registry/references/registry-contract.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/security-harness/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/website-content-authoring/SKILL.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": ".codex/skills/website-content-authoring/references/quill-katex-checklist.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "AGENTS.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "README.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "database/sql/README.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": []
     },
     {
       "path": "database/sql/archive/archive_graph_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:archive-graph-schema",
@@ -4740,8 +4752,8 @@
     },
     {
       "path": "database/sql/maintenance/check_purge_status.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:check-purge-status"
@@ -4749,8 +4761,8 @@
     },
     {
       "path": "database/sql/maintenance/clean_edges.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:clean-edges",
@@ -4759,8 +4771,8 @@
     },
     {
       "path": "database/sql/maintenance/purge_legacy_sections.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:purge-legacy-sections"
@@ -4768,8 +4780,8 @@
     },
     {
       "path": "database/sql/maintenance/safe_schema_update.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:safe-schema-update",
@@ -4779,8 +4791,8 @@
     },
     {
       "path": "database/sql/migrations/migration_add_content.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-add-content"
@@ -4788,8 +4800,8 @@
     },
     {
       "path": "database/sql/migrations/migration_add_file_ontology_workflow.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-add-file-ontology-workflow",
@@ -4800,8 +4812,8 @@
     },
     {
       "path": "database/sql/migrations/migration_add_light_content.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-add-light-content",
@@ -4810,17 +4822,26 @@
     },
     {
       "path": "database/sql/migrations/migration_add_sync_trigger.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-add-sync-trigger"
       ]
     },
     {
-      "path": "database/sql/migrations/migration_fix_wave_particle.sql",
+      "path": "database/sql/migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql",
       "tracked": false,
       "untracked": true,
+      "kind": "sql",
+      "node_ids": [
+        "database:migration-consolidate-fundamentals-chapter-1-file-ontology"
+      ]
+    },
+    {
+      "path": "database/sql/migrations/migration_fix_wave_particle.sql",
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-fix-wave-particle"
@@ -4828,8 +4849,8 @@
     },
     {
       "path": "database/sql/migrations/migration_prune_orphans.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-prune-orphans"
@@ -4837,8 +4858,8 @@
     },
     {
       "path": "database/sql/migrations/migration_purge_function.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-purge-function"
@@ -4846,8 +4867,8 @@
     },
     {
       "path": "database/sql/migrations/migration_sync_fields.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-sync-fields"
@@ -4855,8 +4876,8 @@
     },
     {
       "path": "database/sql/migrations/migration_sync_graph.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-sync-graph"
@@ -4864,8 +4885,8 @@
     },
     {
       "path": "database/sql/schema/complete_graph_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:complete-graph-schema"
@@ -4873,8 +4894,8 @@
     },
     {
       "path": "database/sql/schema/file_ontology_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:file-ontology-schema",
@@ -4884,8 +4905,8 @@
     },
     {
       "path": "database/sql/schema/hierarchical_graph_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:hierarchical-graph-schema"
@@ -4893,8 +4914,8 @@
     },
     {
       "path": "database/sql/schema/knowledge_repository_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:knowledge-repository-schema",
@@ -4907,8 +4928,8 @@
     },
     {
       "path": "database/sql/schema/ontology_paper_system_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:ontology-paper-system-schema",
@@ -4927,8 +4948,8 @@
     },
     {
       "path": "database/sql/schema/schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:schema",
@@ -4939,8 +4960,8 @@
     },
     {
       "path": "database/sql/schema/update_graph_schema.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:update-graph-schema"
@@ -4948,134 +4969,134 @@
     },
     {
       "path": "docs/file_to_website_markdown_pipeline.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/index.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/reference-rules.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/security.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/system-catalog.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/trial-and-error-log.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/harness/verification.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/knowledge_reconstruction_architecture.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step1_Draft.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step1_Light.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step2_Draft.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step2_Light.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step3_Draft.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/Planck_Step3_Light.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/fundamentals_chapter1_chunk_inventory.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/large_file_ontology_workflow.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/topic_authoring_guidelines.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/reference/website_structure.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "docs",
       "node_ids": []
     },
     {
       "path": "docs/registry/site-code-graph.schema.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:site-code-graph-schema"
@@ -5083,8 +5104,8 @@
     },
     {
       "path": "eslint.config.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:eslint-config"
@@ -5092,22 +5113,22 @@
     },
     {
       "path": "mcp-server/README.md",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "mcp-server/package-lock.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "mcp-server/package.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:mcp-server-package"
@@ -5115,22 +5136,22 @@
     },
     {
       "path": "mcp-server/src/constants.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": []
     },
     {
       "path": "mcp-server/src/env.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": []
     },
     {
       "path": "mcp-server/src/index.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": [
         "file:index",
@@ -5149,8 +5170,8 @@
     },
     {
       "path": "mcp-server/src/repository.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": [
         "file:repository"
@@ -5158,15 +5179,15 @@
     },
     {
       "path": "mcp-server/src/slug.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": []
     },
     {
       "path": "mcp-server/src/supabase.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": [
         "file:src-supabase"
@@ -5174,15 +5195,15 @@
     },
     {
       "path": "mcp-server/src/types.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "mcp-source",
       "node_ids": []
     },
     {
       "path": "mcp-server/tsconfig.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:mcp-server-tsconfig"
@@ -5190,15 +5211,15 @@
     },
     {
       "path": "package-lock.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "package.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:package"
@@ -5206,8 +5227,8 @@
     },
     {
       "path": "postcss.config.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:postcss-config"
@@ -5215,22 +5236,22 @@
     },
     {
       "path": "scripts/seed-mosfet-ontology.mjs",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "scripts/verify-mosfet-ontology.mjs",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "src/App.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:app",
@@ -5244,8 +5265,8 @@
     },
     {
       "path": "src/components/admin/DirectoryStructureManager.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:directory-structure-manager"
@@ -5253,8 +5274,8 @@
     },
     {
       "path": "src/components/admin/KnowledgeImportManager.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:knowledge-import-manager"
@@ -5262,8 +5283,8 @@
     },
     {
       "path": "src/components/auth/LoginDialog.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:login-dialog"
@@ -5271,8 +5292,8 @@
     },
     {
       "path": "src/components/graph/FileOntologyCanvas.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:file-ontology-canvas"
@@ -5280,8 +5301,8 @@
     },
     {
       "path": "src/components/graph/OntologyGraphView.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:ontology-graph-view"
@@ -5289,8 +5310,8 @@
     },
     {
       "path": "src/components/layout/Layout.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:layout"
@@ -5298,8 +5319,8 @@
     },
     {
       "path": "src/components/layout/Navbar.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:navbar"
@@ -5307,8 +5328,8 @@
     },
     {
       "path": "src/components/ui/Button.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:button"
@@ -5316,8 +5337,8 @@
     },
     {
       "path": "src/components/ui/Dialog.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:dialog"
@@ -5325,8 +5346,8 @@
     },
     {
       "path": "src/components/ui/ImageUpload.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:image-upload"
@@ -5334,8 +5355,8 @@
     },
     {
       "path": "src/components/ui/Input.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": [
         "component:input"
@@ -5343,15 +5364,15 @@
     },
     {
       "path": "src/components/ui/index.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "component-source",
       "node_ids": []
     },
     {
       "path": "src/data/archiveFundamentals.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:archive-fundamentals"
@@ -5359,22 +5380,22 @@
     },
     {
       "path": "src/data/archiveFundamentalsGrounding.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "src/data/fundamentalsChapter1Ontology.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "src/data/seed.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:seed"
@@ -5382,8 +5403,8 @@
     },
     {
       "path": "src/data/storage.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:storage"
@@ -5391,8 +5412,8 @@
     },
     {
       "path": "src/data/topicContentOverrides.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:topic-content-overrides"
@@ -5400,15 +5421,15 @@
     },
     {
       "path": "src/index.css",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "src/lib/archiveSchema.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:archive-schema"
@@ -5416,8 +5437,8 @@
     },
     {
       "path": "src/lib/auth.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:auth"
@@ -5425,8 +5446,8 @@
     },
     {
       "path": "src/lib/backlinks.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:backlinks"
@@ -5434,8 +5455,8 @@
     },
     {
       "path": "src/lib/cn.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:cn"
@@ -5443,8 +5464,8 @@
     },
     {
       "path": "src/lib/concepts.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:concepts"
@@ -5452,8 +5473,8 @@
     },
     {
       "path": "src/lib/fileOntology.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:file-ontology"
@@ -5461,8 +5482,8 @@
     },
     {
       "path": "src/lib/graphLayouts.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:graph-layouts"
@@ -5470,8 +5491,8 @@
     },
     {
       "path": "src/lib/graphModel.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:graph-model"
@@ -5479,8 +5500,8 @@
     },
     {
       "path": "src/lib/graphSpheres.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:graph-spheres"
@@ -5488,8 +5509,8 @@
     },
     {
       "path": "src/lib/knowledgePipeline.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:knowledge-pipeline"
@@ -5497,8 +5518,8 @@
     },
     {
       "path": "src/lib/knowledgeSchema.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:knowledge-schema"
@@ -5506,8 +5527,8 @@
     },
     {
       "path": "src/lib/knowledgeTaxonomy.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:knowledge-taxonomy"
@@ -5515,8 +5536,8 @@
     },
     {
       "path": "src/lib/knowledgeWriting.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:knowledge-writing"
@@ -5524,15 +5545,15 @@
     },
     {
       "path": "src/lib/ontologyWorkflow.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "src/lib/renderTopicMath.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:render-topic-math"
@@ -5540,8 +5561,8 @@
     },
     {
       "path": "src/lib/sourceText.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:source-text"
@@ -5549,8 +5570,8 @@
     },
     {
       "path": "src/lib/supabase.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:supabase"
@@ -5558,8 +5579,8 @@
     },
     {
       "path": "src/lib/theme.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:theme"
@@ -5567,8 +5588,8 @@
     },
     {
       "path": "src/lib/topicSlug.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:topic-slug"
@@ -5576,8 +5597,8 @@
     },
     {
       "path": "src/main.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": [
         "file:main"
@@ -5585,8 +5606,8 @@
     },
     {
       "path": "src/pages/GraphOverviewPage.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "page-source",
       "node_ids": [
         "page:graph-overview-page"
@@ -5594,8 +5615,8 @@
     },
     {
       "path": "src/pages/Home.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "page-source",
       "node_ids": [
         "page:home"
@@ -5603,8 +5624,8 @@
     },
     {
       "path": "src/pages/TimelinePage.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "page-source",
       "node_ids": [
         "page:timeline-page"
@@ -5612,8 +5633,8 @@
     },
     {
       "path": "src/pages/TopicPage.tsx",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "page-source",
       "node_ids": [
         "page:topic-page"
@@ -5621,15 +5642,15 @@
     },
     {
       "path": "src/types/quill.d.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },
     {
       "path": "tailwind.config.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:tailwind-config"
@@ -5637,36 +5658,36 @@
     },
     {
       "path": "tools/extraction/extract_db_schema.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/extraction/extract_import_graph.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/extraction/extract_repo_structure.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/extraction/extract_routes.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/extraction/generate_site_code_graph.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:generate-site-code-graph"
@@ -5674,15 +5695,15 @@
     },
     {
       "path": "tools/extraction/registry_core.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/extraction/render_obsidian_registry.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:render-obsidian-registry"
@@ -5690,8 +5711,8 @@
     },
     {
       "path": "tools/validation/validate_obsidian_links.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:validate-obsidian-links"
@@ -5699,8 +5720,8 @@
     },
     {
       "path": "tools/validation/validate_registry_drift.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:validate-registry-drift"
@@ -5708,15 +5729,15 @@
     },
     {
       "path": "tools/validation/validate_security_harness.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": []
     },
     {
       "path": "tools/validation/validate_site_code_graph.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:validate-site-code-graph"
@@ -5724,8 +5745,8 @@
     },
     {
       "path": "tools/validation/validate_source_paths.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "harness-tool",
       "node_ids": [
         "file:validate-source-paths"
@@ -5733,8 +5754,8 @@
     },
     {
       "path": "tsconfig.app.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:tsconfig-app"
@@ -5742,8 +5763,8 @@
     },
     {
       "path": "tsconfig.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:tsconfig"
@@ -5751,8 +5772,8 @@
     },
     {
       "path": "tsconfig.node.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:tsconfig-node"
@@ -5760,8 +5781,8 @@
     },
     {
       "path": "vercel.json",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:vercel"
@@ -5769,19 +5790,13 @@
     },
     {
       "path": "vite.config.js",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "config",
       "node_ids": [
         "config:vite-config"
       ]
     }
   ],
-  "warnings": [
-    {
-      "level": "warning",
-      "source_path": ".git",
-      "message": "Node child_process could not execute git ls-files in this sandbox, so extraction used a filesystem fallback and manual .git metadata parsing."
-    }
-  ]
+  "warnings": []
 }

@@ -7,89 +7,60 @@
     "chapter_concept_end_pdf_page": 35,
     "problem_set_start_pdf_page": 36
   },
-  "copyright_policy": "The graph nodes are compact study notes and ontology links, not verbatim chapter reproduction.",
+  "copyright_policy": "The graph node is a compact study note and ontology guide, not verbatim chapter reproduction.",
+  "ontology_granularity_decision": {
+    "decision": "single_file_node",
+    "file_node_id": "fundamentals-ch1-measurement",
+    "reason": "Chapter 1 sections are brief introductory units. Preserving them as headings inside one file node keeps provenance and source structure without fragmenting the graph canvas."
+  },
   "chunks": [
     {
       "chunk_id": "source:halliday-fundamentals-ch1:module_1_1:intake",
       "pdf_pages": [28],
       "chapter_section": "1-1 Measuring Things, Including Lengths",
       "focus": "measurement as comparison with standards; physical quantities and SI base quantities",
-      "mapped_file_nodes": [
-        "fundamentals-ch1-measurement-map",
-        "measurement-in-physics",
-        "physical-quantity",
-        "base-quantity",
-        "unit-standard",
-        "si-system"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     },
     {
       "chunk_id": "source:halliday-fundamentals-ch1:module_1_1:unit_system",
       "pdf_pages": [29, 30],
       "chapter_section": "1-1 Measuring Things, Including Lengths",
       "focus": "SI units, prefixes, and chain-link conversion",
-      "mapped_file_nodes": [
-        "si-system",
-        "si-prefixes",
-        "chain-link-conversion",
-        "conversion-factor",
-        "derived-quantity"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     },
     {
       "chunk_id": "source:halliday-fundamentals-ch1:module_1_1:length_standard",
       "pdf_pages": [31],
       "chapter_section": "1-1 Measuring Things, Including Lengths",
       "focus": "length measurement, meter standard, and numerical precision in length reporting",
-      "mapped_file_nodes": [
-        "length",
-        "meter",
-        "significant-figures",
-        "decimal-places"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     },
     {
       "chunk_id": "source:halliday-fundamentals-ch1:module_1_2:time",
       "pdf_pages": [32, 33],
       "chapter_section": "1-2 Time",
       "focus": "time as event order and duration; second and atomic clock standards",
-      "mapped_file_nodes": [
-        "time",
-        "second",
-        "atomic-clock",
-        "unit-standard"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     },
     {
       "chunk_id": "source:halliday-fundamentals-ch1:module_1_3:mass",
       "pdf_pages": [34],
       "chapter_section": "1-3 Mass",
       "focus": "mass as base quantity and kilogram as SI standard",
-      "mapped_file_nodes": [
-        "mass",
-        "kilogram",
-        "si-system",
-        "base-quantity"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     },
     {
       "chunk_id": "source:halliday-fundamentals-ch1:review_summary",
       "pdf_pages": [35],
       "chapter_section": "Review & Summary",
       "focus": "summary-level consolidation of base quantities, units, conversion, and measurement reporting",
-      "mapped_file_nodes": [
-        "measurement-in-physics",
-        "base-quantity",
-        "derived-quantity",
-        "chain-link-conversion",
-        "significant-figures"
-      ]
+      "mapped_file_nodes": ["fundamentals-ch1-measurement"]
     }
   ],
   "excluded_ranges": [
     {
       "pdf_pages": [36, 37, 38, 39],
-      "reason": "Problem set pages were not copied into graph nodes. They may later become exercise nodes or links, but are not part of this concept ontology import."
+      "reason": "Problem set pages were not copied into graph nodes. They may later become exercise nodes or links, but are not part of this compact source ontology import."
     }
   ]
 }

@@ -27,6 +27,8 @@ This folder groups SQL by purpose so the active website structure is easier to r
   - Additive `/graph` file ontology canvas tables for markdown files, hidden summaries, positions, and labeled file edges.
 - `migrations/migration_add_file_ontology_workflow.sql`
   - Adds workflow run, artifact, and highlight-mention tables for graph-view ontology expansion.
+- `migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql`
+  - Collapses the Halliday/Fundamentals Chapter 1 starter ontology into one compact file node and widens starter node spacing.
 - `migrations/`
   - Follow filename order by intent; each file is a targeted change, not a full reset.
 - `maintenance/check_purge_status.sql`

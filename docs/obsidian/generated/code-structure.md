@@ -2,8 +2,8 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 162
-- Nodes generated: 131
+- Files scanned: 163
+- Nodes generated: 132
 - Edges generated: 202
 
 ## .codex
@@ -23,8 +23,8 @@
 
 ## database
 
-- Files scanned: 22
-- Registry nodes: 21
+- Files scanned: 23
+- Registry nodes: 22
 
 - `database/sql/archive/archive_graph_schema.sql` -> [[database-archive-graph-schema]], [[table-archive-topics]], [[table-archive-graph-nodes]], [[table-archive-graph-edges]]
 - `database/sql/maintenance/check_purge_status.sql` -> [[database-check-purge-status]]
@@ -35,6 +35,7 @@
 - `database/sql/migrations/migration_add_file_ontology_workflow.sql` -> [[database-migration-add-file-ontology-workflow]], [[table-file-ontology-generation-runs]], [[table-file-ontology-generation-artifacts]], [[table-file-ontology-link-mentions]]
 - `database/sql/migrations/migration_add_light_content.sql` -> [[database-migration-add-light-content]], [[table-topic-sections]]
 - `database/sql/migrations/migration_add_sync_trigger.sql` -> [[database-migration-add-sync-trigger]]
+- `database/sql/migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql` -> [[database-migration-consolidate-fundamentals-chapter-1-file-ontology]]
 - `database/sql/migrations/migration_fix_wave_particle.sql` -> [[database-migration-fix-wave-particle]]
 - `database/sql/migrations/migration_prune_orphans.sql` -> [[database-migration-prune-orphans]]
 - `database/sql/migrations/migration_purge_function.sql` -> [[database-migration-purge-function]]

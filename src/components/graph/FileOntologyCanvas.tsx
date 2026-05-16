@@ -126,9 +126,67 @@ const MIN_NODE_WIDTH = 280;
 const MIN_NODE_HEIGHT = 210;
 const MAX_NODE_WIDTH = 1200;
 const MAX_NODE_HEIGHT = 900;
+const LAYOUT_COLUMN_GAP = 860;
+const LAYOUT_ROW_GAP = 620;
+const LAYOUT_ORIGIN_X = 160;
+const LAYOUT_ORIGIN_Y = 160;
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
+}
+
+function optimizeFileOntologyLayout(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
+    const incomingCounts = new Map(files.map((file) => [file.id, 0]));
+    const adjacency = new Map(files.map((file) => [file.id, [] as string[]]));
+
+    edges.forEach((edge) => {
+        if (!incomingCounts.has(edge.sourceFileId) || !incomingCounts.has(edge.targetFileId)) return;
+        incomingCounts.set(edge.targetFileId, (incomingCounts.get(edge.targetFileId) ?? 0) + 1);
+        adjacency.get(edge.sourceFileId)?.push(edge.targetFileId);
+    });
+
+    const rankById = new Map<string, number>();
+    const queue = files.filter((file) => (incomingCounts.get(file.id) ?? 0) === 0).map((file) => file.id);
+    if (queue.length === 0 && files[0]) queue.push(files[0].id);
+
+    queue.forEach((fileId) => rankById.set(fileId, 0));
+
+    const maxRelaxations = Math.max(1, files.length * files.length);
+    for (let cursor = 0; cursor < queue.length && cursor < maxRelaxations; cursor += 1) {
+        const fileId = queue[cursor];
+        const nextRank = (rankById.get(fileId) ?? 0) + 1;
+        adjacency.get(fileId)?.forEach((targetId) => {
+            if ((rankById.get(targetId) ?? -1) < nextRank) {
+                rankById.set(targetId, nextRank);
+                queue.push(targetId);
+            }
+        });
+    }
+
+    files.forEach((file) => {
+        if (!rankById.has(file.id)) rankById.set(file.id, 0);
+    });
+
+    const rowsByRank = new Map<number, FileOntologyFile[]>();
+    files.forEach((file) => {
+        const rank = rankById.get(file.id) ?? 0;
+        rowsByRank.set(rank, [...(rowsByRank.get(rank) ?? []), file]);
+    });
+
+    const orderedRanks = Array.from(rowsByRank.keys()).sort((a, b) => a - b);
+    const indexById = new Map(files.map((file, index) => [file.id, index]));
+
+    return orderedRanks.flatMap((rank) => {
+        const rankedFiles = [...(rowsByRank.get(rank) ?? [])].sort(
+            (a, b) => (indexById.get(a.id) ?? 0) - (indexById.get(b.id) ?? 0),
+        );
+
+        return rankedFiles.map((file, row) => ({
+            ...file,
+            x: LAYOUT_ORIGIN_X + rank * LAYOUT_COLUMN_GAP,
+            y: LAYOUT_ORIGIN_Y + row * LAYOUT_ROW_GAP,
+        }));
+    });
 }
 
 function isInteractiveCanvasTarget(target: EventTarget | null) {
@@ -1049,6 +1107,23 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         }
     };
 
+    const handleOptimizeLayout = async () => {
+        const optimizedFiles = optimizeFileOntologyLayout(filesRef.current, edges);
+        setFiles(optimizedFiles);
+        setSelectedFileId(optimizedFiles[0]?.id ?? null);
+        setViewport({ x: 80, y: 40, scale: 0.72 });
+        setStatusMessage('Optimized graph layout with wider file-node spacing.');
+
+        if (!isEditable) return;
+
+        try {
+            await Promise.all(optimizedFiles.map((file) => saveFileOntologyFilePosition(file)));
+            setStatusMessage('Optimized graph layout and saved node positions.');
+        } catch (error) {
+            reportWriteError('Layout optimize', error);
+        }
+    };
+
     const handleAddFile = async () => {
         if (!isEditable) return;
 
@@ -1601,6 +1676,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     </ToolbarButton>
                     <ToolbarButton onClick={() => zoomBy(0.9)} title="Zoom out">
                         <ZoomOut className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => void handleOptimizeLayout()} title="Optimize layout spacing">
+                        <GitBranch className="h-4 w-4" />
                     </ToolbarButton>
                     <ToolbarButton
                         onClick={() => setViewport({ x: 80, y: 40, scale: 0.92 })}

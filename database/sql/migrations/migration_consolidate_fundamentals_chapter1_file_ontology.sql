@@ -1,15 +1,21 @@
-import type { FileOntologyEdge, FileOntologyFile } from '../lib/fileOntology';
+-- Consolidate Halliday/Fundamentals Chapter 1 file ontology into one compact chapter node.
+-- Rationale: Chapter 1 sections are short, so many tiny file nodes reduce graph readability.
+-- This migration is idempotent and only targets the known Chapter 1 starter ontology ids.
 
-export const FUNDAMENTALS_CHAPTER_1_SOURCE =
-    'Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 1: Measurement, PDF pages 28-35.';
+begin;
 
-const FUNDAMENTALS_CHAPTER_1_CONTENT = `# Fundamentals Chapter 1: Measurement
+insert into public.file_ontology_files (id, title, summary, content, x, y, width, height)
+values (
+    'fundamentals-ch1-measurement',
+    'Fundamentals Chapter 1: Measurement',
+    'Single-node ontology file for Halliday Fundamentals of Physics Chapter 1. Short sections are preserved inside one chapter file to avoid unnecessary graph fragmentation.',
+    $markdown$# Fundamentals Chapter 1: Measurement
 
 This file intentionally keeps Chapter 1 as one compact source node. The chapter sections are short introductory notes, so splitting them into many separate file nodes would make the ontology harder to read without adding much semantic value.
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_1_SOURCE}
+Source basis: Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 1: Measurement, PDF pages 28-35.
 
 Chapter 1 introduces measurement as the operational base of physics: physical quantities are compared against agreed standards and reported with numbers, units, and appropriate precision.
 
@@ -61,20 +67,82 @@ Use separate file nodes only when a section or concept has enough independent ex
 - SI system and prefixes: standardized unit framework.
 - Chain-link conversion: algebraic unit conversion using equivalent ratios.
 - Numerical precision: significant figures and decimal places.
-`;
+$markdown$,
+    720,
+    120,
+    680,
+    560
+)
+on conflict (id) do update set
+    title = excluded.title,
+    summary = excluded.summary,
+    content = excluded.content,
+    x = excluded.x,
+    y = excluded.y,
+    width = excluded.width,
+    height = excluded.height,
+    updated_at = now();
 
-export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [
-    {
-        id: 'fundamentals-ch1-measurement',
-        title: 'Fundamentals Chapter 1: Measurement',
-        summary:
-            'Single-node ontology file for Halliday Fundamentals of Physics Chapter 1. Short sections are preserved inside one chapter file to avoid unnecessary graph fragmentation.',
-        content: FUNDAMENTALS_CHAPTER_1_CONTENT,
-        x: 720,
-        y: 120,
-        width: 680,
-        height: 560,
-    },
-];
+with old_chapter_nodes(id) as (
+    values
+        ('fundamentals-ch1-measurement-map'),
+        ('measurement-in-physics'),
+        ('physical-quantity'),
+        ('base-quantity'),
+        ('derived-quantity'),
+        ('unit-standard'),
+        ('si-system'),
+        ('si-prefixes'),
+        ('chain-link-conversion'),
+        ('conversion-factor'),
+        ('length'),
+        ('meter'),
+        ('significant-figures'),
+        ('decimal-places'),
+        ('time'),
+        ('second'),
+        ('atomic-clock'),
+        ('mass'),
+        ('kilogram')
+)
+delete from public.file_ontology_edges edge
+using old_chapter_nodes old_node
+where edge.source_file_id = old_node.id
+   or edge.target_file_id = old_node.id;
 
-export const FUNDAMENTALS_CHAPTER_1_EDGES: FileOntologyEdge[] = [];
+with old_chapter_nodes(id) as (
+    values
+        ('fundamentals-ch1-measurement-map'),
+        ('measurement-in-physics'),
+        ('physical-quantity'),
+        ('base-quantity'),
+        ('derived-quantity'),
+        ('unit-standard'),
+        ('si-system'),
+        ('si-prefixes'),
+        ('chain-link-conversion'),
+        ('conversion-factor'),
+        ('length'),
+        ('meter'),
+        ('significant-figures'),
+        ('decimal-places'),
+        ('time'),
+        ('second'),
+        ('atomic-clock'),
+        ('mass'),
+        ('kilogram')
+)
+delete from public.file_ontology_files file
+using old_chapter_nodes old_node
+where file.id = old_node.id;
+
+-- Keep the starter documentation nodes readable and farther apart.
+update public.file_ontology_files
+set x = 80, y = 120, width = greatest(width, 440), height = greatest(height, 340), updated_at = now()
+where id = 'file-ontology-index';
+
+update public.file_ontology_files
+set x = 80, y = 760, width = greatest(width, 420), height = greatest(height, 320), updated_at = now()
+where id = 'file-ontology-links';
+
+commit;

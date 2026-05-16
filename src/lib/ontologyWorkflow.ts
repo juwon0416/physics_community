@@ -10,6 +10,8 @@ export type OntologyWorkflowIntent = 'concept_file' | 'paper_integration';
 
 export type OntologyWorkflowFileKind = 'concept' | 'paper' | 'stub' | 'integration_map';
 
+type OntologySplitDecision = 'single_source_file' | 'source_plus_integration_map' | 'expanded_concept_neighborhood';
+
 export interface OntologyWorkflowInput {
     mode: OntologyWorkflowMode;
     title: string;
@@ -192,9 +194,50 @@ const CONCEPT_PATTERNS: ConceptPattern[] = [
 ];
 
 const PAPER_SECTION_PATTERN = /(^|\n)\s*#{1,3}\s+(abstract|introduction|references|conclusion|methods|results|discussion)\b/i;
+const MARKDOWN_HEADING_PATTERN = /^\s*#{1,3}\s+.+$/gm;
+const LIGHTWEIGHT_SECTION_PATTERN = /\b(chapter|section|섹션|장|절|introductory|overview|개요|입문)\b/i;
+const FORCE_SPLIT_PATTERN = /\b(split|separate|node per|file per|detailed ontology|argument graph|claim graph|세분화|쪼개|나눠|파일 노드로 분리)\b/i;
+const FORCE_SINGLE_FILE_PATTERN = /\b(single file|one file|one node|compact|do not split|don't split|통합|하나의 파일|하나로|나누지|쪼개지)\b/i;
 
 function normalizeText(value: string) {
     return value.trim().replace(/\s+/g, ' ');
+}
+
+function countMarkdownHeadings(markdown: string) {
+    return Array.from(markdown.matchAll(MARKDOWN_HEADING_PATTERN)).length;
+}
+
+function estimateWordCount(value: string) {
+    const asciiWords = value.match(/[A-Za-z0-9_]+/g)?.length ?? 0;
+    const koreanRuns = value.match(/[가-힣]+/g)?.length ?? 0;
+    return asciiWords + koreanRuns;
+}
+
+function decideSplitStrategy(input: OntologyWorkflowInput, intent: OntologyWorkflowIntent, detectedConceptCount: number): OntologySplitDecision {
+    const text = [input.title, input.userGoal, input.researchNotes, input.paperMarkdown].join('\n');
+    const wordCount = estimateWordCount(text);
+    const headingCount = countMarkdownHeadings(input.paperMarkdown);
+    const userAskedForSingleFile = FORCE_SINGLE_FILE_PATTERN.test(text);
+    const userAskedForSplit = FORCE_SPLIT_PATTERN.test(text);
+    const looksLikeLightweightChapter = LIGHTWEIGHT_SECTION_PATTERN.test(text) && wordCount < 1800;
+
+    if (userAskedForSingleFile) return 'single_source_file';
+    if (userAskedForSplit) return 'expanded_concept_neighborhood';
+
+    if (intent === 'paper_integration') {
+        if (wordCount < 1200 || headingCount <= 4 || looksLikeLightweightChapter || detectedConceptCount <= 2) {
+            return 'single_source_file';
+        }
+
+        if (wordCount < 3200 || detectedConceptCount <= 4) {
+            return 'source_plus_integration_map';
+        }
+
+        return 'expanded_concept_neighborhood';
+    }
+
+    if (detectedConceptCount > 5 && wordCount > 1200) return 'expanded_concept_neighborhood';
+    return 'source_plus_integration_map';
 }
 
 function createRunId() {
@@ -268,11 +311,13 @@ function edgeExists(edge: FileOntologyEdge, existingEdges: FileOntologyEdge[], d
 
 function filePosition(index: number, existingFiles: FileOntologyFile[]) {
     const maxX = Math.max(120, ...existingFiles.map((file) => file.x + file.width));
-    const baseY = Math.max(120, ...existingFiles.map((file) => Math.min(file.y, 720)));
+    const lanes = Math.max(1, Math.ceil(Math.sqrt(index + 1)));
+    const column = index % lanes;
+    const row = Math.floor(index / lanes);
 
     return {
-        x: maxX + 140 + (index % 2) * 460,
-        y: baseY + Math.floor(index / 2) * 380,
+        x: maxX + 240 + column * 760,
+        y: 140 + row * 560,
     };
 }
 
@@ -483,6 +528,9 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
     const edgeDrafts: OntologyWorkflowEdgeDraft[] = [];
     const sourceType = intent === 'paper_integration' ? 'paper_markdown' : 'user_prompt';
     const concepts = resolveConcepts(input, title, intent === 'concept_file');
+    const splitDecision = decideSplitStrategy(input, intent, concepts.length);
+    const shouldCreateConceptFiles = splitDecision === 'expanded_concept_neighborhood';
+    const shouldCreateIntegrationMap = intent === 'paper_integration' && splitDecision !== 'single_source_file';
 
     if (intent === 'paper_integration' && !input.paperMarkdown.trim()) {
         warnings.push('Paper integration was selected, but no paper markdown was provided.');
@@ -499,12 +547,23 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
     };
 
     const relatedConcepts =
-        intent === 'paper_integration'
-            ? concepts
-            : concepts.filter((concept) => concept.id !== primaryConcept.id);
+        splitDecision === 'single_source_file'
+            ? []
+            : intent === 'paper_integration'
+              ? concepts
+              : concepts.filter((concept) => concept.id !== primaryConcept.id);
+    const linkableRelatedConcepts = relatedConcepts.filter(
+        (concept) => shouldCreateConceptFiles || concept.existingFile,
+    );
+
+    if (!shouldCreateConceptFiles && relatedConcepts.some((concept) => !concept.existingFile)) {
+        warnings.push(
+            'Some detected concepts were kept inside the source file instead of being split into separate file nodes.',
+        );
+    }
 
     relatedConcepts.forEach((concept, index) => {
-        if (concept.existingFile) return;
+        if (!shouldCreateConceptFiles || concept.existingFile) return;
 
         const position = filePosition(fileDrafts.length + index, input.existingFiles);
         fileDrafts.push({
@@ -529,9 +588,12 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
 
     if (intent === 'paper_integration') {
         const paperFileId = makeUniqueFileId(paperTitle, input.existingFiles, reservedIds, 'paper ');
-        const mapFileId = makeUniqueFileId(`${paperTitle} Integration Map`, input.existingFiles, reservedIds);
         const paperPosition = filePosition(fileDrafts.length, input.existingFiles);
-        const mapPosition = filePosition(fileDrafts.length + 1, input.existingFiles);
+        const sourceContent = input.paperMarkdown.trim() || [
+            `# ${paperTitle}`,
+            '',
+            normalizeText(input.researchNotes) || 'Source material is intentionally kept as one compact ontology file.',
+        ].join('\n');
 
         fileDrafts.unshift({
             kind: 'paper',
@@ -539,37 +601,52 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             file: {
                 id: paperFileId,
                 title: paperTitle,
-                summary: 'Structure-preserving paper mirror. Wiki integration links are stored in the integration map and workflow metadata.',
-                content: input.paperMarkdown,
+                summary:
+                    splitDecision === 'single_source_file'
+                        ? 'Compact source mirror kept as one file node because the material is lightweight or the user requested no split.'
+                        : 'Structure-preserving source mirror. Wiki integration links are stored in the integration map and workflow metadata.',
+                content: sourceContent,
                 x: paperPosition.x,
                 y: paperPosition.y,
-                width: 560,
-                height: 460,
+                width: splitDecision === 'single_source_file' ? 680 : 560,
+                height: splitDecision === 'single_source_file' ? 520 : 460,
             },
         });
 
-        fileDrafts.splice(1, 0, {
-            kind: 'integration_map',
-            action: 'create',
-            file: {
-                id: mapFileId,
-                title: `${paperTitle} Integration Map`,
-                summary: 'Connects a preserved paper mirror to reusable concept files and argument-flow neighborhoods.',
-                content: buildPaperIntegrationMap(paperTitle, paperFileId, relatedConcepts, input.userGoal),
-                x: mapPosition.x,
-                y: mapPosition.y,
-                width: 520,
-                height: 420,
-            },
-        });
-
-        sourceFileId = mapFileId;
-        sourceTitle = `${paperTitle} Integration Map`;
         primaryFileId = paperFileId;
-        addEdgeDraft(mapFileId, paperFileId, 'preserves_source_structure', input.existingEdges, edgeDrafts);
+
+        if (shouldCreateIntegrationMap) {
+            const mapFileId = makeUniqueFileId(`${paperTitle} Integration Map`, input.existingFiles, reservedIds);
+            const mapPosition = filePosition(fileDrafts.length + 1, input.existingFiles);
+
+            fileDrafts.splice(1, 0, {
+                kind: 'integration_map',
+                action: 'create',
+                file: {
+                    id: mapFileId,
+                    title: `${paperTitle} Integration Map`,
+                    summary: 'Connects a preserved source mirror to reusable concept files and argument-flow neighborhoods.',
+                    content: buildPaperIntegrationMap(paperTitle, paperFileId, linkableRelatedConcepts, input.userGoal),
+                    x: mapPosition.x,
+                    y: mapPosition.y,
+                    width: 520,
+                    height: 420,
+                },
+            });
+
+            sourceFileId = mapFileId;
+            sourceTitle = `${paperTitle} Integration Map`;
+            addEdgeDraft(mapFileId, paperFileId, 'preserves_source_structure', input.existingEdges, edgeDrafts);
+        } else {
+            sourceFileId = paperFileId;
+            sourceTitle = paperTitle;
+            warnings.push(
+                'Split decision: single source file. Sections stay inside the markdown body instead of becoming separate file nodes.',
+            );
+        }
     } else {
         const existingPrimary = primaryConcept.existingFile;
-        const content = buildConceptContent(primaryConcept, relatedConcepts, input.userGoal);
+        const content = buildConceptContent(primaryConcept, linkableRelatedConcepts, input.userGoal);
 
         if (existingPrimary) {
             fileDrafts.unshift({
@@ -605,8 +682,8 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
         }
     }
 
-    const highlights = buildHighlightPlan(sourceFileId, sourceTitle, relatedConcepts);
-    relatedConcepts.forEach((concept) => {
+    const highlights = buildHighlightPlan(sourceFileId, sourceTitle, linkableRelatedConcepts);
+    linkableRelatedConcepts.forEach((concept) => {
         addEdgeDraft(sourceFileId, targetFileId(concept), concept.relation, input.existingEdges, edgeDrafts);
     });
 
@@ -620,7 +697,9 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
         title,
         summary:
             intent === 'paper_integration'
-                ? `Paper mirror plus ontology integration map with ${highlights.length} planned concept highlights.`
+                ? splitDecision === 'single_source_file'
+                    ? 'Single source file workflow: lightweight source sections were kept inside one file node.'
+                    : `Source mirror workflow with ${highlights.length} planned concept highlights.`
                 : `Concept workflow with ${highlights.length} planned ontology highlights.`,
         files: fileDrafts,
         edges: edgeDrafts,
@@ -631,9 +710,12 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                 intent,
                 sourceType,
                 title,
+                split_decision: splitDecision,
                 reason:
                     intent === 'paper_integration'
-                        ? 'Paper markdown or paper-like structure was detected.'
+                        ? splitDecision === 'single_source_file'
+                            ? 'Source was judged lightweight enough to preserve as one file node.'
+                            : 'Paper/source markdown or paper-like structure was detected and needs integration.'
                         : 'Input is treated as a reusable concept file request.',
             }),
             artifact('node_reuse_resolution', {
@@ -644,11 +726,14 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                 primary_file_id: primaryFileId,
                 files_to_create_or_update: createdCount,
                 edges_to_create: edgeCount,
-                related_concepts: relatedConcepts.map((concept) => ({
+                related_concepts: linkableRelatedConcepts.map((concept) => ({
                     id: targetFileId(concept),
                     title: concept.title,
                     relation: concept.relation,
                 })),
+                kept_inside_source: relatedConcepts
+                    .filter((concept) => !linkableRelatedConcepts.includes(concept))
+                    .map((concept) => concept.title),
             }),
             artifact('highlight_link_plan', {
                 highlights,
