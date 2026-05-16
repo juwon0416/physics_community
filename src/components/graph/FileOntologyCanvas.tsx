@@ -588,6 +588,13 @@ function ToolbarButton({
     );
 }
 
+function artifactValue(content: Record<string, unknown>, key: string) {
+    const value = content[key];
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    return '';
+}
+
 export default function FileOntologyCanvas({ isEditable, currentUserLabel }: FileOntologyCanvasProps) {
     const canvasRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -620,6 +627,20 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     });
     const [workflowResult, setWorkflowResult] = useState<OntologyWorkflowResult | null>(null);
     const [isWorkflowWriting, setIsWorkflowWriting] = useState(false);
+
+    const granularityPreview = useMemo(() => {
+        const content = workflowResult?.artifacts.find(
+            (artifact) => artifact.artifactType === 'granularity_assessment',
+        )?.content;
+
+        if (!content) return null;
+
+        return {
+            decision: artifactValue(content, 'decision').replace(/_/g, ' '),
+            rationale: artifactValue(content, 'file_node_policy'),
+            depth: artifactValue(content, 'content_depth_target'),
+        };
+    }, [workflowResult]);
 
     const applySceneTransform = useCallback((nextViewport: Viewport) => {
         viewportRef.current = nextViewport;
@@ -1851,6 +1872,21 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                     {workflowResult.warnings.length > 0 ? (
                                         <div className="rounded-md border border-border bg-muted p-3 text-xs text-muted-foreground">
                                             {workflowResult.warnings.join(' ')}
+                                        </div>
+                                    ) : null}
+
+                                    {granularityPreview ? (
+                                        <div className="rounded-md border border-border p-3">
+                                            <div className="text-xs uppercase text-muted-foreground">Granularity</div>
+                                            <div className="mt-1 text-sm font-medium text-foreground">
+                                                {granularityPreview.decision}
+                                            </div>
+                                            <div className="mt-2 text-xs leading-5 text-muted-foreground">
+                                                {granularityPreview.rationale}
+                                            </div>
+                                            <div className="mt-2 text-xs leading-5 text-muted-foreground">
+                                                {granularityPreview.depth}
+                                            </div>
                                         </div>
                                     ) : null}
 

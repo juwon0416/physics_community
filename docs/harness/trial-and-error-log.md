@@ -186,3 +186,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Treat `/graph` as a true viewport-owned route by removing page overflow sources there, handling wheel zoom at the canvas capture layer, and ending drags on pointer capture release, `pointercancel`, `blur`, and visibility changes.
 - Prevention: For any full-screen graph/editor route, verify that the document itself does not scroll and that pointer interactions recover cleanly when the cursor leaves the window.
 - Related files: `src/components/layout/Layout.tsx`, `src/components/graph/FileOntologyCanvas.tsx`
+
+### 2026-05-17 - Build and security checks may need elevated process access on Windows
+
+- Context: Running deployment verification from the desktop sandbox after file-ontology content and workflow changes.
+- False assumption or risk: `npm.cmd run build` and `npm.cmd run security:check` will always complete inside the default sandbox.
+- Signal: Vite failed while spawning the esbuild service with `spawn EPERM`, and the security harness failed while invoking `git` with `spawnSync git EPERM`.
+- Correction: Re-run the same commands with elevated execution when the first failure is an OS-level process or Git access denial, then record the successful result.
+- Prevention: Treat `EPERM` from esbuild or Git-backed validation as a sandbox permission issue before chasing code changes.
+- Related files: `package.json`, `tools/validation/validate_security_harness.js`, `docs/harness/verification.md`

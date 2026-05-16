@@ -1,8 +1,8 @@
 {
   "branch": "master",
-  "commit": "a6ec20a8090a6db7bb6f0973d0190c4eae2bd5c9",
+  "commit": "002d555f7b0299ab64eac6f9a0f7310881097a60",
   "extraction_command": "node tools/extraction/generate_site_code_graph.js",
-  "extraction_timestamp": "2026-05-16T09:32:00.450Z",
+  "extraction_timestamp": "2026-05-16T17:25:14.396Z",
   "extractor_version": "0.1.0",
   "scanned_paths": [
     "src/",
@@ -23,12 +23,18 @@
     "docs/obsidian/generated/nodes/**"
   ],
   "counts": {
-    "tracked_files": 378,
-    "untracked_files": 2,
-    "scanned_files": 163,
-    "nodes": 132,
+    "tracked_files": 0,
+    "untracked_files": 194,
+    "scanned_files": 164,
+    "nodes": 133,
     "edges": 202,
-    "warnings": 0
+    "warnings": 1
   },
-  "warnings": []
+  "warnings": [
+    {
+      "level": "warning",
+      "source_path": ".git",
+      "message": "Node child_process could not execute git ls-files in this sandbox, so extraction used a filesystem fallback and manual .git metadata parsing."
+    }
+  ]
 }

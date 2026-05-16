@@ -12,6 +12,19 @@ export type OntologyWorkflowFileKind = 'concept' | 'paper' | 'stub' | 'integrati
 
 type OntologySplitDecision = 'single_source_file' | 'source_plus_integration_map' | 'expanded_concept_neighborhood';
 
+interface OntologyGranularityAssessment {
+    decision: OntologySplitDecision;
+    wordCount: number;
+    headingCount: number;
+    detectedConceptCount: number;
+    userAskedForSingleFile: boolean;
+    userAskedForSplit: boolean;
+    looksLikeLightweightChapter: boolean;
+    rationale: string;
+    fileNodePolicy: string;
+    contentDepthTarget: string;
+}
+
 export interface OntologyWorkflowInput {
     mode: OntologyWorkflowMode;
     title: string;
@@ -195,6 +208,12 @@ const CONCEPT_PATTERNS: ConceptPattern[] = [
 
 const PAPER_SECTION_PATTERN = /(^|\n)\s*#{1,3}\s+(abstract|introduction|references|conclusion|methods|results|discussion)\b/i;
 const MARKDOWN_HEADING_PATTERN = /^\s*#{1,3}\s+.+$/gm;
+const UNICODE_LIGHTWEIGHT_SECTION_PATTERN =
+    /\b(chapter|section|introductory|overview)\b|(?:\uC139\uC158|\uC808|\uC7A5|\uAC1C\uC694|\uC785\uBB38)/i;
+const UNICODE_FORCE_SPLIT_PATTERN =
+    /\b(split|separate|node per|file per|detailed ontology|argument graph|claim graph)\b|(?:\uC138\uBD84\uD654|\uCABC\uAC1C|\uB098\uB204|\uBD84\uB9AC|\uD30C\uC77C\s*\uB178\uB4DC)/i;
+const UNICODE_FORCE_SINGLE_FILE_PATTERN =
+    /\b(single file|one file|one node|compact|do not split|don't split)\b|(?:\uD1B5\uD569|\uD558\uB098\uC758\s*\uD30C\uC77C|\uD558\uB098\uB85C|\uB098\uB204\uC9C0|\uCABC\uAC1C\uC9C0)/i;
 const LIGHTWEIGHT_SECTION_PATTERN = /\b(chapter|section|섹션|장|절|introductory|overview|개요|입문)\b/i;
 const FORCE_SPLIT_PATTERN = /\b(split|separate|node per|file per|detailed ontology|argument graph|claim graph|세분화|쪼개|나눠|파일 노드로 분리)\b/i;
 const FORCE_SINGLE_FILE_PATTERN = /\b(single file|one file|one node|compact|do not split|don't split|통합|하나의 파일|하나로|나누지|쪼개지)\b/i;
@@ -238,6 +257,101 @@ function decideSplitStrategy(input: OntologyWorkflowInput, intent: OntologyWorkf
 
     if (detectedConceptCount > 5 && wordCount > 1200) return 'expanded_concept_neighborhood';
     return 'source_plus_integration_map';
+}
+
+function estimateUnicodeAwareWordCount(value: string) {
+    const asciiWords = value.match(/[A-Za-z0-9_]+/g)?.length ?? 0;
+    const koreanRuns = value.match(/[\u3131-\u318E\uAC00-\uD7A3]+/g)?.length ?? 0;
+    return asciiWords + koreanRuns;
+}
+
+function assessGranularity(
+    input: OntologyWorkflowInput,
+    intent: OntologyWorkflowIntent,
+    detectedConceptCount: number,
+): OntologyGranularityAssessment {
+    const text = [input.title, input.userGoal, input.researchNotes, input.paperMarkdown].join('\n');
+    const wordCount = estimateUnicodeAwareWordCount(text);
+    const headingCount = countMarkdownHeadings(input.paperMarkdown);
+    const userAskedForSingleFile = UNICODE_FORCE_SINGLE_FILE_PATTERN.test(text);
+    const userAskedForSplit = UNICODE_FORCE_SPLIT_PATTERN.test(text);
+    const looksLikeLightweightChapter = UNICODE_LIGHTWEIGHT_SECTION_PATTERN.test(text) && wordCount < 1800;
+    const legacyDecision = decideSplitStrategy(input, intent, detectedConceptCount);
+    const contentDepthTarget =
+        'Paper-style node content with abstract, source scope, definitions, logical flow, equations, worked examples, limits, misconceptions, graph links, and mastery targets.';
+
+    const makeAssessment = (
+        decision: OntologySplitDecision,
+        rationale: string,
+        fileNodePolicy: string,
+    ): OntologyGranularityAssessment => ({
+        decision,
+        wordCount,
+        headingCount,
+        detectedConceptCount,
+        userAskedForSingleFile,
+        userAskedForSplit,
+        looksLikeLightweightChapter,
+        rationale,
+        fileNodePolicy,
+        contentDepthTarget,
+    });
+
+    if (userAskedForSingleFile) {
+        return makeAssessment(
+            'single_source_file',
+            'The user explicitly requested a single file or unified node.',
+            'Keep the source as one file node and preserve source sections as internal markdown headings.',
+        );
+    }
+
+    if (userAskedForSplit) {
+        return makeAssessment(
+            'expanded_concept_neighborhood',
+            'The user explicitly requested split files, a detailed ontology, or an argument graph.',
+            'Create or update separate reusable concept files only for sections with independent explanatory weight.',
+        );
+    }
+
+    if (intent === 'paper_integration') {
+        if (wordCount < 1200 || headingCount <= 4 || looksLikeLightweightChapter || detectedConceptCount <= 2) {
+            return makeAssessment(
+                'single_source_file',
+                'The source appears short, lightly sectioned, or conceptually unified enough that separate file nodes would add graph noise.',
+                'Keep the source as one file node and preserve source sections as internal markdown headings.',
+            );
+        }
+
+        if (wordCount < 3200 || detectedConceptCount <= 4) {
+            return makeAssessment(
+                'source_plus_integration_map',
+                'The source has enough structure for an integration map, but not enough independent concept neighborhoods for many new file nodes.',
+                'Keep the source mirror intact and add one integration-map file for reusable ontology links.',
+            );
+        }
+
+        return makeAssessment(
+            'expanded_concept_neighborhood',
+            'The source is long or concept-dense enough to justify separate reusable concept files.',
+            'Create or update separate reusable concept files only for sections with independent explanatory weight.',
+        );
+    }
+
+    if (legacyDecision === 'expanded_concept_neighborhood') {
+        return makeAssessment(
+            'expanded_concept_neighborhood',
+            'The concept request references enough neighboring concepts to justify a broader reusable file neighborhood.',
+            'Create or update separate reusable concept files only for sections with independent explanatory weight.',
+        );
+    }
+
+    return makeAssessment(
+        legacyDecision,
+        'The request is best handled as one primary concept file with links to existing or future neighbors.',
+        legacyDecision === 'single_source_file'
+            ? 'Keep the source as one file node and preserve source sections as internal markdown headings.'
+            : 'Keep the source mirror intact and add one integration-map file for reusable ontology links.',
+    );
 }
 
 function createRunId() {
@@ -377,14 +491,22 @@ function buildStubContent(concept: ResolvedConcept) {
     return [
         `# ${concept.title}`,
         '',
+        '## Abstract',
+        '',
         concept.summary,
         '',
         ...sections.flatMap((section) => [
             `## ${section}`,
             '',
-            'This stub exists so higher-level ontology files can link to this concept before a full note is written.',
+            'This provisional section marks the minimum scope that must be expanded into a full scholarly note before the node is considered complete.',
             '',
         ]),
+        '## Required Expansion Standard',
+        '',
+        '- Define the concept precisely before using equations or interpretations.',
+        '- Reconstruct the logical flow that makes the concept necessary.',
+        '- Add source-grounded equations, examples, limits, misconceptions, and graph links.',
+        '- Keep this as a separate file only if it has independent explanatory weight.',
     ].join('\n').trimEnd();
 }
 
@@ -405,30 +527,53 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
     return [
         `# ${primary.title}`,
         '',
-        '## Overview',
+        '## Abstract',
         '',
         inlineLinks.length > 0
             ? `${primary.title} should be read as part of a connected ontology rather than as an isolated note. It is directly connected to ${inlineLinks.join(', ')}.`
             : `${primary.title} is a new ontology file ready for expansion with linked prerequisite and neighboring concepts.`,
         '',
-        '## Purpose',
+        '## 1. Research Question and Scope',
         '',
         normalizeText(userGoal) || `Explain ${primary.title} with graph-native links to prerequisite and neighboring concepts.`,
         '',
-        '## Required Background',
+        '## 2. Formal Definition',
+        '',
+        `Define ${primary.title} in operational terms. State what is being measured, modeled, derived, or explained, and separate the reusable concept from any source-specific argument.`,
+        '',
+        '## 3. Required Background',
         '',
         linkLines.length > 0 ? linkLines.join('\n') : '- Add prerequisite links as the ontology grows.',
         '',
-        '## Logic Flow',
+        '## 4. Logical Flow',
         '',
         '1. Define the concept before using its equations or interpretations.',
         '2. Introduce the mathematical structure and link each required background node.',
         '3. Explain the physical meaning through connected concepts.',
         '4. Record limits, special cases, and common misunderstandings.',
         '',
-        '## Connections',
+        '## 5. Mathematical Structure',
+        '',
+        'Add equations only when their symbols, assumptions, and dimensional meaning are explained in prose. If the source contains a derivation, preserve the derivation path instead of reducing it to a formula list.',
+        '',
+        '## 6. Worked Analysis',
+        '',
+        'Add at least one source-grounded example, proof step, or dimensional argument that shows how the concept is used rather than merely named.',
+        '',
+        '## 7. Limits and Misconceptions',
+        '',
+        'Explain where the concept stops applying, which approximations it assumes, and which common interpretations would mislead a reader.',
+        '',
+        '## 8. Connections',
         '',
         linkLines.length > 0 ? linkLines.join('\n') : '- No linked neighbor has been selected yet.',
+        '',
+        '## 9. Mastery Targets',
+        '',
+        '- State the concept without circular language.',
+        '- Identify its prerequisites and later dependents.',
+        '- Interpret every equation or symbol used in the note.',
+        '- Reconstruct the source logic without reopening the original source.',
     ].join('\n');
 }
 
@@ -437,6 +582,7 @@ function buildPaperIntegrationMap(
     paperFileId: string,
     related: ResolvedConcept[],
     userGoal: string,
+    granularity: OntologyGranularityAssessment,
 ) {
     const relationRows = related.map(
         (concept) => `- [[${targetFileId(concept)}|${concept.title}]]: ${concept.relation.replace(/_/g, ' ')}`,
@@ -452,6 +598,18 @@ function buildPaperIntegrationMap(
         '## Integration Goal',
         '',
         normalizeText(userGoal) || 'Connect the paper to reusable concept files and argument-flow neighborhoods.',
+        '',
+        '## Granularity Decision',
+        '',
+        `Decision: ${granularity.decision.replace(/_/g, ' ')}.`,
+        '',
+        granularity.rationale,
+        '',
+        granularity.fileNodePolicy,
+        '',
+        '## Scholarly Content Standard',
+        '',
+        granularity.contentDepthTarget,
         '',
         '## Concept Links',
         '',
@@ -528,7 +686,8 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
     const edgeDrafts: OntologyWorkflowEdgeDraft[] = [];
     const sourceType = intent === 'paper_integration' ? 'paper_markdown' : 'user_prompt';
     const concepts = resolveConcepts(input, title, intent === 'concept_file');
-    const splitDecision = decideSplitStrategy(input, intent, concepts.length);
+    const granularityAssessment = assessGranularity(input, intent, concepts.length);
+    const splitDecision = granularityAssessment.decision;
     const shouldCreateConceptFiles = splitDecision === 'expanded_concept_neighborhood';
     const shouldCreateIntegrationMap = intent === 'paper_integration' && splitDecision !== 'single_source_file';
 
@@ -592,7 +751,26 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
         const sourceContent = input.paperMarkdown.trim() || [
             `# ${paperTitle}`,
             '',
-            normalizeText(input.researchNotes) || 'Source material is intentionally kept as one compact ontology file.',
+            '## Abstract',
+            '',
+            normalizeText(input.researchNotes) || 'Source material is intentionally kept as one ontology file until source-grounded details are added.',
+            '',
+            '## Source Scope',
+            '',
+            normalizeText(input.userGoal) || 'Record the source scope, reconstruction goal, and evidence basis before splitting any file nodes.',
+            '',
+            '## Granularity Decision',
+            '',
+            granularityAssessment.rationale,
+            '',
+            granularityAssessment.fileNodePolicy,
+            '',
+            '## Required Reconstruction',
+            '',
+            '- Define the central problem and source thesis.',
+            '- Preserve the section-level argument flow as internal headings when the source remains one file node.',
+            '- Add equations with symbol definitions, assumptions, dimensional meaning, and derivation context.',
+            '- Include worked examples, limits, misconceptions, graph links, and mastery targets.',
         ].join('\n');
 
         fileDrafts.unshift({
@@ -603,7 +781,7 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                 title: paperTitle,
                 summary:
                     splitDecision === 'single_source_file'
-                        ? 'Compact source mirror kept as one file node because the material is lightweight or the user requested no split.'
+                        ? 'Single scholarly source node kept whole because the material is unified or the user requested no split.'
                         : 'Structure-preserving source mirror. Wiki integration links are stored in the integration map and workflow metadata.',
                 content: sourceContent,
                 x: paperPosition.x,
@@ -626,7 +804,13 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                     id: mapFileId,
                     title: `${paperTitle} Integration Map`,
                     summary: 'Connects a preserved source mirror to reusable concept files and argument-flow neighborhoods.',
-                    content: buildPaperIntegrationMap(paperTitle, paperFileId, linkableRelatedConcepts, input.userGoal),
+                    content: buildPaperIntegrationMap(
+                        paperTitle,
+                        paperFileId,
+                        linkableRelatedConcepts,
+                        input.userGoal,
+                        granularityAssessment,
+                    ),
                     x: mapPosition.x,
                     y: mapPosition.y,
                     width: 520,
@@ -641,7 +825,7 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             sourceFileId = paperFileId;
             sourceTitle = paperTitle;
             warnings.push(
-                'Split decision: single source file. Sections stay inside the markdown body instead of becoming separate file nodes.',
+                `Granularity decision: single source file. ${granularityAssessment.fileNodePolicy}`,
             );
         }
     } else {
@@ -698,7 +882,7 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
         summary:
             intent === 'paper_integration'
                 ? splitDecision === 'single_source_file'
-                    ? 'Single source file workflow: lightweight source sections were kept inside one file node.'
+                    ? 'Single source file workflow: sections stay inside one scholarly node with paper-style content depth.'
                     : `Source mirror workflow with ${highlights.length} planned concept highlights.`
                 : `Concept workflow with ${highlights.length} planned ontology highlights.`,
         files: fileDrafts,
@@ -711,12 +895,18 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                 sourceType,
                 title,
                 split_decision: splitDecision,
-                reason:
-                    intent === 'paper_integration'
-                        ? splitDecision === 'single_source_file'
-                            ? 'Source was judged lightweight enough to preserve as one file node.'
-                            : 'Paper/source markdown or paper-like structure was detected and needs integration.'
-                        : 'Input is treated as a reusable concept file request.',
+                reason: granularityAssessment.rationale,
+            }),
+            artifact('granularity_assessment', {
+                decision: granularityAssessment.decision,
+                word_count: granularityAssessment.wordCount,
+                heading_count: granularityAssessment.headingCount,
+                detected_concept_count: granularityAssessment.detectedConceptCount,
+                user_asked_for_single_file: granularityAssessment.userAskedForSingleFile,
+                user_asked_for_split: granularityAssessment.userAskedForSplit,
+                looks_like_lightweight_chapter: granularityAssessment.looksLikeLightweightChapter,
+                file_node_policy: granularityAssessment.fileNodePolicy,
+                content_depth_target: granularityAssessment.contentDepthTarget,
             }),
             artifact('node_reuse_resolution', {
                 reused: concepts.filter((concept) => concept.existingFile).map((concept) => concept.id),

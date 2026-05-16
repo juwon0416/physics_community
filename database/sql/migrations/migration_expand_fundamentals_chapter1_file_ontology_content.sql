@@ -1,9 +1,15 @@
-import type { FileOntologyEdge, FileOntologyFile } from '../lib/fileOntology';
+-- Expand Halliday/Fundamentals Chapter 1 into a scholarly single-node ontology file.
+-- Rationale: the chapter should stay one file node, but the node content should be detailed enough for graph-native study.
+-- This migration is idempotent and only targets the known Chapter 1 ontology ids.
 
-export const FUNDAMENTALS_CHAPTER_1_SOURCE =
-    'Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 1: Measurement, PDF pages 28-35.';
+begin;
 
-const FUNDAMENTALS_CHAPTER_1_CONTENT = String.raw`# Fundamentals Chapter 1: Measurement
+insert into public.file_ontology_files (id, title, summary, content, x, y, width, height)
+values (
+    'fundamentals-ch1-measurement',
+    'Fundamentals Chapter 1: Measurement',
+    'Scholarly single-node ontology file for Halliday Fundamentals of Physics Chapter 1. The chapter is kept whole because its short sections share one measurement argument.',
+    $markdown$# Fundamentals Chapter 1: Measurement
 
 ## Abstract
 
@@ -13,7 +19,7 @@ The ontology boundary is the full chapter. The sections on length, time, and mas
 
 ## Source Basis
 
-Source basis: ${FUNDAMENTALS_CHAPTER_1_SOURCE}
+Source basis: Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 1: Measurement, PDF pages 28-35.
 
 This reconstruction is not a replacement for the textbook prose. It is a graph-native scholarly note that preserves the chapter's conceptual and logical structure in an expanded form suitable for study inside the website.
 
@@ -358,20 +364,73 @@ After studying this node, a reader should be able to:
 - Work and Energy
 - Density and Pressure
 - Oscillation Period and Frequency
-`;
+$markdown$,
+    720,
+    120,
+    760,
+    640
+)
+on conflict (id) do update set
+    title = excluded.title,
+    summary = excluded.summary,
+    content = excluded.content,
+    x = excluded.x,
+    y = excluded.y,
+    width = excluded.width,
+    height = excluded.height,
+    updated_at = now();
 
-export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [
-    {
-        id: 'fundamentals-ch1-measurement',
-        title: 'Fundamentals Chapter 1: Measurement',
-        summary:
-            'Scholarly single-node ontology file for Halliday Fundamentals of Physics Chapter 1. The chapter is kept whole because its short sections share one measurement argument.',
-        content: FUNDAMENTALS_CHAPTER_1_CONTENT,
-        x: 720,
-        y: 120,
-        width: 760,
-        height: 640,
-    },
-];
+with old_chapter_nodes(id) as (
+    values
+        ('fundamentals-ch1-measurement-map'),
+        ('measurement-in-physics'),
+        ('physical-quantity'),
+        ('base-quantity'),
+        ('derived-quantity'),
+        ('unit-standard'),
+        ('si-system'),
+        ('si-prefixes'),
+        ('chain-link-conversion'),
+        ('conversion-factor'),
+        ('length'),
+        ('meter'),
+        ('significant-figures'),
+        ('decimal-places'),
+        ('time'),
+        ('second'),
+        ('atomic-clock'),
+        ('mass'),
+        ('kilogram')
+)
+delete from public.file_ontology_edges edge
+using old_chapter_nodes old_node
+where edge.source_file_id = old_node.id
+   or edge.target_file_id = old_node.id;
 
-export const FUNDAMENTALS_CHAPTER_1_EDGES: FileOntologyEdge[] = [];
+with old_chapter_nodes(id) as (
+    values
+        ('fundamentals-ch1-measurement-map'),
+        ('measurement-in-physics'),
+        ('physical-quantity'),
+        ('base-quantity'),
+        ('derived-quantity'),
+        ('unit-standard'),
+        ('si-system'),
+        ('si-prefixes'),
+        ('chain-link-conversion'),
+        ('conversion-factor'),
+        ('length'),
+        ('meter'),
+        ('significant-figures'),
+        ('decimal-places'),
+        ('time'),
+        ('second'),
+        ('atomic-clock'),
+        ('mass'),
+        ('kilogram')
+)
+delete from public.file_ontology_files file
+using old_chapter_nodes old_node
+where file.id = old_node.id;
+
+commit;

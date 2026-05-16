@@ -29,6 +29,8 @@ This folder groups SQL by purpose so the active website structure is easier to r
   - Adds workflow run, artifact, and highlight-mention tables for graph-view ontology expansion.
 - `migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql`
   - Collapses the Halliday/Fundamentals Chapter 1 starter ontology into one compact file node and widens starter node spacing.
+- `migrations/migration_expand_fundamentals_chapter1_file_ontology_content.sql`
+  - Expands the Halliday/Fundamentals Chapter 1 single file node into a detailed scholarly ontology note.
 - `migrations/`
   - Follow filename order by intent; each file is a targeted change, not a full reset.
 - `maintenance/check_purge_status.sql`

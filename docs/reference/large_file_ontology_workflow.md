@@ -33,6 +33,52 @@ The system must keep these layers separate:
 - Ontology integration: maps source chunks to existing or new file nodes.
 - Generated concept files: reusable wiki-style explanations, not copies of the source.
 
+## File-Node Granularity
+
+Do not split a source merely because it has headings. Decide whether each candidate
+file node has enough independent explanatory weight to justify its own document.
+
+Keep a source as one file node when:
+
+- the sections are brief and share one central argument
+- each section would mostly repeat the same definitions or setup
+- most links are internal to the same chapter, paper, or source unit
+- splitting would make the graph canvas noisier without improving study value
+
+Split into multiple file nodes when:
+
+- a subsection introduces a reusable concept, law, model, or equation family
+- the section has its own derivation, assumptions, examples, and limitations
+- multiple later sources are likely to cite the same subsection independently
+- the argument graph needs distinct claim, definition, result, or derivation paths
+- a single document would become difficult to navigate even with internal headings
+
+Whenever a granularity decision is made, record the reason in workflow metadata.
+The file node should also state why the source was kept whole or split.
+
+## File-Node Content Standard
+
+File nodes are allowed to be long. Prefer explanatory completeness over compact
+summary. A high-quality node should read like a scholarly note, not an outline.
+
+Minimum sections for a full node:
+
+- Abstract
+- Source scope and ontology boundary
+- Central problem or thesis
+- Definitions and symbols
+- Logical structure or argument backbone
+- Mathematical formulation with explained equations
+- Worked analysis, derivation, or source-grounded example
+- Limits and failure modes
+- Common misconceptions
+- Connections to prerequisite and later nodes
+- Mastery targets
+
+Compact placeholder nodes are acceptable only as temporary stubs. A finished
+source or concept node should let the reader reconstruct the logic without
+reopening the original source.
+
 ## Input Size Tiers
 
 Use these tiers to choose the workflow.

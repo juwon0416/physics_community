@@ -7,11 +7,12 @@
     "chapter_concept_end_pdf_page": 35,
     "problem_set_start_pdf_page": 36
   },
-  "copyright_policy": "The graph node is a compact study note and ontology guide, not verbatim chapter reproduction.",
+  "copyright_policy": "The graph node is a scholarly reconstruction and ontology guide, not verbatim chapter reproduction.",
   "ontology_granularity_decision": {
     "decision": "single_file_node",
     "file_node_id": "fundamentals-ch1-measurement",
-    "reason": "Chapter 1 sections are brief introductory units. Preserving them as headings inside one file node keeps provenance and source structure without fragmenting the graph canvas."
+    "reason": "Chapter 1 sections are brief introductory units that share one measurement argument. Preserving them as headings inside one detailed file node keeps provenance and source structure without fragmenting the graph canvas.",
+    "content_depth_standard": "The single file node should read as a detailed paper-style note with abstract, source scope, definitions, logic flow, equations, worked analysis, misconceptions, future links, and mastery targets."
   },
   "chunks": [
     {
@@ -60,7 +61,7 @@
   "excluded_ranges": [
     {
       "pdf_pages": [36, 37, 38, 39],
-      "reason": "Problem set pages were not copied into graph nodes. They may later become exercise nodes or links, but are not part of this compact source ontology import."
+      "reason": "Problem set pages were not copied into graph nodes. They may later become exercise nodes or links, but are not part of this source ontology import."
     }
   ]
 }
