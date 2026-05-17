@@ -112,6 +112,7 @@ const RETIRED_LEARNER_CONTENT_MARKERS = [
     'Mastery Targets',
     'Required Background',
 ];
+const MULTI_SOURCE_LEARNER_CONTENT_MARKERS = ['OpenStax', 'NIST', 'MIT OpenCourseWare'];
 
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
     'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
@@ -129,7 +130,19 @@ function cloneEdge(edge: FileOntologyEdge): FileOntologyEdge {
 function shouldRefreshBundledLearnerContent(databaseFile: FileOntologyFile, bundledFile: FileOntologyFile) {
     if (!databaseFile.content.trim() || databaseFile.content === bundledFile.content) return false;
 
-    return RETIRED_LEARNER_CONTENT_MARKERS.some((marker) => databaseFile.content.includes(marker));
+    if (RETIRED_LEARNER_CONTENT_MARKERS.some((marker) => databaseFile.content.includes(marker))) {
+        return true;
+    }
+
+    const bundledIsMultiSource = MULTI_SOURCE_LEARNER_CONTENT_MARKERS.some((marker) =>
+        bundledFile.content.includes(marker),
+    );
+    const databaseMissingMultiSource = !MULTI_SOURCE_LEARNER_CONTENT_MARKERS.some((marker) =>
+        databaseFile.content.includes(marker),
+    );
+    const databaseLooksLikeBundledChapterNote = databaseFile.content.includes('Source basis: Halliday');
+
+    return bundledIsMultiSource && databaseMissingMultiSource && databaseLooksLikeBundledChapterNote;
 }
 
 export function getStarterFileOntologyModel(): FileOntologyModel {

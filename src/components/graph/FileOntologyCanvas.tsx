@@ -122,6 +122,16 @@ interface SummonedFilePosition {
     anchorY: number;
 }
 
+interface FileOntologyLayer {
+    id: string;
+    title: string;
+    fileIds: string[];
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 interface WorkflowDraftState {
     mode: OntologyWorkflowMode;
     title: string;
@@ -133,16 +143,26 @@ interface WorkflowDraftState {
 const MIN_SCALE = 0.08;
 const MAX_SCALE = 4;
 const TITLE_ONLY_SCALE = 0.26;
+const LAYER_ONLY_SCALE = 0.16;
 const MIN_NODE_WIDTH = 280;
 const MIN_NODE_HEIGHT = 210;
 const MAX_NODE_WIDTH = 1200;
 const MAX_NODE_HEIGHT = 900;
-const LAYOUT_COLUMN_GAP = 860;
-const LAYOUT_ROW_GAP = 620;
 const LAYOUT_ORIGIN_X = 160;
 const LAYOUT_ORIGIN_Y = 160;
+const GROUP_NODE_COLUMN_GAP = 900;
+const GROUP_NODE_ROW_GAP = 660;
+const GROUP_PADDING_X = 180;
+const GROUP_PADDING_Y = 150;
+const GROUP_GAP_X = 440;
+const NODE_COLLISION_PADDING = 88;
 const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
+
+const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
+    ['measurement-foundations', 'Measurement Foundations'],
+    ['one-dimensional-kinematics', 'One-Dimensional Kinematics'],
+]);
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
@@ -165,12 +185,91 @@ function scaleViewportAroundScreenPoint(
     };
 }
 
-function optimizeFileOntologyLayout(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
+function getFileOntologyLayerId(file: FileOntologyFile) {
+    const lookup = normalizeFileOntologyLookup(`${file.id} ${file.title} ${file.summary}`);
+
+    if (
+        lookup.includes('ch1') ||
+        lookup.includes('chapter 1') ||
+        lookup.includes('measurement') ||
+        lookup.includes('unit') ||
+        lookup.includes('dimension') ||
+        lookup.includes('standard')
+    ) {
+        return 'measurement-foundations';
+    }
+
+    if (
+        lookup.includes('ch2') ||
+        lookup.includes('chapter 2') ||
+        lookup.includes('motion') ||
+        lookup.includes('kinematic') ||
+        lookup.includes('position') ||
+        lookup.includes('velocity') ||
+        lookup.includes('acceleration') ||
+        lookup.includes('free fall')
+    ) {
+        return 'one-dimensional-kinematics';
+    }
+
+    return lookup.split('-').slice(0, 2).join('-') || 'general-ontology';
+}
+
+function getFileOntologyLayerTitle(layerId: string, files: FileOntologyFile[]) {
+    const knownTitle = FILE_ONTOLOGY_LAYER_TITLES.get(layerId);
+    if (knownTitle) return knownTitle;
+
+    const firstTitle = files[0]?.title.trim();
+    if (!firstTitle) return 'Ontology Files';
+
+    return firstTitle
+        .split(/\s+/)
+        .slice(0, 3)
+        .join(' ');
+}
+
+function groupFilesByOntologyLayer(files: FileOntologyFile[]) {
+    const groups = new Map<string, FileOntologyFile[]>();
+
+    files.forEach((file) => {
+        const layerId = getFileOntologyLayerId(file);
+        groups.set(layerId, [...(groups.get(layerId) ?? []), file]);
+    });
+
+    return groups;
+}
+
+function calculateLayerBounds(layerId: string, files: FileOntologyFile[]): FileOntologyLayer {
+    const minX = Math.min(...files.map((file) => file.x));
+    const minY = Math.min(...files.map((file) => file.y));
+    const maxX = Math.max(...files.map((file) => file.x + file.width));
+    const maxY = Math.max(...files.map((file) => file.y + file.height));
+
+    return {
+        id: layerId,
+        title: getFileOntologyLayerTitle(layerId, files),
+        fileIds: files.map((file) => file.id),
+        x: minX - GROUP_PADDING_X,
+        y: minY - GROUP_PADDING_Y,
+        width: maxX - minX + GROUP_PADDING_X * 2,
+        height: maxY - minY + GROUP_PADDING_Y * 2,
+    };
+}
+
+function calculateFileOntologyLayers(files: FileOntologyFile[]) {
+    return Array.from(groupFilesByOntologyLayer(files).entries())
+        .filter(([, groupFiles]) => groupFiles.length > 0)
+        .map(([layerId, groupFiles]) => calculateLayerBounds(layerId, groupFiles))
+        .sort((a, b) => a.x - b.x || a.y - b.y);
+}
+
+function calculateFileRanks(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
+    const fileIds = new Set(files.map((file) => file.id));
     const incomingCounts = new Map(files.map((file) => [file.id, 0]));
     const adjacency = new Map(files.map((file) => [file.id, [] as string[]]));
 
     edges.forEach((edge) => {
-        if (!incomingCounts.has(edge.sourceFileId) || !incomingCounts.has(edge.targetFileId)) return;
+        if (!fileIds.has(edge.sourceFileId) || !fileIds.has(edge.targetFileId)) return;
         incomingCounts.set(edge.targetFileId, (incomingCounts.get(edge.targetFileId) ?? 0) + 1);
         adjacency.get(edge.sourceFileId)?.push(edge.targetFileId);
     });
@@ -197,26 +296,108 @@ function optimizeFileOntologyLayout(files: FileOntologyFile[], edges: FileOntolo
         if (!rankById.has(file.id)) rankById.set(file.id, 0);
     });
 
-    const rowsByRank = new Map<number, FileOntologyFile[]>();
-    files.forEach((file) => {
-        const rank = rankById.get(file.id) ?? 0;
-        rowsByRank.set(rank, [...(rowsByRank.get(rank) ?? []), file]);
-    });
+    return rankById;
+}
 
-    const orderedRanks = Array.from(rowsByRank.keys()).sort((a, b) => a - b);
+function optimizeFileOntologyLayout(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
     const indexById = new Map(files.map((file, index) => [file.id, index]));
-
-    return orderedRanks.flatMap((rank) => {
-        const rankedFiles = [...(rowsByRank.get(rank) ?? [])].sort(
-            (a, b) => (indexById.get(a.id) ?? 0) - (indexById.get(b.id) ?? 0),
+    const groups = Array.from(groupFilesByOntologyLayer(files).entries())
+        .map(([, groupFiles]) => ({ files: groupFiles }))
+        .sort(
+            (a, b) =>
+                Math.min(...a.files.map((file) => indexById.get(file.id) ?? 0)) -
+                Math.min(...b.files.map((file) => indexById.get(file.id) ?? 0)),
         );
 
-        return rankedFiles.map((file, row) => ({
-            ...file,
-            x: LAYOUT_ORIGIN_X + rank * LAYOUT_COLUMN_GAP,
-            y: LAYOUT_ORIGIN_Y + row * LAYOUT_ROW_GAP,
-        }));
+    let groupCursorX = LAYOUT_ORIGIN_X;
+
+    return groups.flatMap((group) => {
+        const rankById = calculateFileRanks(group.files, edges);
+        const rowsByRank = new Map<number, FileOntologyFile[]>();
+
+        group.files.forEach((file) => {
+            const rank = rankById.get(file.id) ?? 0;
+            rowsByRank.set(rank, [...(rowsByRank.get(rank) ?? []), file]);
+        });
+
+        const orderedRanks = Array.from(rowsByRank.keys()).sort((a, b) => a - b);
+        const groupWidth =
+            GROUP_PADDING_X * 2 +
+            (orderedRanks.length - 1) * GROUP_NODE_COLUMN_GAP +
+            Math.max(...group.files.map((file) => file.width));
+        const positionedGroupFiles = orderedRanks.flatMap((rank) => {
+            const rankedFiles = [...(rowsByRank.get(rank) ?? [])].sort(
+                (a, b) => (indexById.get(a.id) ?? 0) - (indexById.get(b.id) ?? 0),
+            );
+
+            return rankedFiles.map((file, row) => ({
+                ...file,
+                x: groupCursorX + GROUP_PADDING_X + rank * GROUP_NODE_COLUMN_GAP,
+                y: LAYOUT_ORIGIN_Y + GROUP_PADDING_Y + row * GROUP_NODE_ROW_GAP,
+            }));
+        });
+
+        groupCursorX += groupWidth + GROUP_GAP_X;
+        return positionedGroupFiles;
     });
+}
+
+function fileRect(file: FileOntologyFile, x = file.x, y = file.y) {
+    return {
+        x,
+        y,
+        width: file.width,
+        height: file.height,
+    };
+}
+
+function rectsOverlap(
+    a: { x: number; y: number; width: number; height: number },
+    b: { x: number; y: number; width: number; height: number },
+    padding = 0,
+) {
+    return (
+        a.x < b.x + b.width + padding &&
+        a.x + a.width + padding > b.x &&
+        a.y < b.y + b.height + padding &&
+        a.y + a.height + padding > b.y
+    );
+}
+
+function collidesWithFiles(
+    target: FileOntologyFile,
+    x: number,
+    y: number,
+    files: FileOntologyFile[],
+    padding = NODE_COLLISION_PADDING,
+) {
+    const candidateRect = fileRect(target, x, y);
+    return files
+        .filter((file) => file.id !== target.id)
+        .some((file) => rectsOverlap(candidateRect, fileRect(file), padding));
+}
+
+function findOpenSpotNearFile(source: FileOntologyFile, target: FileOntologyFile, files: FileOntologyFile[]) {
+    const sourceCenterX = source.x + source.width / 2;
+    const sourceCenterY = source.y + source.height / 2;
+    const angles = [0, 0.35, -0.35, 0.72, -0.72, 1.35, -1.35, Math.PI, 2.35, -2.35];
+
+    for (let ring = 0; ring < 8; ring += 1) {
+        const radiusX = source.width / 2 + target.width / 2 + NODE_COLLISION_PADDING + ring * 260;
+        const radiusY = source.height / 2 + target.height / 2 + NODE_COLLISION_PADDING + ring * 220;
+
+        for (const angle of angles) {
+            const x = Math.round(sourceCenterX + Math.cos(angle) * radiusX - target.width / 2);
+            const y = Math.round(sourceCenterY + Math.sin(angle) * radiusY - target.height / 2);
+
+            if (!collidesWithFiles(target, x, y, files)) return { x, y };
+        }
+    }
+
+    return {
+        x: Math.round(source.x + source.width + NODE_COLLISION_PADDING * 2),
+        y: Math.round(source.y),
+    };
 }
 
 function isInteractiveCanvasTarget(target: EventTarget | null) {
@@ -807,6 +988,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         return map;
     }, [displayFiles]);
 
+    const fileLayers = useMemo(() => calculateFileOntologyLayers(displayFiles), [displayFiles]);
+    const isLayerOnlyView = viewport.scale < LAYER_ONLY_SCALE;
+
     const maximizedFile = maximizedFileId ? fileById.get(maximizedFileId) || null : null;
     const maximizedSplitFiles = useMemo(() => {
         if (!maximizedFile) return [];
@@ -834,10 +1018,18 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [files, linkDialog]);
 
     const worldSize = useMemo(() => {
-        const maxX = Math.max(1800, ...displayFiles.map((file) => file.x + file.width + 520));
-        const maxY = Math.max(1200, ...displayFiles.map((file) => file.y + file.height + 420));
+        const maxX = Math.max(
+            1800,
+            ...displayFiles.map((file) => file.x + file.width + 520),
+            ...fileLayers.map((layer) => layer.x + layer.width + 360),
+        );
+        const maxY = Math.max(
+            1200,
+            ...displayFiles.map((file) => file.y + file.height + 420),
+            ...fileLayers.map((layer) => layer.y + layer.height + 300),
+        );
         return { width: maxX, height: maxY };
-    }, [displayFiles]);
+    }, [displayFiles, fileLayers]);
 
     const setTextareaRef = (fileId: string) => (element: HTMLTextAreaElement | null) => {
         textareaRefs.current[fileId] = element;
@@ -1155,11 +1347,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             return;
         }
 
-        const siblingCount = Object.entries(summonedFilePositionsRef.current).filter(
-            ([fileId, position]) => position.sourceFileId === sourceFileId && fileId !== targetFileId,
-        ).length;
-        const anchorX = Math.round(source.x + source.width + 56);
-        const anchorY = Math.round(source.y + 36 + (siblingCount % 4) * 72);
+        const occupiedFiles = displayFilesRef.current.length > 0 ? displayFilesRef.current : filesRef.current;
+        const openSpot = findOpenSpotNearFile(source, target, occupiedFiles);
+        const anchorX = openSpot.x;
+        const anchorY = openSpot.y;
 
         setSummonedFilePositions((current) => ({
             ...current,
@@ -1209,7 +1400,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
         if (
             isInteractiveCanvasTarget(event.target) ||
-            isSelectedNodeScrollTarget(event.target, selectedFileId, maximizedFileId)
+            isSelectedNodeScrollTarget(event.target, selectedFileId, null)
         ) {
             event.stopPropagation();
             return;
@@ -1436,13 +1627,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         setFiles(optimizedFiles);
         setSelectedFileId(optimizedFiles[0]?.id ?? null);
         setViewport({ x: 80, y: 40, scale: 0.72 });
-        setStatusMessage('Optimized graph layout with wider file-node spacing.');
+        setStatusMessage('Optimized graph layout into collision-free topic clusters.');
 
         if (!isEditable) return;
 
         try {
             await Promise.all(optimizedFiles.map((file) => saveFileOntologyFilePosition(file)));
-            setStatusMessage('Optimized graph layout and saved node positions.');
+            setStatusMessage('Optimized topic-cluster layout and saved node positions.');
         } catch (error) {
             reportWriteError('Layout optimize', error);
         }
@@ -1940,6 +2131,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const isEditing = editingFileId === file.id;
         const isTitleOnly = viewport.scale < TITLE_ONLY_SCALE;
         const isSummoned = Boolean(summonedFilePositions[file.id]);
+        const titleOnlyFontSize = Math.round(clamp(20 / Math.max(viewport.scale, MIN_SCALE), 34, 104));
 
         return (
             <div
@@ -2016,7 +2208,12 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
 
                 {isTitleOnly ? (
                     <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center">
-                        <div className="max-w-full truncate text-lg font-semibold text-foreground">{file.title}</div>
+                        <div
+                            className="max-w-full px-4 font-semibold leading-tight text-foreground"
+                            style={{ fontSize: titleOnlyFontSize }}
+                        >
+                            {file.title}
+                        </div>
                     </div>
                 ) : (
                     <div className="flex min-h-0 flex-1 flex-col p-0">
@@ -2075,6 +2272,42 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})`,
                     }}
                 >
+                    {fileLayers.map((layer) => {
+                        const layerTitleFontSize = Math.round(
+                            isLayerOnlyView
+                                ? clamp(28 / Math.max(viewport.scale, MIN_SCALE), 96, 220)
+                                : clamp(16 / Math.max(viewport.scale, 0.45), 22, 48),
+                        );
+
+                        return (
+                            <div
+                                key={layer.id}
+                                className={cn(
+                                    'pointer-events-none absolute rounded-[2rem] border transition-colors duration-200',
+                                    isLayerOnlyView
+                                        ? 'border-foreground/20 bg-background/70'
+                                        : 'border-foreground/10 bg-foreground/[0.025]',
+                                )}
+                                style={{
+                                    left: layer.x,
+                                    top: layer.y,
+                                    width: layer.width,
+                                    height: layer.height,
+                                }}
+                            >
+                                <div
+                                    className={cn(
+                                        'absolute left-1/2 top-1/2 w-[90%] -translate-x-1/2 -translate-y-1/2 text-center font-display font-bold leading-none text-foreground transition-opacity duration-200',
+                                        isLayerOnlyView ? 'opacity-100' : 'opacity-20',
+                                    )}
+                                    style={{ fontSize: layerTitleFontSize }}
+                                >
+                                    {layer.title}
+                                </div>
+                            </div>
+                        );
+                    })}
+
                     <svg
                         className="absolute left-0 top-0 overflow-visible"
                         width={worldSize.width}
@@ -2093,12 +2326,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                 <path d="M2,2 L10,6 L2,10 Z" fill="hsl(var(--foreground) / 0.75)" />
                             </marker>
                         </defs>
-                        {edges.map((edge) => {
+                        {!isLayerOnlyView && edges.map((edge) => {
                             const source = fileById.get(edge.sourceFileId);
                             const target = fileById.get(edge.targetFileId);
                             if (!source || !target) return null;
 
                             const anchors = edgeAnchors(source, target);
+                            const labelScale = clamp(1 / Math.max(viewport.scale, 0.2), 1, 4.2);
+                            const labelWidth = Math.round(248 * labelScale);
+                            const labelHeight = Math.round(54 * labelScale);
+                            const labelFontSize = Math.round(12 * labelScale);
 
                             return (
                                 <g key={edge.id} className="pointer-events-auto">
@@ -2112,10 +2349,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                         markerEnd="url(#file-ontology-arrow)"
                                     />
                                     <foreignObject
-                                        x={anchors.labelX - 96}
-                                        y={anchors.labelY - 20}
-                                        width="192"
-                                        height="40"
+                                        x={anchors.labelX - labelWidth / 2}
+                                        y={anchors.labelY - labelHeight / 2}
+                                        width={labelWidth}
+                                        height={labelHeight}
                                     >
                                         <div
                                             className="flex h-full items-center justify-center gap-1"
@@ -2124,7 +2361,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                         >
                                             <button
                                                 type="button"
-                                                className="max-w-[142px] truncate rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground"
+                                                className="truncate rounded-full border border-foreground/35 bg-background px-4 py-1.5 font-semibold text-foreground shadow-[0_0_0_3px_hsl(var(--background))]"
+                                                style={{
+                                                    maxWidth: Math.round(190 * labelScale),
+                                                    fontSize: labelFontSize,
+                                                }}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     void handleEditEdgeLabel(edge);
@@ -2136,14 +2377,18 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                             {isEditable ? (
                                                 <button
                                                     type="button"
-                                                    className="rounded-full border border-border bg-background p-1 text-muted-foreground hover:text-foreground"
+                                                    className="rounded-full border border-foreground/30 bg-background p-1 text-muted-foreground shadow-[0_0_0_2px_hsl(var(--background))] hover:text-foreground"
+                                                    style={{
+                                                        width: Math.round(24 * labelScale),
+                                                        height: Math.round(24 * labelScale),
+                                                    }}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
                                                         void handleDeleteEdge(edge);
                                                     }}
                                                     title="Delete edge"
                                                 >
-                                                    <X className="h-3 w-3" />
+                                                    <X className="h-full w-full" />
                                                 </button>
                                             ) : null}
                                         </div>
@@ -2153,7 +2398,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         })}
                     </svg>
 
-                    {displayFiles.map(renderFileNode)}
+                    {!isLayerOnlyView ? displayFiles.map(renderFileNode) : null}
                 </div>
             </div>
 
@@ -2232,50 +2477,86 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             ) : null}
 
             {maximizedFile ? (
-                <div
-                    className="absolute inset-4 z-[80] flex flex-col overflow-hidden rounded-lg border border-foreground bg-background text-foreground shadow-none"
-                    data-file-node-id={maximizedFile.id}
-                    onPointerDown={(event) => event.stopPropagation()}
-                >
-                    <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-                        <div className="flex min-w-0 items-center gap-2">
-                            <FileText className="h-4 w-4 shrink-0" />
-                            <div className="min-w-0">
-                                <div className="truncate text-base font-semibold">{maximizedFile.title}</div>
-                                <div className="truncate text-xs text-muted-foreground">{maximizedFile.id}</div>
+                <>
+                    <div
+                        className="fixed inset-0 z-[110] bg-background/55 backdrop-blur-[2px]"
+                        data-no-canvas-pan="true"
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onWheelCapture={(event) => event.stopPropagation()}
+                    />
+                    <div
+                        className="fixed inset-4 z-[120] flex flex-col overflow-hidden rounded-[1.4rem] border border-foreground bg-background text-foreground shadow-none"
+                        data-file-node-id={maximizedFile.id}
+                        data-no-canvas-pan="true"
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onWheelCapture={(event) => event.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+                            <div className="flex min-w-0 items-center gap-2">
+                                <FileText className="h-4 w-4 shrink-0" />
+                                <div className="min-w-0">
+                                    <div className="truncate text-base font-semibold">{maximizedFile.title}</div>
+                                    <div className="truncate text-xs text-muted-foreground">{maximizedFile.id}</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <ToolbarButton
+                                    onClick={() =>
+                                        setEditingFileId(
+                                            editingFileId === maximizedFile.id ? null : maximizedFile.id,
+                                        )
+                                    }
+                                    disabled={!isEditable}
+                                    title={editingFileId === maximizedFile.id ? 'Close editor' : 'Edit file'}
+                                    active={editingFileId === maximizedFile.id}
+                                >
+                                    <Edit3 className="h-4 w-4" />
+                                </ToolbarButton>
+                                <ToolbarButton
+                                    onClick={() => {
+                                        setMaximizedFileId(null);
+                                        setSplitFileIds([]);
+                                    }}
+                                    title="Exit maximized view"
+                                >
+                                    <Minimize2 className="h-4 w-4" />
+                                </ToolbarButton>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <ToolbarButton
-                                onClick={() =>
-                                    setEditingFileId(editingFileId === maximizedFile.id ? null : maximizedFile.id)
-                                }
-                                disabled={!isEditable}
-                                title={editingFileId === maximizedFile.id ? 'Close editor' : 'Edit file'}
-                                active={editingFileId === maximizedFile.id}
-                            >
-                                <Edit3 className="h-4 w-4" />
-                            </ToolbarButton>
-                            <ToolbarButton
-                                onClick={() => {
-                                    setMaximizedFileId(null);
-                                    setSplitFileIds([]);
-                                }}
-                                title="Exit maximized view"
-                            >
-                                <Minimize2 className="h-4 w-4" />
-                            </ToolbarButton>
+                        <div
+                            className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-3"
+                            data-file-node-scroll="true"
+                        >
+                            {maximizedSplitFiles.length <= 1 ? (
+                                <div
+                                    className="flex h-full min-h-[520px] min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-background"
+                                    data-file-node-id={maximizedFile.id}
+                                >
+                                    {editingFileId === maximizedFile.id ? (
+                                        <div className="flex h-full min-h-0 flex-col p-4">
+                                            {renderNodeEditor(maximizedFile, true)}
+                                        </div>
+                                    ) : (
+                                        renderNodePreview(maximizedFile, true, true)
+                                    )}
+                                </div>
+                            ) : (
+                                <div
+                                    className={cn(
+                                        'grid min-h-full auto-rows-[minmax(260px,1fr)] gap-3',
+                                        maximizedSplitFiles.length === 2
+                                            ? 'grid-cols-1 xl:grid-cols-2'
+                                            : 'grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3',
+                                    )}
+                                >
+                                    {maximizedSplitFiles.map((file) =>
+                                        renderSplitPane(file, file.id === maximizedFile.id),
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div
-                        className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-3"
-                        data-file-node-scroll="true"
-                    >
-                        <div className="grid min-h-full auto-rows-[minmax(240px,1fr)] grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
-                            {maximizedSplitFiles.map((file) => renderSplitPane(file, file.id === maximizedFile.id))}
-                        </div>
-                    </div>
-                </div>
+                </>
             ) : null}
 
             {isLoading ? (

@@ -1,21 +1,21 @@
 import type { FileOntologyEdge, FileOntologyFile } from '../lib/fileOntology';
 
 export const FUNDAMENTALS_CHAPTER_2_SOURCE =
-    'Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 2: Motion Along a Straight Line, PDF pages 40-67.';
+    'Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 2: Motion Along a Straight Line; OpenStax University Physics Volume 1, Chapter 3 Kinematics; MIT OpenCourseWare 8.01SC, Week 1 Kinematics and Chapter 4 One Dimensional Kinematics.';
 
 const CHAPTER_2_OVERVIEW = String.raw`# Fundamentals Chapter 2: Motion Along a Straight Line
 
 ## Abstract
 
-The conclusion of Chapter 2 is that one-dimensional motion can be reconstructed from three linked time-dependent quantities: position, velocity, and acceleration. Once position is treated as a signed function of time, velocity becomes its rate of change, acceleration becomes the rate of change of velocity, and constant-acceleration motion becomes a solvable special case that includes ideal free fall.
+The conclusion of this chapter-level node is that one-dimensional kinematics is a calculus-based reconstruction of motion from three nested time functions: position, velocity, and acceleration. Once position is modeled as a signed measured function \(x(t)\), velocity is the local rate of change of that function, acceleration is the local rate of change of velocity, and constant-acceleration motion is the special case where those derivative relations integrate into a compact equation family.
 
-This chapter node is a source-level map. It does not try to teach every sub-concept in one body. Instead, it points to the reusable files that carry the actual learning load: [[ch2-position-displacement-average-velocity|position and displacement]], [[ch2-instantaneous-velocity-speed|instantaneous velocity]], [[ch2-acceleration|acceleration]], [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]].
+The deeper learning result is that kinematics is not a memorized list of formulas. It is a reversible structure: slopes move from position to velocity to acceleration, while signed areas move from acceleration to velocity to displacement. This chapter node points to the reusable files that carry that structure: [[ch2-position-displacement-average-velocity|position and displacement]], [[ch2-instantaneous-velocity-speed|instantaneous velocity]], [[ch2-acceleration|acceleration]], [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]].
 
 ## Source Basis
 
 Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}
 
-The reconstruction follows the source modules on motion along a straight line. The important learning target is not memorizing equations, but seeing how each equation follows from a definition, a graph interpretation, or the assumption that acceleration is constant.
+Halliday supplies the local straight-line motion sequence. OpenStax supplies an open, calculus-aware account of kinematics and graph interpretation. MIT OCW supplies a complementary structure that treats one-dimensional motion through derivative and integral relations. The content below synthesizes those sources into an ontology rather than reproducing a single textbook.
 
 ## Logical Development
 
@@ -23,13 +23,14 @@ The chapter's reasoning path is:
 
 1. Restrict the body to particle-like motion along one straight axis.
 2. Use a coordinate axis to assign position as a signed measured quantity.
-3. Define displacement from final minus initial position, not from path length.
+3. Define displacement from final minus initial position, while keeping distance as path length.
 4. Define average velocity from displacement per elapsed time and average speed from total distance per elapsed time.
-5. Take the limit of average velocity to get instantaneous velocity.
-6. Define acceleration as the rate of change of velocity.
-7. Treat constant acceleration as a special case that permits closed-form kinematic equations.
-8. Apply the constant-acceleration model to vertical free fall by replacing x with y and a with -g.
-9. Use graphical integration to reverse derivative information when acceleration or velocity is supplied as a graph.
+5. Shrink the interval to turn average velocity into instantaneous velocity.
+6. Differentiate velocity to define acceleration and read acceleration as velocity-graph slope.
+7. Integrate constant acceleration to obtain velocity and position functions.
+8. Apply the constant-acceleration model to vertical free fall by replacing \(x\) with \(y\) and \(a\) with \(-g\) when upward is positive.
+9. Use graphical integration to recover velocity change or displacement from signed area.
+10. Carry units and signs from Chapter 1 through every step so the equations remain physical, not merely algebraic.
 
 ## Definitions and Symbols
 
@@ -90,9 +91,9 @@ The conclusion of this node is that displacement and average velocity are signed
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-1.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on finite position change, signed displacement, distance, and average rates.
 
-The module assumes a particle or particle-like object moving along a single straight axis. That restriction lets direction be represented by algebraic sign while postponing the full vector language of Chapter 3.
+The node assumes a particle or particle-like object moving along a single straight axis. That restriction lets direction be represented by algebraic sign while postponing the full vector language of later chapters.
 
 ## Definitions and Symbols
 
@@ -140,9 +141,9 @@ The conclusion of this node is that instantaneous velocity is the derivative of 
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-2.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on the limiting transition from average velocity to instantaneous velocity.
 
-The module uses one-dimensional motion and assumes position is known as a function of time or as a position-time graph.
+The node uses one-dimensional motion and assumes position is known as a function of time or as a position-time graph.
 
 ## Definitions and Symbols
 
@@ -184,9 +185,9 @@ The conclusion of this node is that acceleration is the time derivative of veloc
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-3.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on acceleration as a derivative, graph slope, and sign-sensitive quantity.
 
-The source emphasizes sign discipline: in physics, the sign of acceleration indicates direction along the axis, not automatically "speeding up" or "slowing down."
+The synthesis emphasizes sign discipline: in physics, the sign of acceleration indicates direction along the axis, not automatically "speeding up" or "slowing down."
 
 ## Definitions and Symbols
 
@@ -232,9 +233,9 @@ The conclusion of this node is that constant acceleration turns the derivative d
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-4.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on the constant-acceleration special case and its integrated equation family.
 
-The source repeatedly warns that these equations apply only when acceleration is constant or when the situation can be reasonably approximated that way.
+The synthesis treats the equations as consequences of \(a=\mathrm{constant}\), not as general-purpose formulas for arbitrary motion.
 
 ## Definitions and Symbols
 
@@ -289,9 +290,9 @@ The conclusion of this node is that ideal free fall near Earth's surface is cons
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-5.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on ideal near-Earth free fall as a vertical constant-acceleration model.
 
-The source assumes air resistance can be neglected. Under that assumption, the acceleration is downward and has magnitude $g$ independent of the falling object's mass, density, or shape.
+The node assumes air resistance can be neglected. Under that assumption, the acceleration is downward and has magnitude \(g\) independent of the falling object's mass, density, or shape.
 
 ## Definitions and Symbols
 
@@ -345,9 +346,9 @@ The conclusion of this node is that graph area reverses the derivative relations
 
 ## Source Scope
 
-Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, Module 2-6.
+Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}, focused on graphical integration as the inverse operation to derivative-based kinematics.
 
-The module closes the chapter by linking the derivative definitions of velocity and acceleration to the inverse operation: accumulation over time.
+The node closes the chapter by linking the derivative definitions of velocity and acceleration to the inverse operation: accumulation over time.
 
 ## Core Equations
 
@@ -379,7 +380,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
         id: 'fundamentals-ch2-motion-along-straight-line',
         title: 'Fundamentals Chapter 2: Motion Along a Straight Line',
         summary:
-            'Chapter-level integration map for one-dimensional kinematics, split into reusable concept nodes because the chapter introduces durable rate, derivative, and constant-acceleration structures.',
+            'Multi-source chapter-level map for one-dimensional kinematics as a derivative, integral, graph, and constant-acceleration structure.',
         content: CHAPTER_2_OVERVIEW,
         x: 1580,
         y: 120,
