@@ -62,6 +62,7 @@ If multiple skills apply, start with the one that owns the artifact being change
 - Service role keys and provider tokens must stay server-side and out of generated client bundles.
 - Respect the dirty worktree. Do not revert unrelated user changes.
 - Prefer boring, inspectable, repo-local mechanisms over opaque abstractions when they improve agent legibility.
+- Visible frontend changes should be implemented as part of the route-level layout and interaction system, not as isolated feature accretion.
 - Route, component, API, DB, schema, or config changes should refresh and validate the site-code registry.
 - Every active registry node needs an existing `source_path`; every relation needs evidence.
 
@@ -79,6 +80,7 @@ Use Windows `.cmd` commands when PowerShell script shims may block execution.
 
 - General frontend check: `npm.cmd run build`
 - Lint check: `npm.cmd run lint`
+- Browser visual check: after visible frontend changes, open the affected local route in Browser when available and compare the actual UI against the requested behavior.
 - Dev server: `npm.cmd run dev`
 - MCP server check: run `npm.cmd run build` inside `mcp-server/`
 - Security check: `npm.cmd run security:check`

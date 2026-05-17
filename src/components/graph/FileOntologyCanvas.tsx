@@ -126,6 +126,8 @@ interface FileOntologyLayer {
     id: string;
     title: string;
     fileIds: string[];
+    accentColor: string;
+    accentBackground: string;
     x: number;
     y: number;
     width: number;
@@ -154,18 +156,38 @@ const LAYOUT_ORIGIN_X = 160;
 const LAYOUT_ORIGIN_Y = 160;
 const GROUP_NODE_COLUMN_GAP = 900;
 const GROUP_NODE_ROW_GAP = 660;
-const GROUP_PADDING_X = 180;
-const GROUP_PADDING_Y = 150;
-const GROUP_GAP_X = 440;
+const GROUP_PADDING_X = 220;
+const GROUP_PADDING_Y = 180;
+const GROUP_GAP_X = 620;
+const LAYER_BOUNDARY_GAP = 120;
 const NODE_COLLISION_PADDING = 88;
 const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
 const VIEWPORT_STATE_COMMIT_DELAY_MS = 90;
+const FILE_TITLE_ONLY_SCREEN_FONT_SIZE = 13;
 
 const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
     ['measurement-foundations', 'Measurement Foundations'],
     ['one-dimensional-kinematics', 'One-Dimensional Kinematics'],
 ]);
+const FILE_ONTOLOGY_LAYER_ACCENTS = [
+    {
+        color: 'hsla(205, 78%, 36%, 0.78)',
+        background: 'hsla(205, 78%, 44%, 0.065)',
+    },
+    {
+        color: 'hsla(28, 78%, 39%, 0.78)',
+        background: 'hsla(28, 78%, 48%, 0.065)',
+    },
+    {
+        color: 'hsla(146, 46%, 34%, 0.78)',
+        background: 'hsla(146, 46%, 42%, 0.065)',
+    },
+    {
+        color: 'hsla(354, 62%, 42%, 0.78)',
+        background: 'hsla(354, 62%, 50%, 0.055)',
+    },
+];
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
@@ -195,11 +217,31 @@ function scaleViewportAroundScreenPoint(
 }
 
 function getFileOntologyLayerId(file: FileOntologyFile) {
+    const identityLookup = normalizeFileOntologyLookup(`${file.id} ${file.title}`);
     const lookup = normalizeFileOntologyLookup(`${file.id} ${file.title} ${file.summary}`);
 
     if (
-        lookup.includes('ch1') ||
-        lookup.includes('chapter 1') ||
+        identityLookup.includes('ch2') ||
+        identityLookup.includes('chapter 2') ||
+        identityLookup.includes('motion') ||
+        identityLookup.includes('kinematic') ||
+        identityLookup.includes('position') ||
+        identityLookup.includes('velocity') ||
+        identityLookup.includes('acceleration') ||
+        identityLookup.includes('free fall')
+    ) {
+        return 'one-dimensional-kinematics';
+    }
+
+    if (
+        identityLookup.includes('ch1') ||
+        identityLookup.includes('chapter 1') ||
+        identityLookup.includes('measurement')
+    ) {
+        return 'measurement-foundations';
+    }
+
+    if (
         lookup.includes('measurement') ||
         lookup.includes('unit') ||
         lookup.includes('dimension') ||
@@ -237,6 +279,14 @@ function getFileOntologyLayerTitle(layerId: string, files: FileOntologyFile[]) {
         .join(' ');
 }
 
+function getFileOntologyLayerAccent(layerId: string) {
+    const knownIndex = Array.from(FILE_ONTOLOGY_LAYER_TITLES.keys()).indexOf(layerId);
+    const fallbackIndex = Array.from(layerId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const paletteIndex = knownIndex >= 0 ? knownIndex : fallbackIndex;
+
+    return FILE_ONTOLOGY_LAYER_ACCENTS[paletteIndex % FILE_ONTOLOGY_LAYER_ACCENTS.length];
+}
+
 function groupFilesByOntologyLayer(files: FileOntologyFile[]) {
     const groups = new Map<string, FileOntologyFile[]>();
 
@@ -253,11 +303,14 @@ function calculateLayerBounds(layerId: string, files: FileOntologyFile[]): FileO
     const minY = Math.min(...files.map((file) => file.y));
     const maxX = Math.max(...files.map((file) => file.x + file.width));
     const maxY = Math.max(...files.map((file) => file.y + file.height));
+    const accent = getFileOntologyLayerAccent(layerId);
 
     return {
         id: layerId,
         title: getFileOntologyLayerTitle(layerId, files),
         fileIds: files.map((file) => file.id),
+        accentColor: accent.color,
+        accentBackground: accent.background,
         x: minX - GROUP_PADDING_X,
         y: minY - GROUP_PADDING_Y,
         width: maxX - minX + GROUP_PADDING_X * 2,
@@ -270,6 +323,22 @@ function calculateFileOntologyLayers(files: FileOntologyFile[]) {
         .filter(([, groupFiles]) => groupFiles.length > 0)
         .map(([layerId, groupFiles]) => calculateLayerBounds(layerId, groupFiles))
         .sort((a, b) => a.x - b.x || a.y - b.y);
+}
+
+function fileOntologyLayoutNeedsNormalization(files: FileOntologyFile[]) {
+    const layers = calculateFileOntologyLayers(files);
+    const layerCollision = layers.some((layer, layerIndex) =>
+        layers
+            .slice(layerIndex + 1)
+            .some((otherLayer) => rectsOverlap(layer, otherLayer, LAYER_BOUNDARY_GAP)),
+    );
+    if (layerCollision) return true;
+
+    return files.some((file, fileIndex) =>
+        files
+            .slice(fileIndex + 1)
+            .some((otherFile) => rectsOverlap(fileRect(file), fileRect(otherFile), NODE_COLLISION_PADDING / 2)),
+    );
 }
 
 function calculateFileRanks(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
@@ -1059,6 +1128,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [displayFiles]);
 
     const fileLayers = useMemo(() => calculateFileOntologyLayers(displayFiles), [displayFiles]);
+    const layerByFileId = useMemo(() => {
+        const map = new Map<string, FileOntologyLayer>();
+        fileLayers.forEach((layer) => {
+            layer.fileIds.forEach((fileId) => map.set(fileId, layer));
+        });
+        return map;
+    }, [fileLayers]);
     const isLayerOnlyView = viewport.scale < LAYER_ONLY_SCALE;
 
     const maximizedFile = maximizedFileId ? fileById.get(maximizedFileId) || null : null;
@@ -1131,19 +1207,27 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         setIsLoading(true);
         try {
             const result = await fetchFileOntologyModel();
-            const firstFile = result.model.files[0] ?? null;
+            const loadedFiles = fileOntologyLayoutNeedsNormalization(result.model.files)
+                ? optimizeFileOntologyLayout(result.model.files, result.model.edges)
+                : result.model.files;
+            const firstFile = loadedFiles[0] ?? null;
             const nextDrafts = Object.fromEntries(
-                result.model.files.map((file) => [file.id, draftFromFile(file)]),
+                loadedFiles.map((file) => [file.id, draftFromFile(file)]),
             );
 
-            setFiles(result.model.files);
+            setFiles(loadedFiles);
             setEdges(result.model.edges);
             setDrafts(nextDrafts);
             setSelectedFileId(firstFile?.id ?? null);
             setMaximizedFileId(null);
             setSplitFileIds([]);
             setSummonedFilePositions({});
-            setStatusMessage(result.warning || null);
+            setStatusMessage(
+                result.warning ||
+                    (loadedFiles === result.model.files
+                        ? null
+                        : 'Rebalanced file layers locally to prevent overlap. Use Optimize layout to save it.'),
+            );
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown file ontology load error';
             setStatusMessage(message);
@@ -2218,7 +2302,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const isEditing = editingFileId === file.id;
         const isTitleOnly = viewport.scale < TITLE_ONLY_SCALE;
         const isSummoned = Boolean(summonedFilePositions[file.id]);
-        const titleOnlyFontSize = Math.round(clamp(20 / Math.max(viewport.scale, MIN_SCALE), 34, 104));
+        const layer = layerByFileId.get(file.id) || null;
+        const titleOnlyFontSize = Math.round(
+            clamp(FILE_TITLE_ONLY_SCREEN_FONT_SIZE / Math.max(viewport.scale, MIN_SCALE), 24, 64),
+        );
 
         return (
             <div
@@ -2234,6 +2321,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     top: file.y,
                     width: file.width,
                     height: file.height,
+                    borderTopColor: layer?.accentColor,
+                    borderTopWidth: layer ? 3 : undefined,
                 }}
                 data-file-node-id={file.id}
                 onClick={(event) => {
@@ -2249,8 +2338,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <FileText className="h-4 w-4 shrink-0 text-foreground" />
                         <div className="min-w-0">
                             <div className="truncate text-sm font-semibold text-foreground">{file.title}</div>
-                            <div className="truncate text-[11px] text-muted-foreground">
-                                {isSummoned ? 'linked highlight preview' : file.id}
+                            <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
+                                {layer ? (
+                                    <span
+                                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                                        style={{ backgroundColor: layer.accentColor }}
+                                    />
+                                ) : null}
+                                <span className="truncate">
+                                    {isSummoned ? 'linked highlight preview' : layer?.title || file.id}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -2297,7 +2394,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center">
                         <div
                             className="max-w-full px-4 font-semibold leading-tight text-foreground"
-                            style={{ fontSize: titleOnlyFontSize }}
+                            style={{
+                                display: '-webkit-box',
+                                fontSize: titleOnlyFontSize,
+                                overflow: 'hidden',
+                                WebkitBoxOrient: 'vertical',
+                                WebkitLineClamp: 2,
+                            }}
                         >
                             {file.title}
                         </div>
@@ -2368,27 +2471,47 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                 ? clamp(28 / Math.max(viewport.scale, MIN_SCALE), 96, 220)
                                 : clamp(16 / Math.max(viewport.scale, 0.45), 22, 48),
                         );
+                        const layerBadgeFontSize = Math.round(clamp(12 / Math.max(viewport.scale, 0.45), 16, 32));
 
                         return (
                             <div
                                 key={layer.id}
                                 className={cn(
-                                    'pointer-events-none absolute rounded-[2rem] border transition-colors duration-200',
+                                    'pointer-events-none absolute rounded-[2rem] border-2 transition-colors duration-200',
                                     isLayerOnlyView
-                                        ? 'border-foreground/20 bg-background/70'
-                                        : 'border-foreground/10 bg-foreground/[0.025]',
+                                        ? 'bg-background/70'
+                                        : 'bg-background/20',
                                 )}
                                 style={{
+                                    backgroundColor: isLayerOnlyView ? 'hsl(var(--background) / 0.72)' : layer.accentBackground,
+                                    borderColor: layer.accentColor,
+                                    boxShadow: `inset 0 0 0 1px ${layer.accentColor}`,
                                     left: layer.x,
                                     top: layer.y,
                                     width: layer.width,
                                     height: layer.height,
                                 }}
                             >
+                                {!isLayerOnlyView ? (
+                                    <div
+                                        className="absolute left-7 top-6 flex items-center gap-3 rounded-full border bg-background/90 px-4 py-2 font-semibold text-foreground shadow-[0_0_0_3px_hsl(var(--background))]"
+                                        style={{
+                                            borderColor: layer.accentColor,
+                                            fontSize: layerBadgeFontSize,
+                                        }}
+                                    >
+                                        <span
+                                            className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                            style={{ backgroundColor: layer.accentColor }}
+                                        />
+                                        <span>{layer.title}</span>
+                                        <span className="text-muted-foreground">{layer.fileIds.length} files</span>
+                                    </div>
+                                ) : null}
                                 <div
                                     className={cn(
                                         'absolute left-1/2 top-1/2 w-[90%] -translate-x-1/2 -translate-y-1/2 text-center font-display font-bold leading-none text-foreground transition-opacity duration-200',
-                                        isLayerOnlyView ? 'opacity-100' : 'opacity-20',
+                                        isLayerOnlyView ? 'opacity-100' : 'opacity-10',
                                     )}
                                     style={{ fontSize: layerTitleFontSize }}
                                 >

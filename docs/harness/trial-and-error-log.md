@@ -222,3 +222,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Merge missing bundled ontology files and edges into database read results while preserving database rows for matching ids; when older bundled learner content is detected by retired section markers, show the refreshed bundled body until DB rows are saved or migrated.
 - Prevention: For bundled ontology content, verify empty-table fallback, non-empty database reads, and stale-seed content reads before assuming a deploy will make nodes and body revisions visible.
 - Related files: `src/lib/fileOntology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `database/sql/migrations/migration_integrate_fundamentals_chapter2_file_ontology.sql`
+
+### 2026-05-18 - Visible UI changes need system-level browser QA
+
+- Context: File ontology zoom/title/layer features were implemented incrementally, but title-only text became too large and topic layers could overlap or fail to communicate node membership.
+- False assumption or risk: Passing build and adding the requested feature is enough for a graph-view UI change.
+- Signal: The user reported that the visual result did not fit the overall website structure even though the individual features existed.
+- Correction: Treat graph UI changes as a route-level visual system: tune screen-perceived typography, make ownership boundaries explicit, prevent layer collisions, and verify the actual route in a browser.
+- Prevention: After visible frontend changes, run the Browser QA loop from `frontend-site-implementation`; inspect normal, title-only, and layer-only zoom states for `/graph`.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `.codex/skills/frontend-site-implementation/SKILL.md`, `AGENTS.md`

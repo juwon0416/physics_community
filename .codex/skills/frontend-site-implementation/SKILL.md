@@ -7,7 +7,7 @@ description: Use when implementing or reviewing React, Vite, TypeScript, routing
 
 ## Overview
 
-Implement website changes in the existing React/Vite app while preserving graph-native learning behavior, editor rendering, and the current visual language.
+Implement website changes in the existing React/Vite app while preserving graph-native learning behavior, editor rendering, and the current visual language. Treat visible UI work as product-system work, not feature accretion: every change should fit the route's information architecture, interaction model, layout rhythm, performance budget, and visual hierarchy.
 
 ## Load First
 
@@ -20,16 +20,32 @@ Implement website changes in the existing React/Vite app while preserving graph-
 ## Workflow
 
 1. Identify the visible route, data source, and component owner before editing.
-2. Keep changes local to the affected page, component, or helper.
-3. If the requested user workflow, persistence model, route, or data source is unclear, report `명확하지 않은 부분 -> 질문` before implementation.
-4. Preserve existing design system patterns unless the task explicitly asks for a redesign.
-5. For topic/editor rendering, coordinate with `website-content-authoring`.
-6. For graph persistence or schema behavior, coordinate with `graph-data-stewardship`.
-7. Run `npm.cmd run build` for behavior changes, `npm.cmd run lint` when lint risk is meaningful, and `npm.cmd run security:check` before deployment.
-8. If a local app target is obvious after a frontend change, verify in the browser when available.
-9. After successful verification, stage and commit the frontend change as a focused Git checkpoint unless the user asked to avoid Git actions.
-10. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
-11. Log new UI validation or rendering pitfalls with `harness-memory`.
+2. Before adding UI behavior, map the route-level system: primary user goal, visual hierarchy, zoom/responsive states, ownership of state, persistence boundary, and performance-sensitive surfaces.
+3. Keep changes local to the affected page, component, or helper.
+4. If the requested user workflow, persistence model, route, or data source is unclear, report `명확하지 않은 부분 -> 질문` before implementation.
+5. Preserve existing design system patterns unless the task explicitly asks for a redesign.
+6. For topic/editor rendering, coordinate with `website-content-authoring`.
+7. For graph persistence or schema behavior, coordinate with `graph-data-stewardship`.
+8. Run `npm.cmd run build` for behavior changes, `npm.cmd run lint` when lint risk is meaningful, and `npm.cmd run security:check` before deployment.
+9. After visible frontend changes, open the affected route in the Browser plugin when available and verify the actual UI state against the user's intent; do not treat TypeScript build success as visual QA.
+10. After successful verification, stage and commit the frontend change as a focused Git checkpoint unless the user asked to avoid Git actions.
+11. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
+12. Log new UI validation or rendering pitfalls with `harness-memory`.
+
+## System-Level UI Standards
+
+- Avoid bolting on isolated controls or visual states. Integrate new behavior into the page's navigation, hierarchy, and existing mental model.
+- For graph/editor views, define zoom states, node density, label scale, layer membership, collision behavior, and interaction priority before coding.
+- Prefer explicit visual ownership: a node's group, active state, editable state, and data source should be visually legible without relying on hidden implementation knowledge.
+- Optimize for perceived smoothness on the main interaction path. Avoid rerendering large markdown, graph, or editor subtrees during pan/zoom when a compositor transform is sufficient.
+- Tune typography by screen-perceived size across breakpoints and zoom levels, not only by CSS values in world coordinates.
+- When the user reports a visual issue caused by a previous feature addition, look for the underlying system mismatch and update this skill or harness memory if it should change future behavior.
+
+## Browser QA Loop
+
+- For visible UI work, start the local app if needed, open the affected route, and verify the exact interaction or layout state in a browser.
+- For `/graph`, check at least normal zoom, title-only zoom, layer-only zoom, and one representative interaction such as pan, wheel zoom, maximize, or highlighted-link opening when relevant.
+- Capture screenshots or DOM observations when they materially confirm the fix; if Browser is unavailable, report that explicitly and state the residual visual risk.
 
 ## Guardrails
 
