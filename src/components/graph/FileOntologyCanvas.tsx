@@ -136,6 +136,23 @@ function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
 }
 
+function scaleViewportAroundScreenPoint(
+    current: Viewport,
+    nextScale: number,
+    anchorX: number,
+    anchorY: number,
+): Viewport {
+    const worldX = (anchorX - current.x) / current.scale;
+    const worldY = (anchorY - current.y) / current.scale;
+
+    return {
+        ...current,
+        x: anchorX - worldX * nextScale,
+        y: anchorY - worldY * nextScale,
+        scale: nextScale,
+    };
+}
+
 function optimizeFileOntologyLayout(files: FileOntologyFile[], edges: FileOntologyEdge[]) {
     const incomingCounts = new Map(files.map((file) => [file.id, 0]));
     const adjacency = new Map(files.map((file) => [file.id, [] as string[]]));
@@ -973,12 +990,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         event.preventDefault();
         event.stopPropagation();
 
+        const rect = canvasRef.current?.getBoundingClientRect();
+        const anchorX = rect ? rect.width / 2 : 0;
+        const anchorY = rect ? rect.height / 2 : 0;
         const zoomFactor = event.deltaY > 0 ? 0.92 : 1.08;
         setViewport((current) => {
-            const nextViewport = {
-                ...current,
-                scale: clamp(current.scale * zoomFactor, MIN_SCALE, MAX_SCALE),
-            };
+            const nextScale = clamp(current.scale * zoomFactor, MIN_SCALE, MAX_SCALE);
+            const nextViewport = scaleViewportAroundScreenPoint(current, nextScale, anchorX, anchorY);
 
             applySceneTransform(nextViewport);
             return nextViewport;
@@ -1391,11 +1409,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     };
 
     const zoomBy = (factor: number) => {
+        const rect = canvasRef.current?.getBoundingClientRect();
+        const anchorX = rect ? rect.width / 2 : 0;
+        const anchorY = rect ? rect.height / 2 : 0;
+
         setViewport((current) => {
-            const nextViewport = {
-                ...current,
-                scale: clamp(current.scale * factor, MIN_SCALE, MAX_SCALE),
-            };
+            const nextScale = clamp(current.scale * factor, MIN_SCALE, MAX_SCALE);
+            const nextViewport = scaleViewportAroundScreenPoint(current, nextScale, anchorX, anchorY);
 
             applySceneTransform(nextViewport);
             return nextViewport;

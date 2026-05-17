@@ -1,12 +1,12 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "5f71bee5a0919766f596986e6e4a49252eb03398",
-    "generated_at": "2026-05-17T15:37:24.870Z",
+    "commit": "d078c90f50aaa33e174617a659d1ba0527013f86",
+    "generated_at": "2026-05-17T15:50:57.147Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "git-ls-files",
-    "tracked_file_count": 382,
-    "untracked_file_count": 3,
+    "tracked_file_count": 385,
+    "untracked_file_count": 0,
     "scanned_file_count": 166,
     "node_count": 134,
     "edge_count": 202
@@ -4882,8 +4882,8 @@
     },
     {
       "path": "database/sql/migrations/migration_integrate_fundamentals_chapter2_file_ontology.sql",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "sql",
       "node_ids": [
         "database:migration-integrate-fundamentals-chapter-2-file-ontology"
@@ -5436,8 +5436,8 @@
     },
     {
       "path": "src/data/fundamentalsChapter2Ontology.ts",
-      "tracked": false,
-      "untracked": true,
+      "tracked": true,
+      "untracked": false,
       "kind": "source",
       "node_ids": []
     },

@@ -132,6 +132,41 @@ export function getStarterFileOntologyModel(): FileOntologyModel {
     };
 }
 
+function mergeBundledOntologyModel(
+    databaseFiles: FileOntologyFile[],
+    databaseEdges: FileOntologyEdge[],
+    bundledModel: FileOntologyModel,
+) {
+    const files = databaseFiles.filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id));
+    const fileIds = new Set(files.map((file) => file.id));
+    const bundledFiles = bundledModel.files
+        .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id) && !fileIds.has(file.id))
+        .map(cloneFile);
+
+    const mergedFiles = [...files, ...bundledFiles];
+    const mergedFileIds = new Set(mergedFiles.map((file) => file.id));
+    const edges = databaseEdges.filter(
+        (edge) => mergedFileIds.has(edge.sourceFileId) && mergedFileIds.has(edge.targetFileId),
+    );
+    const edgeIds = new Set(edges.map((edge) => edge.id));
+    const bundledEdges = bundledModel.edges
+        .filter(
+            (edge) =>
+                !edgeIds.has(edge.id) &&
+                mergedFileIds.has(edge.sourceFileId) &&
+                mergedFileIds.has(edge.targetFileId),
+        )
+        .map(cloneEdge);
+
+    return {
+        model: {
+            files: mergedFiles,
+            edges: [...edges, ...bundledEdges],
+        },
+        addedBundledFilesCount: bundledFiles.length,
+    };
+}
+
 function isMissingAnyRelationError(
     error: { message?: string; code?: string } | null | undefined,
     relationNames: string[],
@@ -273,9 +308,7 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         };
     }
 
-    const files = (fileRows || [])
-        .map((row) => toFile(row as FileOntologyFileRow))
-        .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id));
+    const files = (fileRows || []).map((row) => toFile(row as FileOntologyFileRow));
 
     const { data: edgeRows, error: edgeError } = await supabase
         .from(EDGE_TABLE)
@@ -283,12 +316,16 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         .order('created_at', { ascending: true });
 
     if (edgeError) {
+        const merged = mergeBundledOntologyModel(files, [], starter);
+
         return {
-            model: {
-                files: files.length > 0 ? files : starter.files.map(cloneFile),
-                edges: files.length > 0 ? [] : starter.edges.map(cloneEdge),
-            },
-            source: files.length > 0 ? 'database' : 'starter',
+            model: merged.model.files.length > 0
+                ? merged.model
+                : {
+                      files: starter.files.map(cloneFile),
+                      edges: starter.edges.map(cloneEdge),
+                  },
+            source: merged.model.files.length > 0 ? 'database' : 'starter',
             warning: isMissingRelationError(edgeError)
                 ? FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE
                 : `File ontology edge read failed: ${edgeError.message}`,
@@ -306,17 +343,19 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         };
     }
 
-    const fileIds = new Set(files.map((file) => file.id));
-    const edges = (edgeRows || [])
-        .map((row) => toEdge(row as FileOntologyEdgeRow))
-        .filter((edge) => fileIds.has(edge.sourceFileId) && fileIds.has(edge.targetFileId));
+    const merged = mergeBundledOntologyModel(
+        files,
+        (edgeRows || []).map((row) => toEdge(row as FileOntologyEdgeRow)),
+        starter,
+    );
 
     return {
-        model: {
-            files,
-            edges,
-        },
+        model: merged.model,
         source: 'database',
+        warning:
+            merged.addedBundledFilesCount > 0
+                ? 'Database file ontology is missing bundled ontology nodes. Showing bundled seed nodes until the database migration is applied or the nodes are saved.'
+                : undefined,
     };
 }
 

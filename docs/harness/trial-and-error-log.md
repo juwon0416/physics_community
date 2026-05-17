@@ -213,3 +213,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Record both results and use targeted lint for changed files until the legacy lint baseline is cleaned up.
 - Prevention: When reporting verification, distinguish full-repo lint baseline failures from changed-file lint results.
 - Related files: `src/components/graph/OntologyGraphView.tsx`, `src/lib/renderTopicMath.ts`, `src/lib/sourceText.ts`, `src/lib/theme.tsx`, `src/pages/TopicPage.tsx`
+
+### 2026-05-18 - Bundled file ontology seeds must merge with DB reads
+
+- Context: Halliday Chapter 2 file-ontology nodes were added to bundled starter data and deployed, but did not appear on `/graph`.
+- False assumption or risk: A frontend deploy that adds static starter files will affect a deployed site whose `file_ontology_files` table already has rows.
+- Signal: `fetchFileOntologyModel` returned database rows whenever the table was non-empty, so fallback Chapter 2 nodes were ignored unless the SQL migration was separately applied.
+- Correction: Merge missing bundled ontology files and edges into database read results while preserving database rows for matching ids.
+- Prevention: For bundled ontology content, verify both empty-table fallback and non-empty database reads before assuming a deploy will make nodes visible.
+- Related files: `src/lib/fileOntology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `database/sql/migrations/migration_integrate_fundamentals_chapter2_file_ontology.sql`
