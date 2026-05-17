@@ -132,6 +132,8 @@ interface FileOntologyLayer {
     height: number;
 }
 
+type ViewportRenderMode = 'content' | 'title' | 'layer';
+
 interface WorkflowDraftState {
     mode: OntologyWorkflowMode;
     title: string;
@@ -158,6 +160,7 @@ const GROUP_GAP_X = 440;
 const NODE_COLLISION_PADDING = 88;
 const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
+const VIEWPORT_STATE_COMMIT_DELAY_MS = 90;
 
 const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
     ['measurement-foundations', 'Measurement Foundations'],
@@ -166,6 +169,12 @@ const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
+}
+
+function getViewportRenderMode(scale: number): ViewportRenderMode {
+    if (scale < LAYER_ONLY_SCALE) return 'layer';
+    if (scale < TITLE_ONLY_SCALE) return 'title';
+    return 'content';
 }
 
 function scaleViewportAroundScreenPoint(
@@ -917,6 +926,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const dragPointerIdRef = useRef<number | null>(null);
     const dragCaptureTargetRef = useRef<Element | null>(null);
     const viewportRef = useRef<Viewport>({ x: 80, y: 40, scale: 0.92 });
+    const pendingViewportRef = useRef<Viewport | null>(null);
+    const transformFrameRef = useRef<number | null>(null);
+    const viewportCommitTimeoutRef = useRef<number | null>(null);
+    const viewportRenderModeRef = useRef<ViewportRenderMode>(getViewportRenderMode(viewportRef.current.scale));
     const summonedFilePositionsRef = useRef<Record<string, SummonedFilePosition>>({});
     const [files, setFiles] = useState<FileOntologyFile[]>([]);
     const [edges, setEdges] = useState<FileOntologyEdge[]>([]);
@@ -959,12 +972,69 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         };
     }, [workflowResult]);
 
-    const applySceneTransform = useCallback((nextViewport: Viewport) => {
-        viewportRef.current = nextViewport;
+    const writeSceneTransform = useCallback((nextViewport: Viewport) => {
+        if (!sceneRef.current) return;
 
-        if (sceneRef.current) {
-            sceneRef.current.style.transform = `translate(${nextViewport.x}px, ${nextViewport.y}px) scale(${nextViewport.scale})`;
+        sceneRef.current.style.transform = `translate3d(${nextViewport.x}px, ${nextViewport.y}px, 0) scale(${nextViewport.scale})`;
+    }, []);
+
+    const applySceneTransform = useCallback(
+        (nextViewport: Viewport, immediate = false) => {
+            viewportRef.current = nextViewport;
+            pendingViewportRef.current = nextViewport;
+
+            if (immediate) {
+                if (transformFrameRef.current !== null) {
+                    window.cancelAnimationFrame(transformFrameRef.current);
+                    transformFrameRef.current = null;
+                }
+                writeSceneTransform(nextViewport);
+                pendingViewportRef.current = null;
+                return;
+            }
+
+            if (transformFrameRef.current !== null) return;
+
+            transformFrameRef.current = window.requestAnimationFrame(() => {
+                transformFrameRef.current = null;
+                const pendingViewport = pendingViewportRef.current;
+                if (!pendingViewport) return;
+
+                writeSceneTransform(pendingViewport);
+                pendingViewportRef.current = null;
+            });
+        },
+        [writeSceneTransform],
+    );
+
+    const scheduleViewportStateCommit = useCallback((nextViewport: Viewport, sync = false) => {
+        const nextMode = getViewportRenderMode(nextViewport.scale);
+        const modeChanged = nextMode !== viewportRenderModeRef.current;
+
+        if (viewportCommitTimeoutRef.current !== null) {
+            window.clearTimeout(viewportCommitTimeoutRef.current);
+            viewportCommitTimeoutRef.current = null;
         }
+
+        if (sync || modeChanged) {
+            viewportRenderModeRef.current = nextMode;
+            setViewport(nextViewport);
+            return;
+        }
+
+        viewportCommitTimeoutRef.current = window.setTimeout(() => {
+            viewportCommitTimeoutRef.current = null;
+            const latestViewport = viewportRef.current;
+            viewportRenderModeRef.current = getViewportRenderMode(latestViewport.scale);
+
+            setViewport((current) =>
+                current.x === latestViewport.x &&
+                current.y === latestViewport.y &&
+                current.scale === latestViewport.scale
+                    ? current
+                    : latestViewport,
+            );
+        }, VIEWPORT_STATE_COMMIT_DELAY_MS);
     }, []);
 
     const displayFiles = useMemo(
@@ -1115,8 +1185,22 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [maximizedFileId]);
 
     useEffect(() => {
-        applySceneTransform(viewport);
+        viewportRenderModeRef.current = getViewportRenderMode(viewport.scale);
+        applySceneTransform(viewport, true);
     }, [applySceneTransform, viewport]);
+
+    useEffect(
+        () => () => {
+            if (transformFrameRef.current !== null) {
+                window.cancelAnimationFrame(transformFrameRef.current);
+            }
+
+            if (viewportCommitTimeoutRef.current !== null) {
+                window.clearTimeout(viewportCommitTimeoutRef.current);
+            }
+        },
+        [],
+    );
 
     useEffect(() => {
         if (!dragState) return;
@@ -1142,8 +1226,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             }
 
             if (dragState.kind === 'move') {
-                const nextX = dragState.originX + (event.clientX - dragState.startClientX) / viewport.scale;
-                const nextY = dragState.originY + (event.clientY - dragState.startClientY) / viewport.scale;
+                const currentScale = viewportRef.current.scale;
+                const nextX = dragState.originX + (event.clientX - dragState.startClientX) / currentScale;
+                const nextY = dragState.originY + (event.clientY - dragState.startClientY) / currentScale;
 
                 if (dragState.isSummoned) {
                     setSummonedFilePositions((current) => {
@@ -1175,8 +1260,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 return;
             }
 
-            const nextWidth = dragState.originWidth + (event.clientX - dragState.startClientX) / viewport.scale;
-            const nextHeight = dragState.originHeight + (event.clientY - dragState.startClientY) / viewport.scale;
+            const currentScale = viewportRef.current.scale;
+            const nextWidth = dragState.originWidth + (event.clientX - dragState.startClientX) / currentScale;
+            const nextHeight = dragState.originHeight + (event.clientY - dragState.startClientY) / currentScale;
 
             setFiles((currentFiles) =>
                 currentFiles.map((file) =>
@@ -1236,7 +1322,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             }
 
             if (dragState.kind === 'pan') {
-                setViewport(viewportRef.current);
+                const latestViewport = viewportRef.current;
+                applySceneTransform(latestViewport, true);
+                scheduleViewportStateCommit(latestViewport, true);
             }
 
             releasePointerCapture();
@@ -1292,7 +1380,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             activeCaptureTarget?.removeEventListener('lostpointercapture', handleLostPointerCapture);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [applySceneTransform, dragState, isEditable, viewport.scale]);
+    }, [applySceneTransform, dragState, isEditable, scheduleViewportStateCommit]);
 
     const focusFile = useCallback((fileId: string) => {
         const file =
@@ -1306,17 +1394,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
 
-        setViewport((current) => {
-            const nextViewport = {
-                ...current,
-                x: rect.width * 0.42 - (file.x + file.width / 2) * current.scale,
-                y: rect.height * 0.5 - (file.y + file.height / 2) * current.scale,
-            };
+        const currentViewport = viewportRef.current;
+        const nextViewport = {
+            ...currentViewport,
+            x: rect.width * 0.42 - (file.x + file.width / 2) * currentViewport.scale,
+            y: rect.height * 0.5 - (file.y + file.height / 2) * currentViewport.scale,
+        };
 
-            applySceneTransform(nextViewport);
-            return nextViewport;
-        });
-    }, [applySceneTransform]);
+        applySceneTransform(nextViewport);
+        scheduleViewportStateCommit(nextViewport, true);
+    }, [applySceneTransform, scheduleViewportStateCommit]);
 
     const handleHoverLink = useCallback((file: FileOntologyFile | null, event?: ReactMouseEvent) => {
         if (!file || !event) {
@@ -1413,13 +1500,12 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const anchorX = rect ? rect.width / 2 : 0;
         const anchorY = rect ? rect.height / 2 : 0;
         const zoomFactor = event.deltaY > 0 ? 0.92 : 1.08;
-        setViewport((current) => {
-            const nextScale = clamp(current.scale * zoomFactor, MIN_SCALE, MAX_SCALE);
-            const nextViewport = scaleViewportAroundScreenPoint(current, nextScale, anchorX, anchorY);
+        const currentViewport = viewportRef.current;
+        const nextScale = clamp(currentViewport.scale * zoomFactor, MIN_SCALE, MAX_SCALE);
+        const nextViewport = scaleViewportAroundScreenPoint(currentViewport, nextScale, anchorX, anchorY);
 
-            applySceneTransform(nextViewport);
-            return nextViewport;
-        });
+        applySceneTransform(nextViewport);
+        scheduleViewportStateCommit(nextViewport);
     };
 
     const handleDragStartCapture = (event: React.DragEvent<HTMLDivElement>) => {
@@ -1448,8 +1534,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             kind: 'pan',
             startClientX: event.clientX,
             startClientY: event.clientY,
-            originX: viewport.x,
-            originY: viewport.y,
+            originX: viewportRef.current.x,
+            originY: viewportRef.current.y,
         });
     };
 
@@ -1626,7 +1712,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const optimizedFiles = optimizeFileOntologyLayout(filesRef.current, edges);
         setFiles(optimizedFiles);
         setSelectedFileId(optimizedFiles[0]?.id ?? null);
-        setViewport({ x: 80, y: 40, scale: 0.72 });
+        const optimizedViewport = { x: 80, y: 40, scale: 0.72 };
+        applySceneTransform(optimizedViewport, true);
+        scheduleViewportStateCommit(optimizedViewport, true);
         setStatusMessage('Optimized graph layout into collision-free topic clusters.');
 
         if (!isEditable) return;
@@ -1925,13 +2013,12 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const anchorX = rect ? rect.width / 2 : 0;
         const anchorY = rect ? rect.height / 2 : 0;
 
-        setViewport((current) => {
-            const nextScale = clamp(current.scale * factor, MIN_SCALE, MAX_SCALE);
-            const nextViewport = scaleViewportAroundScreenPoint(current, nextScale, anchorX, anchorY);
+        const currentViewport = viewportRef.current;
+        const nextScale = clamp(currentViewport.scale * factor, MIN_SCALE, MAX_SCALE);
+        const nextViewport = scaleViewportAroundScreenPoint(currentViewport, nextScale, anchorX, anchorY);
 
-            applySceneTransform(nextViewport);
-            return nextViewport;
-        });
+        applySceneTransform(nextViewport);
+        scheduleViewportStateCommit(nextViewport, true);
     };
 
     const renderNodeEditor = (file: FileOntologyFile, expanded = false) => {
@@ -2269,7 +2356,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     style={{
                         width: worldSize.width,
                         height: worldSize.height,
-                        transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.scale})`,
+                        transform: `translate3d(${viewport.x}px, ${viewport.y}px, 0) scale(${viewport.scale})`,
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                        contain: 'layout paint size',
                     }}
                 >
                     {fileLayers.map((layer) => {
@@ -2437,7 +2527,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <GitBranch className="h-4 w-4" />
                     </ToolbarButton>
                     <ToolbarButton
-                        onClick={() => setViewport({ x: 80, y: 40, scale: 0.92 })}
+                        onClick={() => {
+                            const resetViewport = { x: 80, y: 40, scale: 0.92 };
+                            applySceneTransform(resetViewport, true);
+                            scheduleViewportStateCommit(resetViewport, true);
+                        }}
                         title="Reset view"
                     >
                         <Move className="h-4 w-4" />
