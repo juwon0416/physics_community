@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, Input } from '../ui';
 import { cn } from '../../lib/cn';
 import {
     createBlankFileOntologyFile,
+    createFileOntologyId,
     createFileOntologyEdgeId,
     deleteFileOntologyEdge,
     deleteFileOntologyFile,
@@ -83,6 +84,7 @@ type DragState =
           startClientY: number;
           originX: number;
           originY: number;
+          isSummoned: boolean;
       }
     | {
           kind: 'resize';
@@ -112,6 +114,14 @@ interface LinkDialogState {
     search: string;
 }
 
+interface SummonedFilePosition {
+    sourceFileId: string;
+    x: number;
+    y: number;
+    anchorX: number;
+    anchorY: number;
+}
+
 interface WorkflowDraftState {
     mode: OntologyWorkflowMode;
     title: string;
@@ -131,6 +141,8 @@ const LAYOUT_COLUMN_GAP = 860;
 const LAYOUT_ROW_GAP = 620;
 const LAYOUT_ORIGIN_X = 160;
 const LAYOUT_ORIGIN_Y = 160;
+const MAX_SPLIT_FILE_PANES = 6;
+const SUMMON_RETURN_DISTANCE = 420;
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
@@ -241,6 +253,51 @@ function isScrollbarGutterPointerDown(event: React.PointerEvent<HTMLDivElement>)
 
 function clearGraphTextSelection() {
     window.getSelection()?.removeAllRanges();
+}
+
+function compactWhitespace(value: string) {
+    return value.trim().replace(/\s+/g, ' ');
+}
+
+function titleFromHighlight(anchorText: string) {
+    const compact = compactWhitespace(anchorText);
+    if (compact.length <= 88) return compact;
+    return `${compact.slice(0, 85).trimEnd()}...`;
+}
+
+function buildHighlightExpansionContent(title: string, sourceFile: FileOntologyFile, anchorText: string) {
+    return [
+        `# ${title}`,
+        '',
+        '## Abstract',
+        '',
+        `This file node exists to make the highlighted idea from [[${sourceFile.id}|${sourceFile.title}]] independently learnable. The conclusion should be stated first: this node explains the hidden step, definition, calculation, or submodel that the parent file relies on at the highlighted passage.`,
+        '',
+        '## Source Highlight',
+        '',
+        `> ${anchorText}`,
+        '',
+        '## Core Claim',
+        '',
+        'State the result this node lets the reader understand. If the highlighted passage contains an equation, this section should say what the equation computes, under which assumptions, and why it belongs at this point in the parent argument.',
+        '',
+        '## Definitions and Symbols',
+        '',
+        'Define only the quantities needed to understand the highlighted claim. Keep broader ontology policy, generation notes, and granularity reasoning out of the learner-facing body.',
+        '',
+        '## Logical Development',
+        '',
+        'Reconstruct the smallest reasoning path from definitions to the highlighted result. Use file links for reusable background concepts instead of turning this section into a prerequisite checklist.',
+        '',
+        '## Equations and Conditions',
+        '',
+        'Add equations with symbol meanings, assumptions, sign conventions, and validity conditions. Omit equations that do not directly support the highlighted claim.',
+        '',
+        '## Scope and Links',
+        '',
+        `- Parent highlight: [[${sourceFile.id}|${sourceFile.title}]]`,
+        '- Add graph edges from this file to the reusable concept files that justify the calculation or definition.',
+    ].join('\n');
 }
 
 function draftFromFile(file: FileOntologyFile): FileDraft {
@@ -406,7 +463,7 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
 function renderInlineMarkdown(
     text: string,
     lookup: Map<string, FileOntologyFile>,
-    onNavigate: (fileId: string) => void,
+    onActivateLink: (targetFileId: string) => void,
     onHoverLink: (file: FileOntologyFile | null, event?: ReactMouseEvent) => void,
 ): ReactNode[] {
     const nodes: ReactNode[] = [];
@@ -438,7 +495,7 @@ function renderInlineMarkdown(
                     )}
                     onClick={(event) => {
                         event.stopPropagation();
-                        if (linkedFile) onNavigate(linkedFile.id);
+                        if (linkedFile) onActivateLink(linkedFile.id);
                     }}
                     onMouseEnter={(event) => {
                         if (linkedFile) onHoverLink(linkedFile, event);
@@ -484,15 +541,17 @@ function renderInlineMarkdown(
 
 function MarkdownPreview({
     content,
+    sourceFileId,
     files,
-    onNavigate,
+    onActivateLink,
     onHoverLink,
     compact = false,
     centered = false,
 }: {
     content: string;
+    sourceFileId: string;
     files: FileOntologyFile[];
-    onNavigate: (fileId: string) => void;
+    onActivateLink: (sourceFileId: string, targetFileId: string) => void;
     onHoverLink: (file: FileOntologyFile | null, event?: ReactMouseEvent) => void;
     compact?: boolean;
     centered?: boolean;
@@ -534,7 +593,12 @@ function MarkdownPreview({
                             key={key}
                             className={cn('font-semibold tracking-tight text-foreground', headingClass)}
                         >
-                            {renderInlineMarkdown(block.text, lookup, onNavigate, onHoverLink)}
+                            {renderInlineMarkdown(
+                                block.text,
+                                lookup,
+                                (targetFileId) => onActivateLink(sourceFileId, targetFileId),
+                                onHoverLink,
+                            )}
                         </div>
                     );
                 }
@@ -544,7 +608,12 @@ function MarkdownPreview({
                         <ul key={key} className="list-disc space-y-1 pl-5">
                             {block.items.map((item, itemIndex) => (
                                 <li key={`${key}-${itemIndex}`}>
-                                    {renderInlineMarkdown(item, lookup, onNavigate, onHoverLink)}
+                                    {renderInlineMarkdown(
+                                        item,
+                                        lookup,
+                                        (targetFileId) => onActivateLink(sourceFileId, targetFileId),
+                                        onHoverLink,
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -554,7 +623,12 @@ function MarkdownPreview({
                 if (block.type === 'quote') {
                     return (
                         <blockquote key={key} className="border-l-2 border-border pl-3 text-muted-foreground">
-                            {renderInlineMarkdown(block.text, lookup, onNavigate, onHoverLink)}
+                            {renderInlineMarkdown(
+                                block.text,
+                                lookup,
+                                (targetFileId) => onActivateLink(sourceFileId, targetFileId),
+                                onHoverLink,
+                            )}
                         </blockquote>
                     );
                 }
@@ -582,7 +656,12 @@ function MarkdownPreview({
 
                 return (
                     <p key={key}>
-                        {renderInlineMarkdown(block.text, lookup, onNavigate, onHoverLink)}
+                        {renderInlineMarkdown(
+                            block.text,
+                            lookup,
+                            (targetFileId) => onActivateLink(sourceFileId, targetFileId),
+                            onHoverLink,
+                        )}
                     </p>
                 );
             })}
@@ -652,16 +731,20 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const canvasRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<HTMLDivElement>(null);
     const filesRef = useRef<FileOntologyFile[]>([]);
+    const displayFilesRef = useRef<FileOntologyFile[]>([]);
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
     const dragPointerIdRef = useRef<number | null>(null);
     const dragCaptureTargetRef = useRef<Element | null>(null);
     const viewportRef = useRef<Viewport>({ x: 80, y: 40, scale: 0.92 });
+    const summonedFilePositionsRef = useRef<Record<string, SummonedFilePosition>>({});
     const [files, setFiles] = useState<FileOntologyFile[]>([]);
     const [edges, setEdges] = useState<FileOntologyEdge[]>([]);
     const [drafts, setDrafts] = useState<Record<string, FileDraft>>({});
     const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [maximizedFileId, setMaximizedFileId] = useState<string | null>(null);
+    const [splitFileIds, setSplitFileIds] = useState<string[]>([]);
+    const [summonedFilePositions, setSummonedFilePositions] = useState<Record<string, SummonedFilePosition>>({});
     const [connectFromFileId, setConnectFromFileId] = useState<string | null>(null);
     const [viewport, setViewport] = useState<Viewport>({ x: 80, y: 40, scale: 0.92 });
     const [dragState, setDragState] = useState<DragState | null>(null);
@@ -703,13 +786,37 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         }
     }, []);
 
+    const displayFiles = useMemo(
+        () =>
+            files.map((file) => {
+                const summoned = summonedFilePositions[file.id];
+                return summoned
+                    ? {
+                          ...file,
+                          x: summoned.x,
+                          y: summoned.y,
+                      }
+                    : file;
+            }),
+        [files, summonedFilePositions],
+    );
+
     const fileById = useMemo(() => {
         const map = new Map<string, FileOntologyFile>();
-        files.forEach((file) => map.set(file.id, file));
+        displayFiles.forEach((file) => map.set(file.id, file));
         return map;
-    }, [files]);
+    }, [displayFiles]);
 
     const maximizedFile = maximizedFileId ? fileById.get(maximizedFileId) || null : null;
+    const maximizedSplitFiles = useMemo(() => {
+        if (!maximizedFile) return [];
+        const ids = splitFileIds.length > 0 ? splitFileIds : [maximizedFile.id];
+        const uniqueIds = Array.from(new Set([maximizedFile.id, ...ids])).slice(0, MAX_SPLIT_FILE_PANES);
+
+        return uniqueIds
+            .map((fileId) => fileById.get(fileId) || null)
+            .filter((file): file is FileOntologyFile => Boolean(file));
+    }, [fileById, maximizedFile, splitFileIds]);
 
     const filteredLinkTargets = useMemo(() => {
         if (!linkDialog) return [];
@@ -727,10 +834,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [files, linkDialog]);
 
     const worldSize = useMemo(() => {
-        const maxX = Math.max(1800, ...files.map((file) => file.x + file.width + 520));
-        const maxY = Math.max(1200, ...files.map((file) => file.y + file.height + 420));
+        const maxX = Math.max(1800, ...displayFiles.map((file) => file.x + file.width + 520));
+        const maxY = Math.max(1200, ...displayFiles.map((file) => file.y + file.height + 420));
         return { width: maxX, height: maxY };
-    }, [files]);
+    }, [displayFiles]);
 
     const setTextareaRef = (fileId: string) => (element: HTMLTextAreaElement | null) => {
         textareaRefs.current[fileId] = element;
@@ -771,6 +878,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             setEdges(result.model.edges);
             setDrafts(nextDrafts);
             setSelectedFileId(firstFile?.id ?? null);
+            setMaximizedFileId(null);
+            setSplitFileIds([]);
+            setSummonedFilePositions({});
             setStatusMessage(result.warning || null);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown file ontology load error';
@@ -791,6 +901,26 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     useEffect(() => {
         filesRef.current = files;
     }, [files]);
+
+    useEffect(() => {
+        displayFilesRef.current = displayFiles;
+    }, [displayFiles]);
+
+    useEffect(() => {
+        summonedFilePositionsRef.current = summonedFilePositions;
+    }, [summonedFilePositions]);
+
+    useEffect(() => {
+        if (!maximizedFileId) {
+            setSplitFileIds([]);
+            return;
+        }
+
+        setSplitFileIds((current) => {
+            if (current[0] === maximizedFileId) return current;
+            return [maximizedFileId];
+        });
+    }, [maximizedFileId]);
 
     useEffect(() => {
         applySceneTransform(viewport);
@@ -823,17 +953,33 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 const nextX = dragState.originX + (event.clientX - dragState.startClientX) / viewport.scale;
                 const nextY = dragState.originY + (event.clientY - dragState.startClientY) / viewport.scale;
 
-                setFiles((currentFiles) =>
-                    currentFiles.map((file) =>
-                        file.id === dragState.fileId
-                            ? {
-                                  ...file,
-                                  x: Math.round(nextX),
-                                  y: Math.round(nextY),
-                              }
-                            : file,
-                    ),
-                );
+                if (dragState.isSummoned) {
+                    setSummonedFilePositions((current) => {
+                        const summoned = current[dragState.fileId];
+                        if (!summoned) return current;
+
+                        return {
+                            ...current,
+                            [dragState.fileId]: {
+                                ...summoned,
+                                x: Math.round(nextX),
+                                y: Math.round(nextY),
+                            },
+                        };
+                    });
+                } else {
+                    setFiles((currentFiles) =>
+                        currentFiles.map((file) =>
+                            file.id === dragState.fileId
+                                ? {
+                                      ...file,
+                                      x: Math.round(nextX),
+                                      y: Math.round(nextY),
+                                  }
+                                : file,
+                        ),
+                    );
+                }
                 return;
             }
 
@@ -874,7 +1020,20 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         };
 
         const finishDrag = () => {
-            if ((dragState.kind === 'move' || dragState.kind === 'resize') && isEditable) {
+            if (dragState.kind === 'move' && dragState.isSummoned) {
+                const summoned = summonedFilePositionsRef.current[dragState.fileId];
+                if (summoned) {
+                    const distance = Math.hypot(summoned.x - summoned.anchorX, summoned.y - summoned.anchorY);
+                    if (distance > SUMMON_RETURN_DISTANCE) {
+                        setSummonedFilePositions((current) => {
+                            const next = { ...current };
+                            delete next[dragState.fileId];
+                            return next;
+                        });
+                        setStatusMessage('Linked highlight node returned to its saved graph position.');
+                    }
+                }
+            } else if ((dragState.kind === 'move' || dragState.kind === 'resize') && isEditable) {
                 const file = filesRef.current.find((candidate) => candidate.id === dragState.fileId);
                 if (file) {
                     saveFileOntologyFilePosition(file).catch((error) => {
@@ -944,7 +1103,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     }, [applySceneTransform, dragState, isEditable, viewport.scale]);
 
     const focusFile = useCallback((fileId: string) => {
-        const file = filesRef.current.find((candidate) => candidate.id === fileId);
+        const file =
+            displayFilesRef.current.find((candidate) => candidate.id === fileId) ||
+            filesRef.current.find((candidate) => candidate.id === fileId);
         if (!file) return;
 
         setSelectedFileId(fileId);
@@ -977,6 +1138,73 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             y: event.clientY,
         });
     }, []);
+
+    const summonLinkedFile = useCallback((sourceFileId: string, targetFileId: string) => {
+        if (sourceFileId === targetFileId) {
+            focusFile(targetFileId);
+            return;
+        }
+
+        const source =
+            displayFilesRef.current.find((candidate) => candidate.id === sourceFileId) ||
+            filesRef.current.find((candidate) => candidate.id === sourceFileId);
+        const target = filesRef.current.find((candidate) => candidate.id === targetFileId);
+
+        if (!source || !target) {
+            focusFile(targetFileId);
+            return;
+        }
+
+        const siblingCount = Object.entries(summonedFilePositionsRef.current).filter(
+            ([fileId, position]) => position.sourceFileId === sourceFileId && fileId !== targetFileId,
+        ).length;
+        const anchorX = Math.round(source.x + source.width + 56);
+        const anchorY = Math.round(source.y + 36 + (siblingCount % 4) * 72);
+
+        setSummonedFilePositions((current) => ({
+            ...current,
+            [targetFileId]: {
+                sourceFileId,
+                x: anchorX,
+                y: anchorY,
+                anchorX,
+                anchorY,
+            },
+        }));
+        setSelectedFileId(targetFileId);
+        setStatusMessage(
+            `Opened "${target.title}" beside the highlighted file. Drag it away to return it to its saved position.`,
+        );
+    }, [focusFile]);
+
+    const addFileToSplitView = useCallback((targetFileId: string) => {
+        const target = filesRef.current.find((candidate) => candidate.id === targetFileId);
+        if (!target) return;
+
+        setSplitFileIds((current) => {
+            const base = current.length > 0 ? current : maximizedFileId ? [maximizedFileId] : [];
+            if (base.includes(targetFileId)) return base;
+            if (base.length >= MAX_SPLIT_FILE_PANES) {
+                setStatusMessage('Split view is limited to six file nodes: three on the top row and three below.');
+                return base;
+            }
+
+            setStatusMessage(`Added "${target.title}" to the split file view.`);
+            return [...base, targetFileId];
+        });
+    }, [maximizedFileId]);
+
+    const handleFileLinkActivate = useCallback(
+        (sourceFileId: string, targetFileId: string) => {
+            if (maximizedFileId) {
+                addFileToSplitView(targetFileId);
+                return;
+            }
+
+            summonLinkedFile(sourceFileId, targetFileId);
+        },
+        [addFileToSplitView, maximizedFileId, summonLinkedFile],
+    );
 
     const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
         if (
@@ -1041,7 +1269,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         event.stopPropagation();
         setSelectedFileId(file.id);
 
-        if (!isEditable || event.button !== 0 || maximizedFileId) return;
+        if (event.button !== 0 || maximizedFileId) return;
+
+        const isSummoned = Boolean(summonedFilePositionsRef.current[file.id]);
+        if (!isSummoned && !isEditable) return;
 
         dragPointerIdRef.current = event.pointerId;
         dragCaptureTargetRef.current = event.currentTarget;
@@ -1059,6 +1290,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             startClientY: event.clientY,
             originX: file.x,
             originY: file.y,
+            isSummoned,
         });
     };
 
@@ -1239,10 +1471,11 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const handleSaveFile = async (file: FileOntologyFile) => {
         if (!isEditable) return;
 
-        const draft = getDraft(file);
+        const canonicalFile = filesRef.current.find((candidate) => candidate.id === file.id) || file;
+        const draft = getDraft(canonicalFile);
         const updatedFile: FileOntologyFile = {
-            ...file,
-            title: draft.title.trim() || file.title,
+            ...canonicalFile,
+            title: draft.title.trim() || canonicalFile.title,
             summary: draft.summary.trim(),
             content: draft.content,
         };
@@ -1284,6 +1517,12 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             if (selectedFileId === file.id) setSelectedFileId(null);
             if (editingFileId === file.id) setEditingFileId(null);
             if (maximizedFileId === file.id) setMaximizedFileId(null);
+            setSplitFileIds((current) => current.filter((fileId) => fileId !== file.id));
+            setSummonedFilePositions((current) => {
+                const next = { ...current };
+                delete next[file.id];
+                return next;
+            });
             setStatusMessage('File node deleted.');
         } catch (error) {
             reportWriteError('File delete', error);
@@ -1408,6 +1647,88 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         }, 0);
     };
 
+    const createHighlightFileFromSelection = async (sourceFile: FileOntologyFile) => {
+        if (!isEditable) return;
+
+        const canonicalSource = filesRef.current.find((candidate) => candidate.id === sourceFile.id) || sourceFile;
+        const draft = drafts[canonicalSource.id] || draftFromFile(canonicalSource);
+        const textarea = textareaRefs.current[canonicalSource.id];
+        const start = textarea?.selectionStart ?? draft.content.length;
+        const end = textarea?.selectionEnd ?? draft.content.length;
+        const selectedText = compactWhitespace(draft.content.slice(start, end));
+
+        if (!selectedText) {
+            setStatusMessage('Select a sentence or phrase first, then create a highlight file node.');
+            return;
+        }
+
+        const title = titleFromHighlight(selectedText);
+        const id = createFileOntologyId(title);
+        const nextContent = `${draft.content.slice(0, start)}[[${id}|${selectedText}]]${draft.content.slice(end)}`;
+        const updatedSource: FileOntologyFile = {
+            ...canonicalSource,
+            title: draft.title.trim() || canonicalSource.title,
+            summary: draft.summary.trim(),
+            content: nextContent,
+        };
+        const linkedFile: FileOntologyFile = {
+            id,
+            title,
+            summary: `Expands a highlighted sub-concept from ${canonicalSource.title}.`,
+            content: buildHighlightExpansionContent(title, canonicalSource, selectedText),
+            x: Math.round(canonicalSource.x + canonicalSource.width + 96),
+            y: Math.round(canonicalSource.y + 80),
+            width: 560,
+            height: 420,
+        };
+
+        setFiles((current) => {
+            const next = current.map((file) => (file.id === updatedSource.id ? updatedSource : file));
+            return [...next, linkedFile];
+        });
+        setDrafts((current) => ({
+            ...current,
+            [updatedSource.id]: draftFromFile(updatedSource),
+            [linkedFile.id]: draftFromFile(linkedFile),
+        }));
+        setSelectedFileId(linkedFile.id);
+        setConnectFromFileId(linkedFile.id);
+        setStatusMessage('Creating highlighted sub-file node...');
+
+        try {
+            const [savedSource, savedLinkedFile] = await Promise.all([
+                saveFileOntologyFile(updatedSource),
+                saveFileOntologyFile(linkedFile),
+            ]);
+
+            setFiles((current) =>
+                current.map((file) => {
+                    if (file.id === savedSource.id) return savedSource;
+                    if (file.id === savedLinkedFile.id) return savedLinkedFile;
+                    return file;
+                }),
+            );
+            setDrafts((current) => ({
+                ...current,
+                [savedSource.id]: draftFromFile(savedSource),
+                [savedLinkedFile.id]: draftFromFile(savedLinkedFile),
+            }));
+            setStatusMessage(
+                'Highlight file node created. Choose the concept file it depends on to create the logical edge.',
+            );
+        } catch (error) {
+            reportWriteError('Highlight file create', error);
+        }
+
+        window.setTimeout(() => {
+            textareaRefs.current[canonicalSource.id]?.focus();
+            textareaRefs.current[canonicalSource.id]?.setSelectionRange(
+                start + selectedText.length + id.length + 5,
+                start + selectedText.length + id.length + 5,
+            );
+        }, 0);
+    };
+
     const zoomBy = (factor: number) => {
         const rect = canvasRef.current?.getBoundingClientRect();
         const anchorX = rect ? rect.width / 2 : 0;
@@ -1474,9 +1795,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <ToolbarButton
                             onClick={() => setLinkDialog({ fileId: file.id, search: '' })}
                             disabled={!isEditable || files.length <= 1}
-                            title="Insert Obsidian-style file link"
+                            title="Highlight selected text with an existing file link"
                         >
                             <Link2 className="h-4 w-4" />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            onClick={() => void createHighlightFileFromSelection(file)}
+                            disabled={!isEditable}
+                            title="Create a new file node from the selected highlight"
+                        >
+                            <Plus className="h-4 w-4" />
                         </ToolbarButton>
                     </div>
                     <textarea
@@ -1546,8 +1874,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             >
                 <MarkdownPreview
                     content={file.content}
+                    sourceFileId={file.id}
                     files={files}
-                    onNavigate={focusFile}
+                    onActivateLink={handleFileLinkActivate}
                     onHoverLink={handleHoverLink}
                     compact={!expanded}
                     centered
@@ -1556,11 +1885,61 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         );
     };
 
+    const renderSplitPane = (file: FileOntologyFile, isPrimary: boolean) => (
+        <div
+            key={file.id}
+            className={cn(
+                'flex min-h-[220px] min-w-0 flex-col overflow-hidden rounded-lg border bg-background',
+                isPrimary ? 'border-foreground' : 'border-border',
+            )}
+            data-file-node-id={file.id}
+        >
+            <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+                <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-foreground">{file.title}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                        {isPrimary ? 'primary file' : 'highlight-linked file'}
+                    </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                    <ToolbarButton
+                        onClick={() => setEditingFileId(editingFileId === file.id ? null : file.id)}
+                        disabled={!isEditable}
+                        title={editingFileId === file.id ? 'Close editor' : 'Edit file'}
+                        active={editingFileId === file.id}
+                    >
+                        <Edit3 className="h-4 w-4" />
+                    </ToolbarButton>
+                    {!isPrimary ? (
+                        <ToolbarButton
+                            onClick={() =>
+                                setSplitFileIds((current) => current.filter((fileId) => fileId !== file.id))
+                            }
+                            title="Close split pane"
+                        >
+                            <X className="h-4 w-4" />
+                        </ToolbarButton>
+                    ) : null}
+                </div>
+            </div>
+            <div className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto">
+                {editingFileId === file.id
+                    ? (
+                          <div className="flex h-full min-h-0 flex-col p-3">
+                              {renderNodeEditor(file, true)}
+                          </div>
+                      )
+                    : renderNodePreview(file, true, true)}
+            </div>
+        </div>
+    );
+
     const renderFileNode = (file: FileOntologyFile) => {
         const isSelected = selectedFileId === file.id;
         const isConnectSource = connectFromFileId === file.id;
         const isEditing = editingFileId === file.id;
         const isTitleOnly = viewport.scale < TITLE_ONLY_SCALE;
+        const isSummoned = Boolean(summonedFilePositions[file.id]);
 
         return (
             <div
@@ -1569,6 +1948,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     'absolute flex flex-col overflow-hidden rounded-lg border bg-background text-foreground shadow-none',
                     isSelected ? 'border-foreground' : 'border-border',
                     isConnectSource ? 'outline outline-2 outline-foreground' : null,
+                    isSummoned ? 'ring-2 ring-foreground/20' : null,
                 )}
                 style={{
                     left: file.x,
@@ -1590,7 +1970,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         <FileText className="h-4 w-4 shrink-0 text-foreground" />
                         <div className="min-w-0">
                             <div className="truncate text-sm font-semibold text-foreground">{file.title}</div>
-                            <div className="truncate text-[11px] text-muted-foreground">{file.id}</div>
+                            <div className="truncate text-[11px] text-muted-foreground">
+                                {isSummoned ? 'linked highlight preview' : file.id}
+                            </div>
                         </div>
                     </div>
                     {!isTitleOnly ? (
@@ -1614,6 +1996,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                             <ToolbarButton
                                 onClick={() => {
                                     setSelectedFileId(file.id);
+                                    setSplitFileIds([file.id]);
                                     setMaximizedFileId(file.id);
                                 }}
                                 title="Maximize file"
@@ -1651,7 +2034,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     </div>
                 )}
 
-                {isEditable && !isTitleOnly ? (
+                {isEditable && !isTitleOnly && !isSummoned ? (
                     <button
                         type="button"
                         className="absolute bottom-1.5 right-1.5 h-4 w-4 cursor-nwse-resize border-b-2 border-r-2 border-foreground/50 bg-transparent"
@@ -1770,7 +2153,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         })}
                     </svg>
 
-                    {files.map(renderFileNode)}
+                    {displayFiles.map(renderFileNode)}
                 </div>
             </div>
 
@@ -1874,7 +2257,10 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                 <Edit3 className="h-4 w-4" />
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => setMaximizedFileId(null)}
+                                onClick={() => {
+                                    setMaximizedFileId(null);
+                                    setSplitFileIds([]);
+                                }}
                                 title="Exit maximized view"
                             >
                                 <Minimize2 className="h-4 w-4" />
@@ -1882,12 +2268,12 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                         </div>
                     </div>
                     <div
-                        className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-5"
+                        className="file-ontology-scrollbar min-h-0 flex-1 overflow-auto p-3"
                         data-file-node-scroll="true"
                     >
-                        {editingFileId === maximizedFile.id
-                            ? renderNodeEditor(maximizedFile, true)
-                            : renderNodePreview(maximizedFile, true, true)}
+                        <div className="grid min-h-full auto-rows-[minmax(240px,1fr)] grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+                            {maximizedSplitFiles.map((file) => renderSplitPane(file, file.id === maximizedFile.id))}
+                        </div>
                     </div>
                 </div>
             ) : null}

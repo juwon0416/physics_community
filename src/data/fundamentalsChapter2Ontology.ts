@@ -7,35 +7,21 @@ const CHAPTER_2_OVERVIEW = String.raw`# Fundamentals Chapter 2: Motion Along a S
 
 ## Abstract
 
-This file is the chapter-level integration map for Halliday, Resnick, and Walker, *Fundamentals of Physics*, Chapter 2, "Motion Along a Straight Line." The chapter introduces kinematics as the description of motion without yet invoking force. Its ontology role is to transform Chapter 1 measurement language into a time-dependent model of position, velocity, and acceleration along a single axis.
+The conclusion of Chapter 2 is that one-dimensional motion can be reconstructed from three linked time-dependent quantities: position, velocity, and acceleration. Once position is treated as a signed function of time, velocity becomes its rate of change, acceleration becomes the rate of change of velocity, and constant-acceleration motion becomes a solvable special case that includes ideal free fall.
 
-The chapter is split into reusable concept files because its modules are not merely short examples. Each module introduces a durable concept, equation family, graph interpretation, or special case that later mechanics chapters reuse. The chapter node therefore acts as a source-level map, while the linked nodes carry the reusable concept explanations.
+This chapter node is a source-level map. It does not try to teach every sub-concept in one body. Instead, it points to the reusable files that carry the actual learning load: [[ch2-position-displacement-average-velocity|position and displacement]], [[ch2-instantaneous-velocity-speed|instantaneous velocity]], [[ch2-acceleration|acceleration]], [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]].
 
 ## Source Basis
 
 Source basis: ${FUNDAMENTALS_CHAPTER_2_SOURCE}
 
-The extraction preserves the source's module structure: position and displacement, instantaneous velocity, acceleration, constant acceleration, free-fall acceleration, and graphical integration. The review and problem sections confirm that the chapter's learning target is equation choice, graph interpretation, sign discipline, and physical meaning rather than memorization.
+The reconstruction follows the source modules on motion along a straight line. The important learning target is not memorizing equations, but seeing how each equation follows from a definition, a graph interpretation, or the assumption that acceleration is constant.
 
-## Ontology Boundary and Granularity
+## Logical Development
 
-Chapter 2 should not be represented as one dense note in the way Chapter 1 is. Chapter 1 shares one methodological argument about measurement. Chapter 2 introduces a chain of reusable ideas:
+The chapter's reasoning path is:
 
-- Position and displacement define the state variable and finite change.
-- Average velocity turns displacement over time into a directed rate.
-- Instantaneous velocity takes the limiting rate and becomes the slope of an x-versus-t graph.
-- Acceleration becomes the derivative of velocity and the second derivative of position.
-- Constant acceleration creates a special equation family.
-- Free fall applies that family with vertical sign conventions and acceleration -g.
-- Graphical integration reconstructs velocity and position changes from areas under curves.
-
-Each of those ideas later becomes a prerequisite for vectors, projectile motion, Newton's laws, work-energy reasoning, oscillations, and field dynamics. Splitting them into concept files makes the graph more useful without producing noisy one-paragraph nodes.
-
-## Argument Backbone
-
-The chapter's logic can be reconstructed as:
-
-1. Restrict the object to a particle or particle-like body moving along a straight axis.
+1. Restrict the body to particle-like motion along one straight axis.
 2. Use a coordinate axis to assign position as a signed measured quantity.
 3. Define displacement from final minus initial position, not from path length.
 4. Define average velocity from displacement per elapsed time and average speed from total distance per elapsed time.
@@ -45,7 +31,7 @@ The chapter's logic can be reconstructed as:
 8. Apply the constant-acceleration model to vertical free fall by replacing x with y and a with -g.
 9. Use graphical integration to reverse derivative information when acceleration or velocity is supplied as a graph.
 
-## Core Equations
+## Definitions and Symbols
 
 $$
 \Delta x = x_2 - x_1
@@ -63,7 +49,9 @@ $$
 a = \frac{dv}{dt} = \frac{d^2x}{dt^2}
 $$
 
-For constant acceleration:
+Here \(\Delta x\) is displacement, \(v_{\mathrm{avg}}\) is average velocity, \(v\) is instantaneous velocity, and \(a\) is acceleration. The derivative notation says that velocity is the slope of \(x(t)\), while acceleration is the slope of \(v(t)\).
+
+## Constant-Acceleration Result
 
 $$
 v = v_0 + at
@@ -77,32 +65,28 @@ $$
 v^2 = v_0^2 + 2a(x - x_0)
 $$
 
-For free fall near Earth's surface with upward chosen as positive:
+These equations are valid as a family only when \(a\) is constant over the interval. They should be read as consequences of the derivative definitions, not as unrelated formulas.
+
+## Free-Fall Result
+
+For free fall near Earth's surface with upward chosen positive:
 
 $$
 a = -g,\qquad g = 9.8\ \mathrm{m/s^2}
 $$
 
-## Connections
+The sign belongs to the chosen coordinate direction. The magnitude \(g\) is positive; the acceleration component is negative because the acceleration points downward.
 
-Chapter 2 depends on Chapter 1 because every position, time, velocity, and acceleration statement is a measured quantity with units. It prepares Chapter 3 because one-dimensional signs are a limited version of vector direction. It prepares Chapters 4-6 because projectile motion and Newtonian dynamics both require the reader to interpret velocity and acceleration as time-dependent quantities rather than as ordinary speed words.
+## Scope and Graph Links
 
-## Mastery Targets
-
-- Distinguish position, displacement, distance, velocity, speed, and acceleration.
-- Explain why displacement and velocity carry direction even in one dimension.
-- Read slopes on position-time and velocity-time graphs.
-- Choose constant-acceleration equations by the missing variable.
-- Use the sign of acceleration as a direction, not as a synonym for speeding up.
-- Apply the free-fall model without setting acceleration to zero at the top of a trajectory.
-- Use graph area to recover changes in velocity or position.
+Chapter 2 depends on [[fundamentals-ch1-measurement|measurement]] because every kinematic variable is a measured quantity with units. It prepares vector kinematics by using sign as a one-dimensional version of direction, and it prepares Newtonian dynamics by making acceleration a precise time-dependent quantity before force is introduced.
 `;
 
 const POSITION_DISPLACEMENT_CONTENT = String.raw`# Position, Displacement, and Average Velocity
 
 ## Abstract
 
-This node reconstructs the first module of Halliday Chapter 2. It defines the one-dimensional state variable, position, and the first finite-change quantities built from it: displacement, average velocity, and average speed.
+The conclusion of this node is that displacement and average velocity are signed quantities built from position change, while distance and average speed ignore direction. This distinction is the first structural reason that one-dimensional kinematics cannot be reduced to ordinary "how far" and "how fast" language.
 
 ## Source Scope
 
@@ -133,7 +117,7 @@ $$
 s_{\mathrm{avg}} = \frac{\mathrm{total\ distance}}{\Delta t}
 $$
 
-## Logical Structure
+## Logical Development
 
 Position gives a particle's location with respect to an origin. Displacement then compares two positions. The path traveled between the two positions does not determine displacement; only the initial and final positions do. A round trip can have nonzero distance but zero displacement.
 
@@ -143,23 +127,16 @@ Average velocity uses displacement, so it is directed. Average speed uses total 
 
 On a graph of position $x$ versus time $t$, the average velocity over an interval is the slope of the secant line connecting the two endpoint events. A positive slope means positive average velocity. A negative slope means negative average velocity. A zero slope means no net displacement over that interval.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- Displacement is not the same as total distance traveled.
-- A negative position is not automatically a negative displacement.
-- Average velocity can be zero even when the object moved.
-- Average speed is not generally the magnitude of average velocity unless motion never reverses.
-
-## Connections
-
-This node depends on Chapter 1 measurement and feeds directly into instantaneous velocity. It also prepares vectors by making direction visible before full vector notation is introduced.
+This node depends on [[fundamentals-ch1-measurement|measurement]] because position and time must carry units before rates can be defined. It feeds directly into [[ch2-instantaneous-velocity-speed|instantaneous velocity]], where the finite interval \(\Delta t\) is shrunk toward an instant.
 `;
 
 const INSTANTANEOUS_VELOCITY_CONTENT = String.raw`# Instantaneous Velocity and Speed
 
 ## Abstract
 
-This node reconstructs Halliday Chapter 2's transition from average velocity over an interval to velocity at an instant. It is the first calculus-shaped idea in the chapter: a rate defined by a limiting process and represented graphically by a tangent slope.
+The conclusion of this node is that instantaneous velocity is the derivative of position with respect to time, and instantaneous speed is its magnitude. In graph language, velocity at an instant is the tangent slope of the position-time curve.
 
 ## Source Scope
 
@@ -184,7 +161,7 @@ $$
 \mathrm{speed} = |v|
 $$
 
-## Logical Structure
+## Logical Development
 
 Average velocity answers a finite-interval question: how much signed position change occurred per unit time? Instantaneous velocity asks the same question at one event. The finite interval is shrunk until the secant slope becomes the tangent slope of the position-time curve.
 
@@ -194,22 +171,16 @@ Speed is the magnitude of instantaneous velocity. It discards the sign and keeps
 
 On an $x(t)$ graph, instantaneous velocity is the slope of the tangent line at the chosen time. A horizontal tangent gives zero velocity even if the particle may accelerate immediately afterward. Steeper tangent magnitude means greater speed. The sign of the slope gives the direction along the axis.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- Instantaneous velocity is not found by dividing total trip distance by total trip time.
-- A particle can have zero instantaneous velocity at one instant while still accelerating.
-- Speed removes sign information; it should not be used when direction is needed.
-
-## Connections
-
-This node depends on displacement and average velocity. It is a prerequisite for acceleration because acceleration is defined by how velocity changes with time.
+This node depends on [[ch2-position-displacement-average-velocity|position, displacement, and average velocity]]. It leads to [[ch2-acceleration|acceleration]] because acceleration asks how this instantaneous velocity changes with time.
 `;
 
 const ACCELERATION_CONTENT = String.raw`# Acceleration
 
 ## Abstract
 
-This node reconstructs Halliday Chapter 2's definition of acceleration as the time rate of change of velocity. It is the concept that lets kinematics describe not only motion, but changing motion.
+The conclusion of this node is that acceleration is the time derivative of velocity and the second derivative of position. In one dimension its sign gives direction along the axis, not a universal label for "speeding up" or "slowing down."
 
 ## Source Scope
 
@@ -238,7 +209,7 @@ $$
 a = \frac{d^2x}{dt^2}
 $$
 
-## Logical Structure
+## Logical Development
 
 Velocity describes the rate at which position changes. Acceleration describes the rate at which velocity changes. This means acceleration is one derivative beyond velocity and two derivatives beyond position.
 
@@ -248,23 +219,16 @@ The direction of acceleration is encoded by sign in one dimension. If velocity a
 
 On a velocity-time graph, acceleration is the slope. On a position-time graph, acceleration is related to the curvature: a changing slope means nonzero acceleration. A straight position-time graph has constant velocity and zero acceleration.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- Negative acceleration does not always mean slowing down.
-- Zero velocity does not imply zero acceleration.
-- Large speed is not the same as large acceleration.
-- A body can feel acceleration even when its speed is momentarily small.
-
-## Connections
-
-This node depends on instantaneous velocity and leads to constant acceleration, free fall, and graphical integration. It also prepares Newton's laws, where acceleration becomes the observable response to net force.
+This node depends on [[ch2-instantaneous-velocity-speed|instantaneous velocity]]. It leads to [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]]. It also prepares Newton's laws, where acceleration becomes the observable response to net force.
 `;
 
 const CONSTANT_ACCELERATION_CONTENT = String.raw`# Constant Acceleration
 
 ## Abstract
 
-This node reconstructs Halliday Chapter 2's constant-acceleration model. The model is a special case, but it is important because it yields a compact family of equations connecting position, displacement, velocity, acceleration, and elapsed time.
+The conclusion of this node is that constant acceleration turns the derivative definitions of motion into a compact equation family. The equations are powerful because one fixed acceleration lets velocity grow linearly with time and position grow quadratically with time.
 
 ## Source Scope
 
@@ -302,7 +266,7 @@ $$
 x - x_0 = vt - \frac{1}{2}at^2
 $$
 
-## Logical Structure
+## Logical Development
 
 The first two equations are the structural core. The velocity equation follows from constant acceleration as a constant slope on a velocity-time graph. The position equation follows by accumulating velocity over time. The other three equations are algebraic rearrangements useful when a particular variable is absent from the problem.
 
@@ -312,23 +276,16 @@ The practical skill is not memorizing all five equations in isolation. It is ide
 
 Starting from $a = dv/dt$, constant $a$ integrates to $v = v_0 + at$. Starting from $v = dx/dt$, substituting that velocity function and integrating gives $x - x_0 = v_0t + \frac{1}{2}at^2$. The remaining equations follow by eliminating one variable from those two core relations.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- The constant-acceleration equations are not general motion equations.
-- Piecewise motion may require separate intervals with different accelerations.
-- The equation without time is useful only when time is irrelevant or unavailable.
-- Constant acceleration does not mean constant velocity.
-
-## Connections
-
-This node depends on acceleration and directly supports free fall. It also becomes the first serious problem-solving template for later projectile and force problems.
+This node depends on [[ch2-acceleration|acceleration]] and directly supports [[ch2-free-fall-acceleration|free fall]]. It also becomes the first reusable equation family for later projectile and force problems.
 `;
 
 const FREE_FALL_CONTENT = String.raw`# Free-Fall Acceleration
 
 ## Abstract
 
-This node reconstructs Halliday Chapter 2's free-fall model as a vertical special case of constant acceleration. It is the learner's first encounter with a physical acceleration that is treated as constant near Earth's surface.
+The conclusion of this node is that ideal free fall near Earth's surface is constant-acceleration motion with vertical acceleration directed downward. If upward is chosen positive, the acceleration component is \(a=-g\) throughout the flight, even at the top of an upward toss.
 
 ## Source Scope
 
@@ -362,7 +319,7 @@ $$
 y - y_0 = v_0t - \frac{1}{2}gt^2
 $$
 
-## Logical Structure
+## Logical Development
 
 Free fall is not a new kinematic theory. It is the constant-acceleration model applied to vertical motion with a specific acceleration. The sign convention matters: if upward is positive, the acceleration is negative throughout the flight, even when the object is moving upward.
 
@@ -375,23 +332,16 @@ At the top of an upward toss, the velocity is momentarily zero. The acceleration
 - The object is modeled as a particle or particle-like body.
 - The vertical coordinate convention must be chosen and kept consistent.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- Heavier objects do not have larger free-fall acceleration in the ideal model.
-- The acceleration at maximum height is not zero.
-- $g$ is a positive magnitude; the sign enters through the coordinate direction.
-- Upward motion with downward acceleration is not contradictory.
-
-## Connections
-
-This node depends on constant acceleration and prepares projectile motion, where horizontal motion and vertical free fall are combined.
+This node depends on [[ch2-constant-acceleration|constant acceleration]] and prepares projectile motion, where horizontal motion and vertical free fall are combined.
 `;
 
 const GRAPHICAL_INTEGRATION_CONTENT = String.raw`# Graphical Integration in Motion Analysis
 
 ## Abstract
 
-This node reconstructs Halliday Chapter 2's graphical integration module. It shows how velocity and position changes can be recovered from areas under acceleration-time and velocity-time graphs.
+The conclusion of this node is that graph area reverses the derivative relationships of kinematics. Signed area under an acceleration-time graph gives change in velocity, and signed area under a velocity-time graph gives displacement.
 
 ## Source Scope
 
@@ -409,7 +359,7 @@ $$
 x_1 - x_0 = \int_{t_0}^{t_1} v(t)\,dt
 $$
 
-## Logical Structure
+## Logical Development
 
 If acceleration is the derivative of velocity, then the accumulated signed area under an acceleration-time graph gives the change in velocity. If velocity is the derivative of position, then the accumulated signed area under a velocity-time graph gives the change in position.
 
@@ -419,16 +369,9 @@ The graph area carries units. Area under $a(t)$ has units of velocity because $(
 
 Area above the time axis contributes positively. Area below the time axis contributes negatively. Piecewise graphs can be analyzed by splitting the area into simple regions such as rectangles and triangles, then adding signed contributions.
 
-## Common Misconceptions
+## Scope and Graph Links
 
-- The area under an acceleration graph gives change in velocity, not position directly.
-- The area under a velocity graph gives displacement, not total distance unless velocity never changes sign.
-- Negative area is physically meaningful because it records direction.
-- Integration from a graph gives a change; an initial value is still needed to recover the final value.
-
-## Connections
-
-This node depends on instantaneous velocity and acceleration. It prepares later work-energy reasoning, impulse-momentum reasoning, and any topic where a rate graph must be accumulated into a physical change.
+This node depends on [[ch2-instantaneous-velocity-speed|instantaneous velocity]] and [[ch2-acceleration|acceleration]]. It prepares later work-energy reasoning, impulse-momentum reasoning, and any topic where a rate graph must be accumulated into a physical change.
 `;
 
 export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [

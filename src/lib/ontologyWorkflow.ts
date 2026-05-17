@@ -194,7 +194,7 @@ const CONCEPT_PATTERNS: ConceptPattern[] = [
         aliases: ['time evolution', '시간발전', '시간 발전'],
         summary: 'The rule that determines how a physical state changes over time.',
         relation: 'explains',
-        stubSections: ['Definition', 'Generators', 'Physics Examples'],
+        stubSections: ['Definition', 'Generators', 'Physics Use'],
     },
     {
         canonicalTitle: 'Quantum Measurement',
@@ -278,7 +278,7 @@ function assessGranularity(
     const looksLikeLightweightChapter = UNICODE_LIGHTWEIGHT_SECTION_PATTERN.test(text) && wordCount < 1800;
     const legacyDecision = decideSplitStrategy(input, intent, detectedConceptCount);
     const contentDepthTarget =
-        'Paper-style node content with abstract, source scope, definitions, logical flow, equations, worked examples, limits, misconceptions, graph links, and mastery targets.';
+        'Learner-facing node content should state the final conclusion first in the abstract, then continue with source scope, definitions, logical development, equations, conditions, and graph links. Keep examples, misconception lists, prerequisite checklists, and ontology-granularity policy out of the default file body.';
 
     const makeAssessment = (
         decision: OntologySplitDecision,
@@ -486,7 +486,7 @@ function resolveConcepts(input: OntologyWorkflowInput, primaryTitle: string, inc
 
 function buildStubContent(concept: ResolvedConcept) {
     const pattern = CONCEPT_PATTERNS.find((candidate) => candidate.id === concept.id);
-    const sections = pattern?.stubSections ?? ['Definition', 'Connections', 'Open Questions'];
+    const sections = pattern?.stubSections ?? ['Core Claim', 'Definitions and Symbols', 'Logical Development'];
 
     return [
         `# ${concept.title}`,
@@ -498,15 +498,15 @@ function buildStubContent(concept: ResolvedConcept) {
         ...sections.flatMap((section) => [
             `## ${section}`,
             '',
-            'This provisional section marks the minimum scope that must be expanded into a full scholarly note before the node is considered complete.',
+            'This provisional section should be expanded only with material that directly explains the abstract conclusion.',
             '',
         ]),
-        '## Required Expansion Standard',
+        '## Scope and Links',
         '',
         '- Define the concept precisely before using equations or interpretations.',
         '- Reconstruct the logical flow that makes the concept necessary.',
-        '- Add source-grounded equations, examples, limits, misconceptions, and graph links.',
-        '- Keep this as a separate file only if it has independent explanatory weight.',
+        '- Add source-grounded equations, assumptions, limits, and graph links.',
+        '- Use markdown highlight links when a sentence needs its own sub-file node.',
     ].join('\n').trimEnd();
 }
 
@@ -530,8 +530,8 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
         '## Abstract',
         '',
         inlineLinks.length > 0
-            ? `${primary.title} should be read as part of a connected ontology rather than as an isolated note. It is directly connected to ${inlineLinks.join(', ')}.`
-            : `${primary.title} is a new ontology file ready for expansion with linked prerequisite and neighboring concepts.`,
+            ? `${primary.title} should state its final result here first, then use the body to explain why that result follows. It is directly connected to ${inlineLinks.join(', ')}.`
+            : `${primary.title} should state its final result here first, then use the body to explain why that result follows.`,
         '',
         '## 1. Research Question and Scope',
         '',
@@ -541,39 +541,20 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
         '',
         `Define ${primary.title} in operational terms. State what is being measured, modeled, derived, or explained, and separate the reusable concept from any source-specific argument.`,
         '',
-        '## 3. Required Background',
-        '',
-        linkLines.length > 0 ? linkLines.join('\n') : '- Add prerequisite links as the ontology grows.',
-        '',
-        '## 4. Logical Flow',
+        '## 3. Logical Development',
         '',
         '1. Define the concept before using its equations or interpretations.',
-        '2. Introduce the mathematical structure and link each required background node.',
+        '2. Introduce the mathematical structure and highlight any sentence that needs its own sub-file node.',
         '3. Explain the physical meaning through connected concepts.',
-        '4. Record limits, special cases, and common misunderstandings.',
+        '4. Record limits and special cases without turning them into a generic checklist.',
         '',
-        '## 5. Mathematical Structure',
+        '## 4. Mathematical Structure',
         '',
         'Add equations only when their symbols, assumptions, and dimensional meaning are explained in prose. If the source contains a derivation, preserve the derivation path instead of reducing it to a formula list.',
         '',
-        '## 6. Worked Analysis',
-        '',
-        'Add at least one source-grounded example, proof step, or dimensional argument that shows how the concept is used rather than merely named.',
-        '',
-        '## 7. Limits and Misconceptions',
-        '',
-        'Explain where the concept stops applying, which approximations it assumes, and which common interpretations would mislead a reader.',
-        '',
-        '## 8. Connections',
+        '## 5. Scope and Graph Links',
         '',
         linkLines.length > 0 ? linkLines.join('\n') : '- No linked neighbor has been selected yet.',
-        '',
-        '## 9. Mastery Targets',
-        '',
-        '- State the concept without circular language.',
-        '- Identify its prerequisites and later dependents.',
-        '- Interpret every equation or symbol used in the note.',
-        '- Reconstruct the source logic without reopening the original source.',
     ].join('\n');
 }
 
@@ -582,7 +563,6 @@ function buildPaperIntegrationMap(
     paperFileId: string,
     related: ResolvedConcept[],
     userGoal: string,
-    granularity: OntologyGranularityAssessment,
 ) {
     const relationRows = related.map(
         (concept) => `- [[${targetFileId(concept)}|${concept.title}]]: ${concept.relation.replace(/_/g, ' ')}`,
@@ -591,6 +571,10 @@ function buildPaperIntegrationMap(
     return [
         `# ${paperTitle} Wiki Integration Map`,
         '',
+        '## Abstract',
+        '',
+        `This map states how [[${paperFileId}|${paperTitle}]] enters the reusable file ontology. Its main conclusion is that the preserved source should be connected through explicit concept links and highlight-driven sub-file nodes rather than through learner-facing granularity notes.`,
+        '',
         '## Source Mirror',
         '',
         `The structure-preserving paper mirror is stored as [[${paperFileId}|${paperTitle}]]. This map integrates the paper into the wider file ontology without rewriting the source mirror.`,
@@ -598,18 +582,6 @@ function buildPaperIntegrationMap(
         '## Integration Goal',
         '',
         normalizeText(userGoal) || 'Connect the paper to reusable concept files and argument-flow neighborhoods.',
-        '',
-        '## Granularity Decision',
-        '',
-        `Decision: ${granularity.decision.replace(/_/g, ' ')}.`,
-        '',
-        granularity.rationale,
-        '',
-        granularity.fileNodePolicy,
-        '',
-        '## Scholarly Content Standard',
-        '',
-        granularity.contentDepthTarget,
         '',
         '## Concept Links',
         '',
@@ -759,18 +731,14 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             '',
             normalizeText(input.userGoal) || 'Record the source scope, reconstruction goal, and evidence basis before splitting any file nodes.',
             '',
-            '## Granularity Decision',
-            '',
-            granularityAssessment.rationale,
-            '',
-            granularityAssessment.fileNodePolicy,
-            '',
             '## Required Reconstruction',
             '',
+            '- State the central conclusion first in the abstract.',
             '- Define the central problem and source thesis.',
             '- Preserve the section-level argument flow as internal headings when the source remains one file node.',
             '- Add equations with symbol definitions, assumptions, dimensional meaning, and derivation context.',
-            '- Include worked examples, limits, misconceptions, graph links, and mastery targets.',
+            '- Add conditions, limits, and graph links that directly support the conclusion.',
+            '- Use highlight links when a passage needs its own sub-file node.',
         ].join('\n');
 
         fileDrafts.unshift({
@@ -809,7 +777,6 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
                         paperFileId,
                         linkableRelatedConcepts,
                         input.userGoal,
-                        granularityAssessment,
                     ),
                     x: mapPosition.x,
                     y: mapPosition.y,

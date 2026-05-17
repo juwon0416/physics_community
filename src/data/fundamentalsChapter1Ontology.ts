@@ -7,9 +7,9 @@ const FUNDAMENTALS_CHAPTER_1_CONTENT = String.raw`# Fundamentals Chapter 1: Meas
 
 ## Abstract
 
-This file is the canonical single-node reconstruction of Halliday, Resnick, and Walker, *Fundamentals of Physics*, Chapter 1, "Measurement." The chapter is short, but it performs an essential logical role: it defines the operational language that lets every later mechanics, thermodynamics, electromagnetic, and quantum statement become quantitatively testable. The chapter should therefore not be treated as three tiny disconnected notes on length, time, and mass. Its real object is the measurement system itself: the pairing of physical quantities with reproducible standards, the organization of units into coherent systems, the algebra of unit conversion, and the discipline of reporting numerical results with honest precision.
+The conclusion of Halliday Chapter 1 is that a physical claim becomes usable only when it is expressed as a measured quantity: a number tied to a unit, a standard, and an honest statement of precision. This measurement language is the base layer that makes later statements about position, velocity, acceleration, force, energy, fields, and quantum systems quantitatively testable.
 
-The ontology boundary is the full chapter. The sections on length, time, and mass are preserved as internal subsections because they are examples of one shared argument rather than independent conceptual neighborhoods. A reader should leave this node able to explain why physics needs standards, how SI base quantities support derived quantities, how dimensional reasoning constrains equations, why conversion factors are ratios equal to one, and how uncertainty and significant figures prevent measurements from pretending to be more exact than the apparatus allows.
+This file teaches the measurement system itself: physical quantities, reproducible unit standards, SI base and derived units, dimensional consistency, chain-link conversion, and significant figures. The reader should leave able to explain why physics needs standards, how dimensions constrain equations, why conversion factors preserve physical meaning, and why numerical precision must not exceed the measurement process.
 
 ## Source Basis
 
@@ -31,7 +31,6 @@ This reconstruction is not a replacement for the textbook prose. It is a graph-n
 - Significant figures
 - Scientific notation
 - Measurement precision
-- Ontology granularity
 
 ## 1. Problem Statement
 
@@ -46,17 +45,18 @@ Chapter 1 answers a foundational problem:
 
 The chapter's answer is that physics requires a measurement language. That language has three layers. First, a physical quantity identifies what is being measured. Second, a unit standard supplies a reproducible reference. Third, mathematical operations on units make numerical comparison, conversion, and dimensional checking possible.
 
-## 2. Ontology Boundary and File-Node Granularity
+## 2. Source Scope and Learning Role
 
-This chapter is intentionally represented as one file node. The source sections are brief and all serve a single argument: measurement makes physical quantities operational. Splitting the chapter into separate file nodes for length, time, mass, prefixes, conversion factors, and significant figures would create many small nodes whose content would mostly repeat the same measurement logic. That would make the graph visually busier without increasing explanatory power.
+This chapter is reconstructed as a measurement framework. Its source sections on length, time, and mass are preserved as parts of one argument: a physical quantity becomes operational when it can be compared with a standard and manipulated through unit algebra.
 
-The internal headings below preserve the source structure while keeping the graph canvas semantically honest. A separate file node should be created only when a subtopic has independent explanatory weight. Good reasons to split include a reusable concept with substantial later dependence, an extended derivation, multiple equations that need their own proof path, a section that participates in many cross-source links, or a topic whose misconceptions and examples require a self-contained document.
+The internal headings below follow the learning path needed by later mechanics. Length and time support position, displacement, velocity, and acceleration. Mass prepares Newtonian dynamics. Dimensional analysis and conversion factors keep equations physically meaningful when numerical values move between unit systems.
 
-For Chapter 1, the better ontology unit is:
+The most important outgoing graph links are:
 
-- One chapter-level file node for the measurement framework.
-- Internal subsections for length, time, mass, unit conversion, and precision.
-- Future links from this node to later full nodes such as velocity, acceleration, force, energy, thermodynamics, and electromagnetic measurement.
+- [[fundamentals-ch2-motion-along-straight-line|Motion Along a Straight Line]]
+- Position, displacement, velocity, and acceleration as measured quantities
+- Force, momentum, work, and energy as derived quantities
+- Thermodynamic, electromagnetic, and quantum measurements as later extensions of the same unit discipline
 
 ## 3. Central Thesis
 
@@ -247,7 +247,7 @@ The chapter's argument backbone can be reconstructed as follows:
 
 This is why the chapter should be read as a methodological foundation rather than a list of isolated facts.
 
-## 17. Worked Analysis: Conversion as Logical Proof
+## 17. Conversion as Unit-Preserving Logic
 
 Consider a measured speed of $15 \mathrm{m/s}$. To express it in kilometers per hour:
 
@@ -257,7 +257,7 @@ This calculation has a proof-like structure. The expression begins with the meas
 
 The conversion is valid not because the final number looks familiar, but because each transformation preserves the original quantity. This is the central logic behind all unit conversion in physics.
 
-## 18. Worked Analysis: Dimensional Rejection of an Equation
+## 18. Dimensional Rejection of an Equation
 
 Suppose someone claims that the distance traveled by an object under constant acceleration is $x = at$. Dimensional analysis rejects this immediately:
 
@@ -269,19 +269,15 @@ $$x \sim a t^2$$
 
 Dimensional analysis does not determine the numerical coefficient. It cannot tell us from dimensions alone that the constant-acceleration displacement from rest is $\frac{1}{2}at^2$. But it can detect many impossible expressions before detailed derivation begins. That power comes directly from the measurement framework of Chapter 1.
 
-## 19. Common Misconceptions
+## 19. Scope and Precision Limits
 
-- A number by itself is not a physical measurement. It must name the quantity and unit.
-- Unit conversion does not change the physical quantity. It changes the representation.
-- Prefixes such as kilo, centi, milli, micro, and nano are scale multipliers, not new dimensions.
-- More calculator digits do not mean more physical accuracy.
-- Mass and weight should not be merged. Their relationship requires gravitational dynamics.
-- Dimensional consistency is necessary for physical correctness, though it is not sufficient by itself.
-- A compact chapter can still require a detailed node document when its logic supports many later topics.
+The measurement framework does not make every numerical expression physically correct. A quantity still needs a named physical property, a unit, and a measurement procedure. Unit conversion preserves the same quantity only when conversion factors are ratios equal to one. Dimensional consistency is necessary for an equation to be physical, but it is not sufficient to prove the equation true.
+
+Precision is also limited. Extra calculator digits should not be treated as extra knowledge, because the final result cannot be more reliable than the measurements and assumptions that produced it. Mass should also remain conceptually separate from weight until gravitational force is introduced.
 
 ## 20. Connections to Later Nodes
 
-This node should act as a prerequisite hub for later introductory physics. Important outgoing conceptual links include:
+This node should act as a measurement hub for later introductory physics. Important outgoing conceptual links include:
 
 - Position and displacement: require length measurement.
 - Average velocity and speed: require length and time.
@@ -293,60 +289,9 @@ This node should act as a prerequisite hub for later introductory physics. Impor
 - Frequency and period: require time measurement.
 - Electric current, temperature, and amount of substance: extend the base-unit idea beyond mechanics.
 
-In a richer graph, many of these topics deserve their own file nodes. Chapter 1 does not need to become many nodes to support those later links; it needs to be a dense, well-written source node that later nodes can cite.
+In a richer graph, many of these topics can point back to this file when they need unit meaning, dimensional consistency, or precision discipline.
 
-## 21. Content Quality Standard for This File Node
-
-This file node is intentionally detailed because a graph-native study note should do more than name concepts. It should let a reader reconstruct the reasoning without reopening the source. The minimum standard for a high-quality file node is:
-
-- State the source scope and ontology boundary.
-- Identify the central problem or question.
-- Define the main quantities and symbols.
-- Explain the logical sequence of the source.
-- Include equations where they clarify the reasoning.
-- Show at least one worked analysis or proof-like example.
-- Identify limits, misconceptions, and later dependencies.
-- Record why the file node was split or kept whole.
-
-The desired volume is therefore controlled by explanatory completeness, not by a small-word-count target.
-
-## 22. Granularity Policy for Future Ontology Work
-
-Use one file node when a source section is short, introductory, or dependent on one shared argument. Preserve the section structure inside the markdown body. Split into multiple file nodes when a subsection has enough standalone conceptual mass to support its own definitions, equations, examples, misconceptions, and cross-source links.
-
-Good split candidates:
-
-- A theorem, law, model, or equation family with its own derivation.
-- A concept reused across multiple chapters, papers, or domains.
-- A section with multiple claims that require a directed argument backbone.
-- A topic with enough prerequisites and consequences to support a learning route.
-- A source unit whose content would become difficult to navigate inside a single document.
-
-Good single-node candidates:
-
-- Short introductory chapters with one shared methodological argument.
-- Sections that differ mainly by example rather than by conceptual structure.
-- Source fragments whose links are mostly internal to the same chapter.
-- Material whose graph would become noisy if every heading became a node.
-
-For Halliday Chapter 1, the single-node decision is the correct ontology granularity. The chapter is conceptually foundational, but its subsections are too tightly coupled and too brief to justify separate file nodes.
-
-## 23. Mastery Targets
-
-After studying this node, a reader should be able to:
-
-- Explain why measurement is necessary for physics.
-- Distinguish a number from a physical quantity.
-- Describe the role of unit standards in reproducibility.
-- Use SI prefixes as powers-of-ten multipliers.
-- Convert units by chaining conversion factors equal to one.
-- Check dimensional consistency in simple equations.
-- Explain why length, time, and mass are base quantities for mechanics.
-- Distinguish mass from weight at the conceptual level.
-- Report numerical results with precision appropriate to the measurement.
-- Decide when a source should remain one file node and when it should be split into multiple ontology nodes.
-
-## 24. Suggested Next Nodes
+## 21. Suggested Next Nodes
 
 - Motion Along a Straight Line
 - Position and Displacement

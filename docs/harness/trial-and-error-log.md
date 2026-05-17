@@ -219,6 +219,6 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Context: Halliday Chapter 2 file-ontology nodes were added to bundled starter data and deployed, but did not appear on `/graph`.
 - False assumption or risk: A frontend deploy that adds static starter files will affect a deployed site whose `file_ontology_files` table already has rows.
 - Signal: `fetchFileOntologyModel` returned database rows whenever the table was non-empty, so fallback Chapter 2 nodes were ignored unless the SQL migration was separately applied.
-- Correction: Merge missing bundled ontology files and edges into database read results while preserving database rows for matching ids.
-- Prevention: For bundled ontology content, verify both empty-table fallback and non-empty database reads before assuming a deploy will make nodes visible.
+- Correction: Merge missing bundled ontology files and edges into database read results while preserving database rows for matching ids; when older bundled learner content is detected by retired section markers, show the refreshed bundled body until DB rows are saved or migrated.
+- Prevention: For bundled ontology content, verify empty-table fallback, non-empty database reads, and stale-seed content reads before assuming a deploy will make nodes and body revisions visible.
 - Related files: `src/lib/fileOntology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `database/sql/migrations/migration_integrate_fundamentals_chapter2_file_ontology.sql`

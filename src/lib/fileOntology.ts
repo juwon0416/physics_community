@@ -105,6 +105,13 @@ const FILE_SELECT = 'id,title,summary,content,x,y,width,height,created_at,update
 const EDGE_SELECT = 'id,source_file_id,target_file_id,label,created_at,updated_at';
 
 const REMOVED_STARTER_FILE_IDS = new Set(['file-ontology-index', 'file-ontology-links']);
+const RETIRED_LEARNER_CONTENT_MARKERS = [
+    'Ontology Boundary and Granularity',
+    'Ontology Boundary and File-Node Granularity',
+    'Common Misconceptions',
+    'Mastery Targets',
+    'Required Background',
+];
 
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
     'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
@@ -117,6 +124,12 @@ function cloneFile(file: FileOntologyFile): FileOntologyFile {
 
 function cloneEdge(edge: FileOntologyEdge): FileOntologyEdge {
     return { ...edge };
+}
+
+function shouldRefreshBundledLearnerContent(databaseFile: FileOntologyFile, bundledFile: FileOntologyFile) {
+    if (!databaseFile.content.trim() || databaseFile.content === bundledFile.content) return false;
+
+    return RETIRED_LEARNER_CONTENT_MARKERS.some((marker) => databaseFile.content.includes(marker));
 }
 
 export function getStarterFileOntologyModel(): FileOntologyModel {
@@ -137,7 +150,21 @@ function mergeBundledOntologyModel(
     databaseEdges: FileOntologyEdge[],
     bundledModel: FileOntologyModel,
 ) {
-    const files = databaseFiles.filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id));
+    const bundledFilesById = new Map(bundledModel.files.map((file) => [file.id, file]));
+    let refreshedBundledFilesCount = 0;
+    const files = databaseFiles
+        .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id))
+        .map((file) => {
+            const bundledFile = bundledFilesById.get(file.id);
+            if (!bundledFile || !shouldRefreshBundledLearnerContent(file, bundledFile)) return file;
+
+            refreshedBundledFilesCount += 1;
+            return {
+                ...file,
+                summary: bundledFile.summary,
+                content: bundledFile.content,
+            };
+        });
     const fileIds = new Set(files.map((file) => file.id));
     const bundledFiles = bundledModel.files
         .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id) && !fileIds.has(file.id))
@@ -164,6 +191,7 @@ function mergeBundledOntologyModel(
             edges: [...edges, ...bundledEdges],
         },
         addedBundledFilesCount: bundledFiles.length,
+        refreshedBundledFilesCount,
     };
 }
 
@@ -277,7 +305,7 @@ export function createBlankFileOntologyFile(index: number): FileOntologyFile {
         id,
         title,
         summary: 'Add a short hidden summary for hover tooltips.',
-        content: `# ${title}\n\nWrite markdown here. Select text and use the link button to create [[${id}|file links]].`,
+        content: `# ${title}\n\n## Abstract\n\nState the conclusion this file node should give the learner first. The rest of the file should explain the definitions, equations, assumptions, and graph links needed to understand that conclusion.\n\n## Core Claim\n\nWrite the central claim or result here.\n\n## Definitions and Symbols\n\nDefine only the quantities used by this node.\n\n## Logical Development\n\nExplain how the claim follows. Use [[${id}|highlight links]] only when a sentence or phrase deserves its own sub-file node.\n\n## Equations and Conditions\n\nAdd formulas with symbol meanings, assumptions, and validity conditions.\n\n## Scope and Links\n\nName the next or supporting file nodes through markdown highlights and graph edges.`,
         x: 140 + offset,
         y: 140 + offset,
         width: 440,
@@ -355,6 +383,8 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         warning:
             merged.addedBundledFilesCount > 0
                 ? 'Database file ontology is missing bundled ontology nodes. Showing bundled seed nodes until the database migration is applied or the nodes are saved.'
+                : merged.refreshedBundledFilesCount > 0
+                  ? 'Database file ontology contains older bundled learner content. Showing the updated bundled file-node structure until the database rows are refreshed.'
                 : undefined,
     };
 }
