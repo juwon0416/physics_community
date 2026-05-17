@@ -231,3 +231,21 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Treat graph UI changes as a route-level visual system: tune screen-perceived typography, make ownership boundaries explicit, prevent layer collisions, and verify the actual route in a browser.
 - Prevention: After visible frontend changes, run the Browser QA loop from `frontend-site-implementation`; inspect normal, title-only, and layer-only zoom states for `/graph`.
 - Related files: `src/components/graph/FileOntologyCanvas.tsx`, `.codex/skills/frontend-site-implementation/SKILL.md`, `AGENTS.md`
+
+### 2026-05-18 - Maximized ontology readers need independent panes
+
+- Context: Highlight-linked file reading initially used one large maximized container with an internal split grid, making files feel trapped inside a single document shell.
+- False assumption or risk: A grid inside a modal is equivalent to independent reader panes.
+- Signal: The user expected each opened file node to become its own independently scrollable reading surface, not a section inside one parent box.
+- Correction: Render maximized file nodes as independent cards directly on the overlay workspace, each with its own header, controls, and scroll body; keep the overlay shell visually quiet.
+- Prevention: For ontology reader work, verify single-pane and multi-pane maximized states in Browser and check that scroll behavior is pane-local.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `.codex/skills/frontend-site-implementation/SKILL.md`, `.codex/agents/frontend_design_reviewer.toml`
+
+### 2026-05-18 - Skill validation script may need PyYAML
+
+- Context: `skill-creator` recommends `quick_validate.py` after skill edits, but the default `python` environment in this workspace did not include `yaml`.
+- False assumption or risk: The validation script can always run with the ambient Python interpreter.
+- Signal: `python .../quick_validate.py .codex/skills/frontend-site-implementation` failed with `ModuleNotFoundError: No module named 'yaml'`.
+- Correction: Report the blocked validation and rely on direct SKILL.md/openai.yaml inspection unless a Python environment with PyYAML is available.
+- Prevention: If skill validation becomes a repeated gate, use a repo-local or bundled Python environment that includes PyYAML instead of the ambient interpreter.
+- Related files: `.codex/skills/frontend-site-implementation/SKILL.md`, `C:/Users/user/.codex/skills/.system/skill-creator/scripts/quick_validate.py`

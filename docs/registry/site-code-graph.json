@@ -1,13 +1,13 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "6f6bf134dcd3c7e25f681154f2255dc4131325ff",
-    "generated_at": "2026-05-17T17:17:47.413Z",
+    "commit": "e7dac7927744bac79be3d61c42362a2e86b768f6",
+    "generated_at": "2026-05-17T17:46:03.215Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "git-ls-files",
-    "tracked_file_count": 385,
+    "tracked_file_count": 386,
     "untracked_file_count": 0,
-    "scanned_file_count": 166,
+    "scanned_file_count": 167,
     "node_count": 134,
     "edge_count": 202
   },
@@ -4501,6 +4501,13 @@
     },
     {
       "path": ".codex/agents/file_reader.toml",
+      "tracked": true,
+      "untracked": false,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/frontend_design_reviewer.toml",
       "tracked": true,
       "untracked": false,
       "kind": "source",

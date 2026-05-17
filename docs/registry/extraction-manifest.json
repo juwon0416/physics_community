@@ -1,8 +1,8 @@
 {
   "branch": "master",
-  "commit": "6f6bf134dcd3c7e25f681154f2255dc4131325ff",
+  "commit": "e7dac7927744bac79be3d61c42362a2e86b768f6",
   "extraction_command": "node tools/extraction/generate_site_code_graph.js",
-  "extraction_timestamp": "2026-05-17T17:17:47.413Z",
+  "extraction_timestamp": "2026-05-17T17:46:03.215Z",
   "extractor_version": "0.1.0",
   "scanned_paths": [
     "src/",
@@ -23,9 +23,9 @@
     "docs/obsidian/generated/nodes/**"
   ],
   "counts": {
-    "tracked_files": 385,
+    "tracked_files": 386,
     "untracked_files": 0,
-    "scanned_files": 166,
+    "scanned_files": 167,
     "nodes": 134,
     "edges": 202,
     "warnings": 0

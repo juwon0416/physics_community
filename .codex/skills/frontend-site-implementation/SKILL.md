@@ -32,6 +32,13 @@ Implement website changes in the existing React/Vite app while preserving graph-
 11. If the user also wants deployment, push the verified commit before deploying so the release maps to Git history.
 12. Log new UI validation or rendering pitfalls with `harness-memory`.
 
+## Design Review Gate
+
+- When the user explicitly asks to call a design AI, design specialist, or visual design reviewer, delegate a bounded critique-only pass before or alongside implementation. Include route, screenshot/context, component owner, constraints, target tone, and the exact interaction states to review.
+- For design-heavy changes even without delegation, write a short internal design brief before editing: audience, reading task, information density, typography scale, interaction priority, and what must not change.
+- Keep the main home page untouched unless the user specifically targets it. For ontology view work, optimize the graph canvas, file nodes, reader panes, layers, edge labels, and browser-visible interaction states.
+- Prefer calm technical reading surfaces: independent panes, subtle borders, restrained shadows, readable line length, stable layer accents, and clear ownership labels. Avoid oversized headings, decorative borders that compete with content, or a single parent container that makes independent files feel trapped.
+
 ## System-Level UI Standards
 
 - Avoid bolting on isolated controls or visual states. Integrate new behavior into the page's navigation, hierarchy, and existing mental model.
@@ -39,12 +46,14 @@ Implement website changes in the existing React/Vite app while preserving graph-
 - Prefer explicit visual ownership: a node's group, active state, editable state, and data source should be visually legible without relying on hidden implementation knowledge.
 - Optimize for perceived smoothness on the main interaction path. Avoid rerendering large markdown, graph, or editor subtrees during pan/zoom when a compositor transform is sufficient.
 - Tune typography by screen-perceived size across breakpoints and zoom levels, not only by CSS values in world coordinates.
+- In maximized ontology readers, each file should behave as an independent pane with its own header, controls, and scroll region; do not place split files inside one large bordered parent reader.
+- Edge labels must be readable as relationship labels, not hidden metadata: reserve enough node spacing, allow short multiline labels, and avoid truncation as the default.
 - When the user reports a visual issue caused by a previous feature addition, look for the underlying system mismatch and update this skill or harness memory if it should change future behavior.
 
 ## Browser QA Loop
 
 - For visible UI work, start the local app if needed, open the affected route, and verify the exact interaction or layout state in a browser.
-- For `/graph`, check at least normal zoom, title-only zoom, layer-only zoom, and one representative interaction such as pan, wheel zoom, maximize, or highlighted-link opening when relevant.
+- For `/graph`, check at least normal zoom, title-only zoom, layer-only zoom, maximized reader panes, and one representative interaction such as pan, wheel zoom, maximize, or highlighted-link opening when relevant.
 - Capture screenshots or DOM observations when they materially confirm the fix; if Browser is unavailable, report that explicitly and state the residual visual risk.
 
 ## Guardrails

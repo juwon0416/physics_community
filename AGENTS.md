@@ -63,6 +63,7 @@ If multiple skills apply, start with the one that owns the artifact being change
 - Respect the dirty worktree. Do not revert unrelated user changes.
 - Prefer boring, inspectable, repo-local mechanisms over opaque abstractions when they improve agent legibility.
 - Visible frontend changes should be implemented as part of the route-level layout and interaction system, not as isolated feature accretion.
+- When the user explicitly asks for design-specialist help, use a critique-only design review pass before or alongside frontend implementation.
 - Route, component, API, DB, schema, or config changes should refresh and validate the site-code registry.
 - Every active registry node needs an existing `source_path`; every relation needs evidence.
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Frontend Systems Implementation"
-  short_description: "React/Vite UI with layout, performance, and browser QA."
-  default_prompt: "Use $frontend-site-implementation to implement UI changes with system-level layout, performance, and browser validation."
+  short_description: "React/Vite UI with design review, layout, and browser QA."
+  default_prompt: "Use $frontend-site-implementation to implement UI changes with design-aware layout, performance, and browser validation."
