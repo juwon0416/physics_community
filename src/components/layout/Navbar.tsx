@@ -10,6 +10,7 @@ export function Navbar() {
     const location = useLocation();
     const isHome = location.pathname === '/';
     const isGraphRoute = location.pathname === '/graph';
+    const isTransparentNav = isHome || isGraphRoute;
     const { theme, toggleTheme } = useTheme();
 
     // Breadcrumb Logic
@@ -48,7 +49,7 @@ export function Navbar() {
     return (
         <nav className={cn(
             "sticky top-0 z-50 w-full transition-colors duration-300",
-            isHome
+            isTransparentNav
                 ? "bg-transparent border-transparent"
                 : "border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         )}>
@@ -63,7 +64,7 @@ export function Navbar() {
                             className={cn(
                                 'inline-block flex-shrink-0 rounded-full border px-3 py-1 text-sm font-medium transition-colors',
                                 isGraphRoute
-                                    ? 'border-foreground/20 bg-foreground text-background'
+                                    ? 'border-foreground/20 bg-transparent text-foreground'
                                     : 'border-transparent text-muted-foreground hover:text-foreground',
                             )}
                         >
@@ -98,7 +99,7 @@ export function Navbar() {
                         onClick={toggleTheme}
                         className={cn(
                             'inline-flex h-9 items-center gap-2 rounded-full border px-3 text-xs font-medium uppercase tracking-[0.14em] shadow-sm backdrop-blur transition',
-                            isHome
+                            isTransparentNav
                                 ? 'border-transparent bg-transparent text-foreground/75 shadow-none hover:bg-foreground/5 hover:text-foreground'
                                 : 'border-border/70 bg-card/70 text-muted-foreground hover:border-foreground/20 hover:text-foreground',
                         )}
@@ -110,7 +111,7 @@ export function Navbar() {
                     </button>
                     <LoginDialog
                         triggerClassName={cn(
-                            isHome
+                            isTransparentNav
                                 ? 'border-transparent bg-transparent text-foreground/75 shadow-none hover:bg-foreground/5 hover:text-foreground'
                                 : undefined,
                         )}

@@ -3,14 +3,14 @@
 > GENERATED FILE. Do not edit directly.
 
 - Branch: `master`
-- Commit: `697cbd480546f024b9d37c2ac5f79af7c917ea06`
-- Generated at: `2026-05-16T18:01:58.451Z`
+- Commit: `5f71bee5a0919766f596986e6e4a49252eb03398`
+- Generated at: `2026-05-17T15:37:24.870Z`
 - Extractor version: `0.1.0`
-- Files scanned: 164
-- Nodes generated: 133
+- Files scanned: 166
+- Nodes generated: 134
 - Edges generated: 202
-- Warnings: 1
+- Warnings: 0
 
 ## Warnings
 
-- warning: Node child_process could not execute git ls-files in this sandbox, so extraction used a filesystem fallback and manual .git metadata parsing. (`.git`)
+- No warnings.

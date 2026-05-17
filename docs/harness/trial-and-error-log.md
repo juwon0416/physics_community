@@ -204,3 +204,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Make the node body a constrained flex column, give the preview `h-full min-h-0`, suppress preview native drag/text selection, and clear any browser text selection before starting canvas pan.
 - Prevention: For canvas-like nodes with embedded content, verify DOM height constraints, native `dragstart`, text selection state, wheel capture, and pointer pan behavior together in a browser.
 - Related files: `src/components/graph/FileOntologyCanvas.tsx`, `docs/harness/verification.md`
+
+### 2026-05-18 - Full lint currently has legacy baseline failures
+
+- Context: Running verification after adding Halliday Chapter 2 file-ontology data and graph-route navbar styling.
+- False assumption or risk: A failing `npm.cmd run lint` means the current task introduced lint errors.
+- Signal: Full lint failed in pre-existing areas: `src/components/graph/OntologyGraphView.tsx`, `src/lib/renderTopicMath.ts`, `src/lib/sourceText.ts`, `src/lib/theme.tsx`, and `src/pages/TopicPage.tsx`; targeted eslint on the changed files passed.
+- Correction: Record both results and use targeted lint for changed files until the legacy lint baseline is cleaned up.
+- Prevention: When reporting verification, distinguish full-repo lint baseline failures from changed-file lint results.
+- Related files: `src/components/graph/OntologyGraphView.tsx`, `src/lib/renderTopicMath.ts`, `src/lib/sourceText.ts`, `src/lib/theme.tsx`, `src/pages/TopicPage.tsx`

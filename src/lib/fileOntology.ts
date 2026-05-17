@@ -3,6 +3,10 @@ import {
     FUNDAMENTALS_CHAPTER_1_EDGES,
     FUNDAMENTALS_CHAPTER_1_FILES,
 } from '../data/fundamentalsChapter1Ontology';
+import {
+    FUNDAMENTALS_CHAPTER_2_EDGES,
+    FUNDAMENTALS_CHAPTER_2_FILES,
+} from '../data/fundamentalsChapter2Ontology';
 
 export interface FileOntologyFile {
     id: string;
@@ -100,6 +104,8 @@ const LINK_MENTION_TABLE = 'file_ontology_link_mentions';
 const FILE_SELECT = 'id,title,summary,content,x,y,width,height,created_at,updated_at';
 const EDGE_SELECT = 'id,source_file_id,target_file_id,label,created_at,updated_at';
 
+const REMOVED_STARTER_FILE_IDS = new Set(['file-ontology-index', 'file-ontology-links']);
+
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
     'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
 export const FILE_ONTOLOGY_WORKFLOW_SCHEMA_SETUP_MESSAGE =
@@ -116,38 +122,12 @@ function cloneEdge(edge: FileOntologyEdge): FileOntologyEdge {
 export function getStarterFileOntologyModel(): FileOntologyModel {
     return {
         files: [
-            {
-                id: 'file-ontology-index',
-                title: 'File Ontology Index',
-                summary: 'A starter markdown file explaining the new file-based ontology canvas.',
-                content:
-                    '# File Ontology Index\n\nThis canvas treats markdown files as first-class nodes.\n\nUse [[file-ontology-links|highlight links]] to connect phrases to another file.\n\nInline math such as $E=mc^2$ and display math blocks are rendered in preview.\n\n$$\nS = k_B \\log \\Omega\n$$',
-                x: 120,
-                y: 120,
-                width: 440,
-                height: 360,
-            },
-            {
-                id: 'file-ontology-links',
-                title: 'Linked Highlights',
-                summary: 'Hovering a highlighted wiki link shows this hidden summary metadata.',
-                content:
-                    '# Linked Highlights\n\nThe markdown body stays clean. The summary shown in hover tooltips is stored separately as hidden file metadata.\n\nSelect text in the editor, press the link button, then choose a target file.',
-                x: 660,
-                y: 240,
-                width: 420,
-                height: 320,
-            },
             ...FUNDAMENTALS_CHAPTER_1_FILES,
+            ...FUNDAMENTALS_CHAPTER_2_FILES,
         ],
         edges: [
-            {
-                id: 'edge-file-ontology-index-file-ontology-links',
-                sourceFileId: 'file-ontology-index',
-                targetFileId: 'file-ontology-links',
-                label: 'documents link behavior',
-            },
             ...FUNDAMENTALS_CHAPTER_1_EDGES,
+            ...FUNDAMENTALS_CHAPTER_2_EDGES,
         ],
     };
 }
@@ -293,7 +273,9 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         };
     }
 
-    const files = (fileRows || []).map((row) => toFile(row as FileOntologyFileRow));
+    const files = (fileRows || [])
+        .map((row) => toFile(row as FileOntologyFileRow))
+        .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id));
 
     const { data: edgeRows, error: edgeError } = await supabase
         .from(EDGE_TABLE)
@@ -324,10 +306,15 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
         };
     }
 
+    const fileIds = new Set(files.map((file) => file.id));
+    const edges = (edgeRows || [])
+        .map((row) => toEdge(row as FileOntologyEdgeRow))
+        .filter((edge) => fileIds.has(edge.sourceFileId) && fileIds.has(edge.targetFileId));
+
     return {
         model: {
             files,
-            edges: (edgeRows || []).map((row) => toEdge(row as FileOntologyEdgeRow)),
+            edges,
         },
         source: 'database',
     };

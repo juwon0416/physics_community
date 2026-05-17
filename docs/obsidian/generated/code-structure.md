@@ -2,8 +2,8 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 164
-- Nodes generated: 133
+- Files scanned: 166
+- Nodes generated: 134
 - Edges generated: 202
 
 ## .codex
@@ -23,8 +23,8 @@
 
 ## database
 
-- Files scanned: 24
-- Registry nodes: 23
+- Files scanned: 25
+- Registry nodes: 24
 
 - `database/sql/archive/archive_graph_schema.sql` -> [[database-archive-graph-schema]], [[table-archive-topics]], [[table-archive-graph-nodes]], [[table-archive-graph-edges]]
 - `database/sql/maintenance/check_purge_status.sql` -> [[database-check-purge-status]]
@@ -38,6 +38,7 @@
 - `database/sql/migrations/migration_consolidate_fundamentals_chapter1_file_ontology.sql` -> [[database-migration-consolidate-fundamentals-chapter-1-file-ontology]]
 - `database/sql/migrations/migration_expand_fundamentals_chapter1_file_ontology_content.sql` -> [[database-migration-expand-fundamentals-chapter-1-file-ontology-content]]
 - `database/sql/migrations/migration_fix_wave_particle.sql` -> [[database-migration-fix-wave-particle]]
+- `database/sql/migrations/migration_integrate_fundamentals_chapter2_file_ontology.sql` -> [[database-migration-integrate-fundamentals-chapter-2-file-ontology]]
 - `database/sql/migrations/migration_prune_orphans.sql` -> [[database-migration-prune-orphans]]
 - `database/sql/migrations/migration_purge_function.sql` -> [[database-migration-purge-function]]
 - `database/sql/migrations/migration_sync_fields.sql` -> [[database-migration-sync-fields]]
@@ -112,7 +113,7 @@
 
 ## src
 
-- Files scanned: 45
+- Files scanned: 46
 - Registry nodes: 39
 
 - `src/App.tsx` -> [[file-app]], [[route-root-layout]], [[route-home]], [[route-graph]], [[route-field-field-slug]], [[route-topic-topic-slug]], [[route-not-found]]
