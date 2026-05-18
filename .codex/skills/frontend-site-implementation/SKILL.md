@@ -50,6 +50,7 @@ Implement website changes in the existing React/Vite app while preserving graph-
 - Edge labels must be readable as relationship labels, not hidden metadata: reserve enough node spacing, allow short multiline labels, and avoid truncation as the default.
 - File ontology node bodies are document surfaces, not decorative graph labels. Avoid transform choices that visibly rasterize text or KaTeX while zooming; verify normal graph previews and maximized reader panes for crisp text.
 - File ontology has two reading surfaces: graph nodes render the concise `summary` preview for relationship scanning, while maximized reader panes render the full `content` document. Do not put the full learner document back into normal graph cards.
+- Graph-card preview scaling must stay centered and screen-readable across zoom levels. Prefer screen-pixel target formulas and center-origin transforms over CSS `zoom` or top-left scaling hacks.
 - When the user reports a visual issue caused by a previous feature addition, look for the underlying system mismatch and update this skill or harness memory if it should change future behavior.
 
 ## Browser QA Loop

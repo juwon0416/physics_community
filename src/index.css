@@ -135,8 +135,18 @@
 }
 
 .file-ontology-readable-preview {
+  width: 100%;
+  max-width: var(--file-preview-width, 68ch);
+  margin-inline: auto;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
+}
+
+.file-ontology-readable-preview--scaled {
+  width: var(--file-preview-scaled-width, 100%);
+  min-height: var(--file-preview-scaled-min-height, 100%);
+  transform: scale(var(--file-preview-inverse-scale, 1));
+  transform-origin: top center;
 }
 
 .file-ontology-inline-math .katex {

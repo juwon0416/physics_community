@@ -294,3 +294,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Treat `summary` as the graph-card preview content and `content` as the full reader document; refresh bundled graph summaries only when the database row still matches bundled content.
 - Prevention: When changing file ontology content or rendering, verify that normal `/graph` cards show concise relationship-focused summaries and maximized panes show the full document.
 - Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/lib/fileOntology.ts`, `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `.codex/skills/frontend-site-implementation/SKILL.md`, `.codex/skills/website-content-authoring/SKILL.md`
+
+### 2026-05-18 - Graph preview scaling must optimize screen perception
+
+- Context: After splitting graph summaries from full reader content, graph-card preview text appeared left-shifted and zoom-level typography felt unbalanced.
+- False assumption or risk: CSS `zoom` and simple inverse viewport scaling will preserve centered, comfortable reading at every graph scale.
+- Signal: Preview wrappers were scaled from the top-left, edge labels grew with a single global multiplier, and zoomed-in nodes could show text that felt too small for the card.
+- Correction: Use center-origin preview transforms, screen-pixel target formulas for preview and edge-label font sizes, and compact graph summaries with core equations.
+- Prevention: Verify `/graph` at multiple zoom levels for centered preview columns, edge label legibility, and graph summaries that expose conclusion, equation, and prerequisite flow.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/index.css`, `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `.codex/skills/frontend-site-implementation/SKILL.md`, `.codex/skills/website-content-authoring/SKILL.md`

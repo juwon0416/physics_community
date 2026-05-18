@@ -128,6 +128,14 @@ const RETIRED_GRAPH_SUMMARY_MARKERS = [
     'Organizes the special constant-acceleration',
     'Applies constant acceleration to vertical motion',
     'Uses signed graph area to recover',
+    'Measurement is the root contract',
+    'This chapter node is the map',
+    'This node establishes the finite-change layer',
+    'This node converts average velocity',
+    'This node explains acceleration as the rate',
+    'This node packages the special case',
+    'This node applies constant acceleration',
+    'This node reads motion from graph area',
 ];
 
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =

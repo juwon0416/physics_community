@@ -38,3 +38,4 @@ Convert physics sources into editor-ready topic content that renders correctly i
 - Section order must follow source order, not alphabetical sorting.
 - File ontology Markdown supports multi-line `$$ ... $$` display math and `\(...\)` inline math; do not rely on raw TeX appearing as plain text in graph nodes.
 - Normal graph cards should not render the full file body. Keep graph-preview summaries compact and push detailed explanation into the full file content.
+- Graph-card summaries should expose the core conclusion, core equation, and prerequisite flow in a compact scan-friendly form; use full reader content for derivations and references.

@@ -18,39 +18,46 @@ function referencesBlock() {
 }
 
 const CHAPTER_2_OVERVIEW_GRAPH_SUMMARY = [
-    'This chapter node is the map of one-dimensional kinematics: [[ch2-position-displacement-average-velocity|position]], [[ch2-instantaneous-velocity-speed|velocity]], and [[ch2-acceleration|acceleration]] form a derivative chain, while graph area runs the chain backward.',
-    'Use it to see how the smaller motion files connect. The detailed reader keeps the full derivation, assumptions, constant-acceleration family, free-fall convention, and references.',
-].join('\n\n');
+    '- One-dimensional kinematics is a derivative chain: $x(t) \\rightarrow v=\\frac{dx}{dt} \\rightarrow a=\\frac{dv}{dt}=\\frac{d^2x}{dt^2}$.',
+    '- The chain reverses by signed area: $\\Delta v=\\int a(t)\\,dt$ and $\\Delta x=\\int v(t)\\,dt$.',
+    '- Use this node as the map connecting [[ch2-position-displacement-average-velocity|position]], [[ch2-instantaneous-velocity-speed|velocity]], [[ch2-acceleration|acceleration]], constant acceleration, free fall, and graphical integration.',
+].join('\n');
 
 const POSITION_DISPLACEMENT_GRAPH_SUMMARY = [
-    'This node establishes the finite-change layer of kinematics: position locates a particle on a measured signed axis, displacement compares two positions, and average velocity turns that displacement into a rate.',
-    'It is the prerequisite bridge from [[fundamentals-ch1-measurement|measurement]] to [[ch2-instantaneous-velocity-speed|instantaneous velocity]].',
-].join('\n\n');
+    '- Position $x$ locates a particle on a signed measured axis inherited from [[fundamentals-ch1-measurement|measurement]].',
+    '- Displacement is endpoint change, not path length: $\\Delta x=x_2-x_1$.',
+    '- Average velocity keeps direction: $v_{\\mathrm{avg}}=\\frac{\\Delta x}{\\Delta t}$, preparing the limit idea in [[ch2-instantaneous-velocity-speed|instantaneous velocity]].',
+].join('\n');
 
 const INSTANTANEOUS_VELOCITY_GRAPH_SUMMARY = [
-    'This node converts average velocity into an instantaneous rate. Its central idea is that velocity is the local tangent-slope of the position-time graph, while speed is only the magnitude of that signed velocity.',
-    'It depends on [[ch2-position-displacement-average-velocity|displacement]] and prepares the definition of [[ch2-acceleration|acceleration]].',
-].join('\n\n');
+    '- Instantaneous velocity is the local slope of [[ch2-position-displacement-average-velocity|position]]: $v=\\lim_{\\Delta t\\to0}\\frac{\\Delta x}{\\Delta t}=\\frac{dx}{dt}$.',
+    '- Speed is only the magnitude: $\\mathrm{speed}=|v|$.',
+    '- This node turns finite average motion into a local rate and sets up [[ch2-acceleration|acceleration]] as change of velocity.',
+].join('\n');
 
 const ACCELERATION_GRAPH_SUMMARY = [
-    'This node explains acceleration as the rate of change of velocity and, equivalently, the second time-change of position. Its sign describes direction along the chosen axis, not automatically "speeding up" or "slowing down."',
-    'It uses [[ch2-instantaneous-velocity-speed|velocity]] as a prerequisite and feeds both [[ch2-constant-acceleration|constant acceleration]] and [[ch2-graphical-integration-motion-analysis|graphical integration]].',
-].join('\n\n');
+    '- Acceleration is the rate of change of [[ch2-instantaneous-velocity-speed|velocity]]: $a=\\frac{dv}{dt}$.',
+    '- Because $v=\\frac{dx}{dt}$, acceleration is also $a=\\frac{d^2x}{dt^2}$ relative to [[ch2-position-displacement-average-velocity|position]].',
+    '- Its sign marks direction along the chosen axis; speed increases only when velocity and acceleration have the same sign.',
+].join('\n');
 
 const CONSTANT_ACCELERATION_GRAPH_SUMMARY = [
-    'This node packages the special case where acceleration is constant. The familiar kinematic equations are treated as one equation family, not separate formulas to memorize.',
-    'It depends on [[ch2-acceleration|acceleration]] and becomes the immediate model behind [[ch2-free-fall-acceleration|free fall]].',
-].join('\n\n');
+    '- Constant acceleration assumes $a=\\mathrm{constant}$, turning derivative definitions into one equation family.',
+    '- Core forms: $v=v_0+at$, $x-x_0=v_0t+\\frac12at^2$, and $v^2=v_0^2+2a(x-x_0)$.',
+    '- The key skill is checking the constant-$a$ assumption from [[ch2-acceleration|acceleration]], then choosing the equation matching the known variables.',
+].join('\n');
 
 const FREE_FALL_GRAPH_SUMMARY = [
-    'This node applies constant acceleration to vertical motion near Earth. The key convention is that the component of acceleration is signed by the chosen axis, while the magnitude g remains positive.',
-    'It is a focused application of [[ch2-constant-acceleration|constant acceleration]], not a separate kinematics theory.',
-].join('\n\n');
+    '- Ideal free fall is [[ch2-constant-acceleration|constant acceleration]] applied vertically near Earth with air resistance neglected.',
+    '- $g=9.8\\,\\mathrm{m/s^2}$ is a positive magnitude; the acceleration component depends on the axis choice.',
+    '- If upward is positive, $a=-g$, so $v=v_0-gt$ and $y-y_0=v_0t-\\frac12gt^2$.',
+].join('\n');
 
 const GRAPHICAL_INTEGRATION_GRAPH_SUMMARY = [
-    'This node reads motion from graph area: area under acceleration changes velocity, and area under velocity changes displacement.',
-    'It reverses the derivative chain built by [[ch2-instantaneous-velocity-speed|velocity]] and [[ch2-acceleration|acceleration]], so it is the graph-native companion to the algebraic motion files.',
-].join('\n\n');
+    '- Graphical integration reverses the derivative chain: area under [[ch2-acceleration|acceleration]] changes velocity, $v_1-v_0=\\int_{t_0}^{t_1}a(t)\\,dt$.',
+    '- Area under [[ch2-instantaneous-velocity-speed|velocity]] gives [[ch2-position-displacement-average-velocity|displacement]], not total distance: $x_1-x_0=\\int_{t_0}^{t_1}v(t)\\,dt$.',
+    '- The sign of each area region decides whether the accumulated change is positive or negative.',
+].join('\n');
 
 const CHAPTER_2_OVERVIEW = String.raw`# Fundamentals Chapter 2: Motion Along a Straight Line
 

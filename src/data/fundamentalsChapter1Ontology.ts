@@ -143,9 +143,10 @@ The prefix changes the numerical value used to express the measurement, but it d
 `;
 
 const FUNDAMENTALS_CHAPTER_1_GRAPH_SUMMARY = [
-    'Measurement is the root contract that turns a bare number into a physical claim: property, value, unit, standard, and justified precision must travel together.',
-    'This node contains the unit, SI-standard, dimensional-analysis, conversion, and significant-figures grammar that later lets [[fundamentals-ch2-motion-along-straight-line|one-dimensional kinematics]] use position, velocity, and acceleration without re-teaching measurement every time.',
-].join('\n\n');
+    '- Measurement turns a number into a physical claim only when property, value, unit, standard, and precision travel together: $Q=n[u]$.',
+    '- Dimensional grammar checks whether equations can be physical: $[Q]=L^aT^bM^c$.',
+    '- This is the unit-and-precision contract inherited by [[fundamentals-ch2-motion-along-straight-line|one-dimensional kinematics]], especially position, velocity, and acceleration.',
+].join('\n');
 
 export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [
     {

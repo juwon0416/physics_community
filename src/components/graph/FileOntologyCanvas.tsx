@@ -167,7 +167,7 @@ const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
 const VIEWPORT_STATE_COMMIT_DELAY_MS = 90;
 const FILE_TITLE_ONLY_SCREEN_FONT_SIZE = 10.5;
-const READABLE_PREVIEW_MIN_LAYOUT_SCALE = 0.42;
+const READABLE_PREVIEW_MIN_LAYOUT_SCALE = 0.48;
 const MONOCHROME_LAYER_BORDER = 'rgb(17 24 39)';
 const MONOCHROME_LAYER_BACKGROUND = 'rgb(255 255 255)';
 const MONOCHROME_LAYER_TEXT = 'rgb(17 24 39)';
@@ -185,6 +185,20 @@ const FILE_ONTOLOGY_LAYER_ACCENTS = [
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
+}
+
+function screenStableWorldFontSize({
+    viewportScale,
+    targetScreenPx,
+    minWorldPx,
+    maxWorldPx,
+}: {
+    viewportScale: number;
+    targetScreenPx: number;
+    minWorldPx: number;
+    maxWorldPx: number;
+}) {
+    return clamp(targetScreenPx / Math.max(viewportScale, READABLE_PREVIEW_MIN_LAYOUT_SCALE), minWorldPx, maxWorldPx);
 }
 
 function getViewportRenderMode(scale: number): ViewportRenderMode {
@@ -2339,23 +2353,54 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     };
 
     const renderNodePreview = (file: FileOntologyFile, expanded = false, scrollable = false) => {
-        const adaptiveFontSize = expanded
+        const nodePreviewTargetScreenPx = viewport.scale > 1
+            ? clamp(13.8 + (viewport.scale - 1) * 1.6, 13.8, 17)
+            : viewport.scale < 0.7
+              ? 12.2
+              : 13.2;
+        const nodePreviewFontSize = expanded
             ? 13.5
-            : clamp(Math.round(file.width / 44), 11, 15);
-        const previewLayoutScale = expanded ? 1 : clamp(viewport.scale, READABLE_PREVIEW_MIN_LAYOUT_SCALE, 1);
-        const previewQualityStyle =
-            !expanded && viewport.scale < 1
-                ? ({
-                      width: `${previewLayoutScale * 100}%`,
-                      minHeight: `${previewLayoutScale * 100}%`,
-                      zoom: 1 / previewLayoutScale,
-                  } as CSSProperties)
-                : undefined;
+            : screenStableWorldFontSize({
+                  viewportScale: viewport.scale,
+                  targetScreenPx: nodePreviewTargetScreenPx,
+                  minWorldPx: viewport.scale > 1 ? 5.5 : 11.5,
+                  maxWorldPx: 18,
+              });
+        const nodePreviewLineHeight = expanded
+            ? 1.62
+            : viewport.scale < 0.7
+              ? 1.42
+              : 1.5;
+        const previewScreenScale = expanded
+            ? 1
+            : clamp(viewport.scale, READABLE_PREVIEW_MIN_LAYOUT_SCALE, 1);
+        const previewColumnRatio = viewport.scale > 1
+            ? 0.84
+            : viewport.scale < 0.7
+              ? 0.78
+              : 0.74;
+        const previewColumnCh = viewport.scale > 1 ? 66 : 58;
+        const previewReadableWidth = expanded
+            ? '68ch'
+            : `min(${previewColumnCh}ch, ${Math.max(240, Math.round(file.width * previewColumnRatio))}px)`;
+        const previewPaddingClass = expanded
+            ? 'px-6 py-5'
+            : file.height >= 420
+              ? 'px-5 py-5'
+              : 'px-4 py-3.5';
+        const previewQualityStyle = {
+            '--file-preview-scale': previewScreenScale,
+            '--file-preview-inverse-scale': 1 / previewScreenScale,
+            '--file-preview-width': previewReadableWidth,
+            '--file-preview-scaled-width': `${previewScreenScale * 100}%`,
+            '--file-preview-scaled-min-height': `${previewScreenScale * 100}%`,
+        } as CSSProperties;
 
         return (
             <div
                 className={cn(
-                    'h-full min-h-0 flex-1 select-none p-4',
+                    'h-full min-h-0 flex-1 select-none',
+                    previewPaddingClass,
                     scrollable
                         ? 'file-ontology-scrollbar overflow-y-auto overflow-x-hidden'
                         : 'overflow-hidden',
@@ -2374,9 +2419,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                           }
                         : undefined
                 }
-                style={{ fontSize: adaptiveFontSize, lineHeight: expanded ? 1.62 : 1.5 }}
+                style={{ fontSize: nodePreviewFontSize, lineHeight: nodePreviewLineHeight }}
             >
-                <div className="file-ontology-readable-preview" style={previewQualityStyle}>
+                <div
+                    className={cn(
+                        'file-ontology-readable-preview',
+                        !expanded && viewport.scale < 1 ? 'file-ontology-readable-preview--scaled' : null,
+                    )}
+                    style={previewQualityStyle}
+                >
                     <MarkdownPreview
                         content={expanded ? file.content : getGraphPreviewContent(file)}
                         sourceFileId={file.id}
@@ -2466,7 +2517,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 key={file.id}
                 className={cn(
                     'absolute flex flex-col overflow-hidden rounded-xl border bg-background/95 text-foreground shadow-[0_18px_48px_hsl(var(--foreground)/0.06)] backdrop-blur-sm',
-                    isSelected ? 'border-foreground' : 'border-border',
+                    isSelected ? 'border-foreground ring-1 ring-foreground/10' : 'border-border',
                     isConnectSource ? 'outline outline-2 outline-foreground' : null,
                     isSummoned ? 'ring-2 ring-foreground/20' : null,
                 )}
@@ -2476,7 +2527,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     width: file.width,
                     height: file.height,
                     borderTopColor: layer?.accentColor,
-                    borderTopWidth: layer ? 3 : undefined,
+                    borderTopWidth: layer ? (isSelected ? 3 : 2) : undefined,
                 }}
                 data-file-node-id={file.id}
                 onClick={(event) => {
@@ -2547,7 +2598,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 {isTitleOnly ? (
                     <div className="flex min-h-0 flex-1 items-center justify-center p-4 text-center">
                         <div
-                            className="max-w-full px-4 font-semibold leading-tight text-foreground"
+                            className="max-w-full px-4 font-semibold leading-tight tracking-[-0.01em] text-foreground/90"
                             style={{
                                 display: '-webkit-box',
                                 fontSize: titleOnlyFontSize,
@@ -2702,10 +2753,42 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                             if (!source || !target) return null;
 
                             const anchors = edgeAnchors(source, target);
-                            const labelScale = clamp(1 / Math.max(viewport.scale, 0.32), 1, 2.8);
-                            const labelWidth = Math.round(360 * labelScale);
-                            const labelHeight = Math.round(76 * labelScale);
-                            const labelFontSize = Math.round(11.5 * labelScale);
+                            const edgeLabelScreenFontPx = viewport.scale < 0.35
+                                ? 10.5
+                                : viewport.scale < 0.75
+                                  ? 11.5
+                                  : 12;
+                            const edgeLabelWorldFontSize = clamp(
+                                edgeLabelScreenFontPx / Math.max(viewport.scale, READABLE_PREVIEW_MIN_LAYOUT_SCALE),
+                                viewport.scale > 1 ? 5.5 : 11,
+                                24,
+                            );
+                            const edgeLabelWorldWidth = clamp(
+                                300 / Math.max(viewport.scale, 0.5),
+                                viewport.scale > 1 ? 80 : 300,
+                                560,
+                            );
+                            const edgeLabelWorldHeight = clamp(
+                                48 / Math.max(viewport.scale, 0.5),
+                                viewport.scale > 1 ? 24 : 48,
+                                92,
+                            );
+                            const edgeControlWorldSize = clamp(
+                                22 / Math.max(viewport.scale, 0.55),
+                                viewport.scale > 1 ? 12 : 22,
+                                38,
+                            );
+                            const edgeOpacity = viewport.scale < 0.35
+                                ? 0.32
+                                : viewport.scale < 0.75
+                                  ? 0.44
+                                  : 0.56;
+                            const labelWidth = Math.round(edgeLabelWorldWidth);
+                            const labelHeight = Math.round(edgeLabelWorldHeight);
+                            const labelFontSize = Math.round(edgeLabelWorldFontSize);
+                            const labelButtonMaxWidth = Math.round(
+                                edgeLabelWorldWidth - (isEditable ? edgeControlWorldSize + 20 : 28),
+                            );
 
                             return (
                                 <g key={edge.id} className="pointer-events-auto">
@@ -2714,7 +2797,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                         y1={anchors.sourceY}
                                         x2={anchors.targetX}
                                         y2={anchors.targetY}
-                                        stroke="hsl(var(--foreground) / 0.6)"
+                                        stroke={`hsl(var(--foreground) / ${edgeOpacity})`}
                                         strokeWidth="2"
                                         markerEnd="url(#file-ontology-arrow)"
                                     />
@@ -2733,9 +2816,9 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                                 type="button"
                                                 className="rounded-2xl border border-foreground/25 bg-background/95 px-3 py-2 text-center font-semibold leading-tight text-foreground shadow-[0_0_0_3px_hsl(var(--background))] backdrop-blur"
                                                 style={{
-                                                    maxWidth: Math.round(300 * labelScale),
+                                                    maxWidth: labelButtonMaxWidth,
                                                     fontSize: labelFontSize,
-                                                    maxHeight: Math.round(56 * labelScale),
+                                                    maxHeight: Math.round(edgeLabelWorldHeight - 16),
                                                     overflow: 'hidden',
                                                     overflowWrap: 'break-word',
                                                     whiteSpace: 'normal',
@@ -2753,8 +2836,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                                     type="button"
                                                     className="rounded-full border border-foreground/30 bg-background p-1 text-muted-foreground shadow-[0_0_0_2px_hsl(var(--background))] hover:text-foreground"
                                                     style={{
-                                                        width: Math.round(24 * labelScale),
-                                                        height: Math.round(24 * labelScale),
+                                                        width: Math.round(edgeControlWorldSize),
+                                                        height: Math.round(edgeControlWorldSize),
                                                     }}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
