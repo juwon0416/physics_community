@@ -16,6 +16,7 @@ Run build for TypeScript, route, graph model, data loading, editor, and renderin
 - Open the relevant route in a browser when a local app target is running.
 - Check desktop and mobile if layout, navigation, or graph interaction changed.
 - For topic pages, check whether `pdf_url` changes content precedence.
+- For `/graph` file ontology readers, confirm no raw `$$`, `\(`, `\)`, `.katex-error`, or `.file-ontology-math-fallback` appears in the rendered DOM.
 
 ## Website Content Imports
 
@@ -25,6 +26,7 @@ Run build for TypeScript, route, graph model, data loading, editor, and renderin
 - Confirm no raw `$$...$$`, `\tag{}`, or TeX layout commands remain.
 - Validate KaTeX rendering for all formula `data-value` attributes.
 - Confirm override keys match exact DB slug/title when using `TOPIC_CONTENT_OVERRIDES`.
+- For bundled file ontology Markdown in `src/data/*Ontology.ts`, run `npm.cmd run ontology:math:check`; this also runs automatically before `npm.cmd run build`.
 
 ## Graph and Data Changes
 

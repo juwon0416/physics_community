@@ -276,3 +276,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Rewrite Chapter 1 and Chapter 2 file bodies so prerequisite terms are linked at first use, remove `Source Scope` and broad `Graph Interpretation` sections, place citations in final `References`, and add a dedicated `file_ontology_content_writer` agent role.
 - Prevention: Before approving file-node content, scan definitions and equations for imported concepts; each imported concept should either be locally defined because it belongs to the node, or linked inline to its prerequisite file at first use.
 - Related files: `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `src/lib/fileOntology.ts`, `src/lib/ontologyWorkflow.ts`, `.codex/agents/file_ontology_content_writer.toml`, `.codex/skills/knowledge-reconstruction/SKILL.md`
+
+### 2026-05-18 - File ontology math needs renderer and build-time validation
+
+- Context: Graph file nodes showed blurry internal content and many broken formulas after adding Chapter 1 and Chapter 2 Markdown with TeX delimiters.
+- False assumption or risk: A single-line `$...$` regex and canvas-level `scale()` are enough for learner-facing document nodes.
+- Signal: Multi-line `$$ ... $$` blocks and `\(...\)` inline formulas rendered as raw text or malformed inline math, while scaled graph previews made text and KaTeX look low quality.
+- Correction: Parse multi-line display math and `\(...\)` inline math, render invalid formulas as safe fallbacks instead of raw HTML, stabilize preview text at screen resolution during graph zoom, and add `npm.cmd run ontology:math:check` as a prebuild gate.
+- Prevention: For bundled file ontology content, run the math check and Browser QA for raw `$$`, `\(`, `\)`, `.katex-error`, and `.file-ontology-math-fallback` before declaring graph rendering fixed.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/index.css`, `tools/validation/validate_file_ontology_math.js`, `package.json`, `docs/harness/verification.md`

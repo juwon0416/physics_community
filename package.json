@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "prebuild": "node tools/validation/validate_file_ontology_math.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "ontology:math:check": "node tools/validation/validate_file_ontology_math.js",
     "security:check": "node tools/validation/validate_security_harness.js",
     "preview": "vite preview"
   },

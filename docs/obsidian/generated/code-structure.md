@@ -2,7 +2,7 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 168
+- Files scanned: 169
 - Nodes generated: 134
 - Edges generated: 202
 
@@ -151,7 +151,7 @@
 
 ## tools
 
-- Files scanned: 12
+- Files scanned: 13
 - Registry nodes: 6
 
 - `tools/extraction/generate_site_code_graph.js` -> [[file-generate-site-code-graph]]

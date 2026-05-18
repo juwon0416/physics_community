@@ -26,7 +26,8 @@ Convert physics sources into editor-ready topic content that renders correctly i
 6. Avoid raw `$$...$$`, raw TeX layout commands, and `\tag{}` inside formula attributes.
 7. Add override keys for exact DB slug, exact DB title, and a lowercase-hyphenated future-proof key when using overrides.
 8. Validate formula rendering and section extraction before build or deploy.
-9. Log new rendering pitfalls with `harness-memory`.
+9. For bundled file ontology Markdown in `src/data/*Ontology.ts`, run `npm.cmd run ontology:math:check` before build.
+10. Log new rendering pitfalls with `harness-memory`.
 
 ## Guardrails
 
@@ -34,3 +35,4 @@ Convert physics sources into editor-ready topic content that renders correctly i
 - Keep `data-value` formula attributes one line and HTML-escaped.
 - If `TopicPage.tsx` prefers a `pdf_url`, inspect page logic before assuming content is missing.
 - Section order must follow source order, not alphabetical sorting.
+- File ontology Markdown supports multi-line `$$ ... $$` display math and `\(...\)` inline math; do not rely on raw TeX appearing as plain text in graph nodes.

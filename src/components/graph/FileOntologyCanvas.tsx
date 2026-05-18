@@ -4,6 +4,7 @@ import {
     useMemo,
     useRef,
     useState,
+    type CSSProperties,
     type MouseEvent as ReactMouseEvent,
     type ReactNode,
 } from 'react';
@@ -166,6 +167,7 @@ const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
 const VIEWPORT_STATE_COMMIT_DELAY_MS = 90;
 const FILE_TITLE_ONLY_SCREEN_FONT_SIZE = 10.5;
+const READABLE_PREVIEW_MIN_LAYOUT_SCALE = 0.42;
 const MONOCHROME_LAYER_BORDER = 'rgb(17 24 39)';
 const MONOCHROME_LAYER_BACKGROUND = 'rgb(255 255 255)';
 const MONOCHROME_LAYER_TEXT = 'rgb(17 24 39)';
@@ -646,18 +648,36 @@ function parseWikiLinkToken(token: string) {
     };
 }
 
+function escapeHtml(value: string) {
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function normalizeMathSource(tex: string) {
+    return tex.replace(/\r\n?/g, '\n').trim();
+}
+
 function renderMath(tex: string, displayMode: boolean) {
+    const source = normalizeMathSource(tex);
+    if (!source) return { __html: '' };
+
     try {
         return {
-            __html: katex.renderToString(tex, {
+            __html: katex.renderToString(source, {
                 displayMode,
-                throwOnError: false,
+                throwOnError: true,
                 strict: 'ignore',
                 trust: false,
             }),
         };
     } catch {
-        return { __html: tex };
+        return {
+            __html: `<code class="file-ontology-math-fallback">${escapeHtml(source)}</code>`,
+        };
     }
 }
 
@@ -667,7 +687,9 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
     let paragraphBuffer: string[] = [];
     let listBuffer: string[] = [];
     let codeBuffer: string[] = [];
+    let mathBuffer: string[] = [];
     let isInsideCodeFence = false;
+    let mathFence: '$$' | '\\]' | null = null;
 
     const flushParagraph = () => {
         if (paragraphBuffer.length === 0) return;
@@ -681,8 +703,25 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
         listBuffer = [];
     };
 
+    const flushMath = () => {
+        const text = mathBuffer.join('\n').trim();
+        if (text) blocks.push({ type: 'math', text });
+        mathBuffer = [];
+        mathFence = null;
+    };
+
     lines.forEach((line) => {
         const trimmed = line.trim();
+
+        if (mathFence) {
+            if (trimmed === mathFence) {
+                flushMath();
+                return;
+            }
+
+            mathBuffer.push(line);
+            return;
+        }
 
         if (trimmed.startsWith('```')) {
             flushParagraph();
@@ -709,7 +748,30 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
             return;
         }
 
+        if (trimmed === '$$') {
+            flushParagraph();
+            flushList();
+            mathFence = '$$';
+            mathBuffer = [];
+            return;
+        }
+
+        if (trimmed === '\\[') {
+            flushParagraph();
+            flushList();
+            mathFence = '\\]';
+            mathBuffer = [];
+            return;
+        }
+
         if (trimmed.startsWith('$$') && trimmed.endsWith('$$') && trimmed.length > 4) {
+            flushParagraph();
+            flushList();
+            blocks.push({ type: 'math', text: trimmed.slice(2, -2).trim() });
+            return;
+        }
+
+        if (trimmed.startsWith('\\[') && trimmed.endsWith('\\]') && trimmed.length > 4) {
             flushParagraph();
             flushList();
             blocks.push({ type: 'math', text: trimmed.slice(2, -2).trim() });
@@ -749,6 +811,10 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
         blocks.push({ type: 'code', text: codeBuffer.join('\n') });
     }
 
+    if (mathFence) {
+        flushMath();
+    }
+
     flushParagraph();
     flushList();
 
@@ -762,7 +828,7 @@ function renderInlineMarkdown(
     onHoverLink: (file: FileOntologyFile | null, event?: ReactMouseEvent) => void,
 ): ReactNode[] {
     const nodes: ReactNode[] = [];
-    const tokenPattern = /(\[\[[^\]]+\]\]|\$[^$\n]+\$|`[^`\n]+`|\*\*[^*]+\*\*|\*[^*\n]+\*)/g;
+    const tokenPattern = /(\[\[[^\]]+\]\]|\\\([^\n]*?\\\)|\$[^$\n]+\$|`[^`\n]+`|\*\*[^*]+\*\*|\*[^*\n]+\*)/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
@@ -804,11 +870,19 @@ function renderInlineMarkdown(
                     {label}
                 </button>,
             );
+        } else if (token.startsWith('\\(')) {
+            nodes.push(
+                <span
+                    key={key}
+                    className="file-ontology-inline-math mx-0.5 inline-block align-middle"
+                    dangerouslySetInnerHTML={renderMath(token.slice(2, -2), false)}
+                />,
+            );
         } else if (token.startsWith('$')) {
             nodes.push(
                 <span
                     key={key}
-                    className="mx-0.5 inline-block align-middle"
+                    className="file-ontology-inline-math mx-0.5 inline-block align-middle"
                     dangerouslySetInnerHTML={renderMath(token.slice(1, -1), false)}
                 />,
             );
@@ -943,7 +1017,7 @@ function MarkdownPreview({
                     return (
                         <div
                             key={key}
-                            className="file-ontology-scrollbar overflow-x-auto rounded-md border border-border bg-muted p-3"
+                            className="file-ontology-math-block file-ontology-scrollbar overflow-x-auto rounded-md border border-border bg-muted p-3"
                             dangerouslySetInnerHTML={renderMath(block.text, true)}
                         />
                     );
@@ -1087,7 +1161,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
     const writeSceneTransform = useCallback((nextViewport: Viewport) => {
         if (!sceneRef.current) return;
 
-        sceneRef.current.style.transform = `translate3d(${nextViewport.x}px, ${nextViewport.y}px, 0) scale(${nextViewport.scale})`;
+        sceneRef.current.style.transform = `translate(${Math.round(nextViewport.x)}px, ${Math.round(nextViewport.y)}px) scale(${nextViewport.scale})`;
     }, []);
 
     const applySceneTransform = useCallback(
@@ -2247,6 +2321,15 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
         const adaptiveFontSize = expanded
             ? 13.5
             : clamp(Math.round(file.width / 44), 11, 15);
+        const previewLayoutScale = expanded ? 1 : clamp(viewport.scale, READABLE_PREVIEW_MIN_LAYOUT_SCALE, 1);
+        const previewQualityStyle =
+            !expanded && viewport.scale < 1
+                ? ({
+                      width: `${previewLayoutScale * 100}%`,
+                      minHeight: `${previewLayoutScale * 100}%`,
+                      zoom: 1 / previewLayoutScale,
+                  } as CSSProperties)
+                : undefined;
 
         return (
             <div
@@ -2272,15 +2355,17 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 }
                 style={{ fontSize: adaptiveFontSize, lineHeight: expanded ? 1.62 : 1.5 }}
             >
-                <MarkdownPreview
-                    content={file.content}
-                    sourceFileId={file.id}
-                    files={files}
-                    onActivateLink={handleFileLinkActivate}
-                    onHoverLink={handleHoverLink}
-                    compact={!expanded}
-                    centered
-                />
+                <div className="file-ontology-readable-preview" style={previewQualityStyle}>
+                    <MarkdownPreview
+                        content={file.content}
+                        sourceFileId={file.id}
+                        files={files}
+                        onActivateLink={handleFileLinkActivate}
+                        onHoverLink={handleHoverLink}
+                        compact={!expanded}
+                        centered
+                    />
+                </div>
             </div>
         );
     };
@@ -2507,9 +2592,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     style={{
                         width: worldSize.width,
                         height: worldSize.height,
-                        transform: `translate3d(${viewport.x}px, ${viewport.y}px, 0) scale(${viewport.scale})`,
+                        transform: `translate(${Math.round(viewport.x)}px, ${Math.round(viewport.y)}px) scale(${viewport.scale})`,
                         willChange: 'transform',
-                        backfaceVisibility: 'hidden',
                         contain: 'layout paint size',
                     }}
                 >

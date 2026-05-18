@@ -48,12 +48,14 @@ Implement website changes in the existing React/Vite app while preserving graph-
 - Tune typography by screen-perceived size across breakpoints and zoom levels, not only by CSS values in world coordinates.
 - In maximized ontology readers, each file should behave as an independent pane with its own header, controls, and scroll region; do not place split files inside one large bordered parent reader.
 - Edge labels must be readable as relationship labels, not hidden metadata: reserve enough node spacing, allow short multiline labels, and avoid truncation as the default.
+- File ontology node bodies are document surfaces, not decorative graph labels. Avoid transform choices that visibly rasterize text or KaTeX while zooming; verify normal graph previews and maximized reader panes for crisp text.
 - When the user reports a visual issue caused by a previous feature addition, look for the underlying system mismatch and update this skill or harness memory if it should change future behavior.
 
 ## Browser QA Loop
 
 - For visible UI work, start the local app if needed, open the affected route, and verify the exact interaction or layout state in a browser.
 - For `/graph`, check at least normal zoom, title-only zoom, layer-only zoom, maximized reader panes, and one representative interaction such as pan, wheel zoom, maximize, or highlighted-link opening when relevant.
+- For `/graph` math rendering, inspect the DOM for raw `$$`, `\(`, `\)`, `.katex-error`, and `.file-ontology-math-fallback`; formulas should render as KaTeX in both graph previews and maximized panes.
 - Capture screenshots or DOM observations when they materially confirm the fix; if Browser is unavailable, report that explicitly and state the residual visual risk.
 
 ## Guardrails

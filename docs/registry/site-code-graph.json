@@ -1,13 +1,13 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "02ee8abbcdb6f4dca458d94870f826c1f9f566ee",
-    "generated_at": "2026-05-18T02:46:55.417Z",
+    "commit": "bc289d16354d1e9ab63654fa07e2eb3b5ba1b0be",
+    "generated_at": "2026-05-18T03:11:51.538Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "filesystem-fallback",
     "tracked_file_count": 0,
-    "untracked_file_count": 198,
-    "scanned_file_count": 168,
+    "untracked_file_count": 199,
+    "scanned_file_count": 169,
     "node_count": 134,
     "edge_count": 202
   },
@@ -5771,6 +5771,13 @@
       "node_ids": [
         "file:render-obsidian-registry"
       ]
+    },
+    {
+      "path": "tools/validation/validate_file_ontology_math.js",
+      "tracked": false,
+      "untracked": true,
+      "kind": "harness-tool",
+      "node_ids": []
     },
     {
       "path": "tools/validation/validate_obsidian_links.js",
