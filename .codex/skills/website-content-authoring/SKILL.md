@@ -27,7 +27,8 @@ Convert physics sources into editor-ready topic content that renders correctly i
 7. Add override keys for exact DB slug, exact DB title, and a lowercase-hyphenated future-proof key when using overrides.
 8. Validate formula rendering and section extraction before build or deploy.
 9. For bundled file ontology Markdown in `src/data/*Ontology.ts`, run `npm.cmd run ontology:math:check` before build.
-10. Log new rendering pitfalls with `harness-memory`.
+10. For file ontology files, author both reading layers: `summary` is the concise graph-card preview that states what the node contains and how it connects; `content` is the full maximized reader document with detailed derivation and references.
+11. Log new rendering pitfalls with `harness-memory`.
 
 ## Guardrails
 
@@ -36,3 +37,4 @@ Convert physics sources into editor-ready topic content that renders correctly i
 - If `TopicPage.tsx` prefers a `pdf_url`, inspect page logic before assuming content is missing.
 - Section order must follow source order, not alphabetical sorting.
 - File ontology Markdown supports multi-line `$$ ... $$` display math and `\(...\)` inline math; do not rely on raw TeX appearing as plain text in graph nodes.
+- Normal graph cards should not render the full file body. Keep graph-preview summaries compact and push detailed explanation into the full file content.

@@ -119,6 +119,16 @@ const RETIRED_LEARNER_CONTENT_MARKERS = [
     'Graph Interpretation',
 ];
 const MULTI_SOURCE_LEARNER_CONTENT_MARKERS = ['OpenStax', 'NIST', 'MIT OpenCourseWare'];
+const RETIRED_GRAPH_SUMMARY_MARKERS = [
+    'Multi-source ontology file for measurement',
+    'Multi-source chapter-level map',
+    'Defines one-dimensional position',
+    'Turns average velocity into a limiting rate',
+    'Defines acceleration as the derivative',
+    'Organizes the special constant-acceleration',
+    'Applies constant acceleration to vertical motion',
+    'Uses signed graph area to recover',
+];
 
 export const FILE_ONTOLOGY_SCHEMA_SETUP_MESSAGE =
     'File ontology tables are not available yet. Apply database/sql/schema/file_ontology_schema.sql in Supabase, then refresh /graph.';
@@ -151,6 +161,15 @@ function shouldRefreshBundledLearnerContent(databaseFile: FileOntologyFile, bund
     return bundledIsMultiSource && databaseMissingMultiSource && databaseLooksLikeBundledChapterNote;
 }
 
+function shouldRefreshBundledGraphSummary(databaseFile: FileOntologyFile, bundledFile: FileOntologyFile) {
+    if (!bundledFile.summary.trim() || databaseFile.summary === bundledFile.summary) return false;
+    if (!databaseFile.summary.trim()) return true;
+
+    // Preserve user-authored summaries. Only replace known legacy one-line
+    // bundled summaries that predate the two-surface graph/reader split.
+    return RETIRED_GRAPH_SUMMARY_MARKERS.some((marker) => databaseFile.summary.includes(marker));
+}
+
 export function getStarterFileOntologyModel(): FileOntologyModel {
     return {
         files: [
@@ -175,13 +194,17 @@ function mergeBundledOntologyModel(
         .filter((file) => !REMOVED_STARTER_FILE_IDS.has(file.id))
         .map((file) => {
             const bundledFile = bundledFilesById.get(file.id);
-            if (!bundledFile || !shouldRefreshBundledLearnerContent(file, bundledFile)) return file;
+            if (!bundledFile) return file;
 
-            refreshedBundledFilesCount += 1;
+            const shouldRefreshContent = shouldRefreshBundledLearnerContent(file, bundledFile);
+            const shouldRefreshSummary = shouldRefreshBundledGraphSummary(file, bundledFile);
+            if (!shouldRefreshContent && !shouldRefreshSummary) return file;
+
+            if (shouldRefreshContent) refreshedBundledFilesCount += 1;
             return {
                 ...file,
-                summary: bundledFile.summary,
-                content: bundledFile.content,
+                summary: shouldRefreshSummary || shouldRefreshContent ? bundledFile.summary : file.summary,
+                content: shouldRefreshContent ? bundledFile.content : file.content,
             };
         });
     const fileIds = new Set(files.map((file) => file.id));
@@ -323,7 +346,8 @@ export function createBlankFileOntologyFile(index: number): FileOntologyFile {
     return {
         id,
         title,
-        summary: 'Add a short hidden summary for hover tooltips.',
+        summary:
+            'State the graph-view takeaway in two or three sentences. This short preview should explain what the node contains and why it matters in the surrounding file graph.',
         content: `# ${title}\n\n## Abstract\n\nState the conclusion this file node should give the learner first. The rest of the file should explain the definitions, equations, assumptions, and validity conditions needed to understand that conclusion.\n\n## Core Claim\n\nWrite the central claim or result here.\n\n## Definitions and Symbols\n\nDefine only the quantities used by this node. If a definition requires a reusable background concept, mention it as an inline [[target-file-id|highlight link]] at the point where it is first needed instead of adding a separate link section.\n\n## Logical Development\n\nExplain how the claim follows. Keep the reasoning path local and use highlight links only to offload sub-concepts that would make this file unnecessarily long.\n\n## Equations and Conditions\n\nAdd formulas with symbol meanings, assumptions, sign conventions, and validity conditions. Avoid generic graph-link summaries; links belong inside the sentence they clarify.\n\n## References\n\n- Add source citations here only in this final section.`,
         x: 140 + offset,
         y: 140 + offset,

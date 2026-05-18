@@ -17,6 +17,41 @@ function referencesBlock() {
     ].join('\n');
 }
 
+const CHAPTER_2_OVERVIEW_GRAPH_SUMMARY = [
+    'This chapter node is the map of one-dimensional kinematics: [[ch2-position-displacement-average-velocity|position]], [[ch2-instantaneous-velocity-speed|velocity]], and [[ch2-acceleration|acceleration]] form a derivative chain, while graph area runs the chain backward.',
+    'Use it to see how the smaller motion files connect. The detailed reader keeps the full derivation, assumptions, constant-acceleration family, free-fall convention, and references.',
+].join('\n\n');
+
+const POSITION_DISPLACEMENT_GRAPH_SUMMARY = [
+    'This node establishes the finite-change layer of kinematics: position locates a particle on a measured signed axis, displacement compares two positions, and average velocity turns that displacement into a rate.',
+    'It is the prerequisite bridge from [[fundamentals-ch1-measurement|measurement]] to [[ch2-instantaneous-velocity-speed|instantaneous velocity]].',
+].join('\n\n');
+
+const INSTANTANEOUS_VELOCITY_GRAPH_SUMMARY = [
+    'This node converts average velocity into an instantaneous rate. Its central idea is that velocity is the local tangent-slope of the position-time graph, while speed is only the magnitude of that signed velocity.',
+    'It depends on [[ch2-position-displacement-average-velocity|displacement]] and prepares the definition of [[ch2-acceleration|acceleration]].',
+].join('\n\n');
+
+const ACCELERATION_GRAPH_SUMMARY = [
+    'This node explains acceleration as the rate of change of velocity and, equivalently, the second time-change of position. Its sign describes direction along the chosen axis, not automatically "speeding up" or "slowing down."',
+    'It uses [[ch2-instantaneous-velocity-speed|velocity]] as a prerequisite and feeds both [[ch2-constant-acceleration|constant acceleration]] and [[ch2-graphical-integration-motion-analysis|graphical integration]].',
+].join('\n\n');
+
+const CONSTANT_ACCELERATION_GRAPH_SUMMARY = [
+    'This node packages the special case where acceleration is constant. The familiar kinematic equations are treated as one equation family, not separate formulas to memorize.',
+    'It depends on [[ch2-acceleration|acceleration]] and becomes the immediate model behind [[ch2-free-fall-acceleration|free fall]].',
+].join('\n\n');
+
+const FREE_FALL_GRAPH_SUMMARY = [
+    'This node applies constant acceleration to vertical motion near Earth. The key convention is that the component of acceleration is signed by the chosen axis, while the magnitude g remains positive.',
+    'It is a focused application of [[ch2-constant-acceleration|constant acceleration]], not a separate kinematics theory.',
+].join('\n\n');
+
+const GRAPHICAL_INTEGRATION_GRAPH_SUMMARY = [
+    'This node reads motion from graph area: area under acceleration changes velocity, and area under velocity changes displacement.',
+    'It reverses the derivative chain built by [[ch2-instantaneous-velocity-speed|velocity]] and [[ch2-acceleration|acceleration]], so it is the graph-native companion to the algebraic motion files.',
+].join('\n\n');
+
 const CHAPTER_2_OVERVIEW = String.raw`# Fundamentals Chapter 2: Motion Along a Straight Line
 
 ## Abstract
@@ -386,8 +421,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'fundamentals-ch2-motion-along-straight-line',
         title: 'Fundamentals Chapter 2: Motion Along a Straight Line',
-        summary:
-            'Multi-source chapter-level map for one-dimensional kinematics as a derivative, integral, graph, and constant-acceleration structure.',
+        summary: CHAPTER_2_OVERVIEW_GRAPH_SUMMARY,
         content: CHAPTER_2_OVERVIEW,
         x: 1580,
         y: 120,
@@ -397,8 +431,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-position-displacement-average-velocity',
         title: 'Position, Displacement, and Average Velocity',
-        summary:
-            'Defines one-dimensional position, signed displacement, average velocity, and average speed as the finite-change base of kinematics.',
+        summary: POSITION_DISPLACEMENT_GRAPH_SUMMARY,
         content: POSITION_DISPLACEMENT_CONTENT,
         x: 2460,
         y: 120,
@@ -408,8 +441,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-instantaneous-velocity-speed',
         title: 'Instantaneous Velocity and Speed',
-        summary:
-            'Turns average velocity into a limiting rate and reads instantaneous velocity as the tangent slope of the position-time graph.',
+        summary: INSTANTANEOUS_VELOCITY_GRAPH_SUMMARY,
         content: INSTANTANEOUS_VELOCITY_CONTENT,
         x: 3340,
         y: 120,
@@ -419,8 +451,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-acceleration',
         title: 'Acceleration',
-        summary:
-            'Defines acceleration as the derivative of velocity and second derivative of position, with careful sign interpretation.',
+        summary: ACCELERATION_GRAPH_SUMMARY,
         content: ACCELERATION_CONTENT,
         x: 4220,
         y: 120,
@@ -430,8 +461,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-constant-acceleration',
         title: 'Constant Acceleration',
-        summary:
-            'Organizes the special constant-acceleration equation family and explains when those equations are valid.',
+        summary: CONSTANT_ACCELERATION_GRAPH_SUMMARY,
         content: CONSTANT_ACCELERATION_CONTENT,
         x: 5100,
         y: 120,
@@ -441,8 +471,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-free-fall-acceleration',
         title: 'Free-Fall Acceleration',
-        summary:
-            'Applies constant acceleration to vertical motion near Earth with upward positive and acceleration a = -g.',
+        summary: FREE_FALL_GRAPH_SUMMARY,
         content: FREE_FALL_CONTENT,
         x: 5980,
         y: 120,
@@ -452,8 +481,7 @@ export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [
     {
         id: 'ch2-graphical-integration-motion-analysis',
         title: 'Graphical Integration in Motion Analysis',
-        summary:
-            'Uses signed graph area to recover changes in velocity from acceleration-time graphs and displacement from velocity-time graphs.',
+        summary: GRAPHICAL_INTEGRATION_GRAPH_SUMMARY,
         content: GRAPHICAL_INTEGRATION_CONTENT,
         x: 5100,
         y: 860,

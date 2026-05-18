@@ -142,12 +142,16 @@ The prefix changes the numerical value used to express the measurement, but it d
 - MIT OpenCourseWare 8.01SC, Chapter 2, Units, Dimensional Analysis, Problem Solving, and Estimation.
 `;
 
+const FUNDAMENTALS_CHAPTER_1_GRAPH_SUMMARY = [
+    'Measurement is the root contract that turns a bare number into a physical claim: property, value, unit, standard, and justified precision must travel together.',
+    'This node contains the unit, SI-standard, dimensional-analysis, conversion, and significant-figures grammar that later lets [[fundamentals-ch2-motion-along-straight-line|one-dimensional kinematics]] use position, velocity, and acceleration without re-teaching measurement every time.',
+].join('\n\n');
+
 export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [
     {
         id: 'fundamentals-ch1-measurement',
         title: 'Fundamentals Chapter 1: Measurement',
-        summary:
-            'Multi-source ontology file for measurement as the standards, unit, dimensional, and precision foundation of introductory physics.',
+        summary: FUNDAMENTALS_CHAPTER_1_GRAPH_SUMMARY,
         content: FUNDAMENTALS_CHAPTER_1_CONTENT,
         x: 720,
         y: 120,

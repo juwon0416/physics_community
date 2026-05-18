@@ -17,6 +17,7 @@ Run build for TypeScript, route, graph model, data loading, editor, and renderin
 - Check desktop and mobile if layout, navigation, or graph interaction changed.
 - For topic pages, check whether `pdf_url` changes content precedence.
 - For `/graph` file ontology readers, confirm no raw `$$`, `\(`, `\)`, `.katex-error`, or `.file-ontology-math-fallback` appears in the rendered DOM.
+- For `/graph` file ontology reading hierarchy, confirm normal graph cards show concise `summary` preview content and maximized reader panes show the full `content` document.
 
 ## Website Content Imports
 

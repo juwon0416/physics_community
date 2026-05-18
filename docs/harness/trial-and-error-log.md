@@ -285,3 +285,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Parse multi-line display math and `\(...\)` inline math, render invalid formulas as safe fallbacks instead of raw HTML, stabilize preview text at screen resolution during graph zoom, and add `npm.cmd run ontology:math:check` as a prebuild gate.
 - Prevention: For bundled file ontology content, run the math check and Browser QA for raw `$$`, `\(`, `\)`, `.katex-error`, and `.file-ontology-math-fallback` before declaring graph rendering fixed.
 - Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/index.css`, `tools/validation/validate_file_ontology_math.js`, `package.json`, `docs/harness/verification.md`
+
+### 2026-05-18 - Graph cards should not render full file documents
+
+- Context: File ontology graph nodes rendered the same long learner document used by maximized reader panes.
+- False assumption or risk: A graph card preview and a full file reader can share one body without hurting graph comprehension.
+- Signal: The user clarified that graph view is for seeing file relationships and node purposes, while detailed learning belongs in the enlarged file view.
+- Correction: Treat `summary` as the graph-card preview content and `content` as the full reader document; refresh bundled graph summaries only when the database row still matches bundled content.
+- Prevention: When changing file ontology content or rendering, verify that normal `/graph` cards show concise relationship-focused summaries and maximized panes show the full document.
+- Related files: `src/components/graph/FileOntologyCanvas.tsx`, `src/lib/fileOntology.ts`, `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `.codex/skills/frontend-site-implementation/SKILL.md`, `.codex/skills/website-content-authoring/SKILL.md`

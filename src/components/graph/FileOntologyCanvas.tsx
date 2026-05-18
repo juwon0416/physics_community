@@ -597,6 +597,27 @@ function buildHighlightExpansionContent(title: string, sourceFile: FileOntologyF
     ].join('\n');
 }
 
+function extractAbstractSummary(content: string) {
+    const normalizedContent = content.replace(/\r\n?/g, '\n');
+    const abstractMatch = normalizedContent.match(/##\s+Abstract\s*\n+([\s\S]*?)(?=\n##\s+|\n#\s+|$)/i);
+    const abstract = compactWhitespace(abstractMatch?.[1] || '');
+
+    if (!abstract) return '';
+    if (abstract.length <= 420) return abstract;
+
+    return `${abstract.slice(0, 417).trimEnd()}...`;
+}
+
+function getGraphPreviewContent(file: FileOntologyFile) {
+    const summary = file.summary.trim();
+    if (summary) return summary;
+
+    const abstract = extractAbstractSummary(file.content);
+    if (abstract) return abstract;
+
+    return 'No graph-view summary yet. Open the reader pane to inspect the full file.';
+}
+
 function draftFromFile(file: FileOntologyFile): FileDraft {
     return {
         title: file.title,
@@ -2233,13 +2254,13 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 </label>
 
                 <label className="space-y-1 text-xs font-medium text-muted-foreground">
-                    Hidden summary metadata
+                    Graph view summary content
                     <textarea
                         value={draft.summary}
                         onChange={(event) => updateDraftForFile(file, { summary: event.target.value })}
                         disabled={!isEditable}
                         className="file-ontology-scrollbar min-h-[64px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-foreground disabled:opacity-60"
-                        placeholder="Shown only in hover tooltips."
+                        placeholder="Short Markdown shown inside graph nodes. Keep the full explanation in the detailed content below."
                     />
                 </label>
 
@@ -2357,7 +2378,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             >
                 <div className="file-ontology-readable-preview" style={previewQualityStyle}>
                     <MarkdownPreview
-                        content={file.content}
+                        content={expanded ? file.content : getGraphPreviewContent(file)}
                         sourceFileId={file.id}
                         files={files}
                         onActivateLink={handleFileLinkActivate}
@@ -2828,7 +2849,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 >
                     <div className="mb-1 font-semibold text-foreground">{hoverSummary.file.title}</div>
                     <div className="text-xs leading-5 text-muted-foreground">
-                        {hoverSummary.file.summary || 'No hidden summary metadata yet.'}
+                        {hoverSummary.file.summary || 'No graph-view summary content yet.'}
                     </div>
                 </div>
             ) : null}
