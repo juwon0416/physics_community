@@ -36,6 +36,7 @@ children = [
   "equation_extractor",
   "node_doc_planner",
   "derivation_reconstructor",
+  "file_ontology_content_writer",
   "node_doc_writer",
   "node_doc_reviewer",
   "logical_structure_validator",

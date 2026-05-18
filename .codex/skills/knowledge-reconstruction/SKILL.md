@@ -14,6 +14,7 @@ Maintain the repository as a persistent scholarly physics graph. New material sh
 - `docs/knowledge_reconstruction_architecture.md` for the full pipeline and quality gates.
 - `docs/harness/trial-and-error-log.md` if a previous import, graph merge, or content packaging attempt failed.
 - `.codex/agents/knowledge_reconstruction_orchestrator.toml` when coordinating agent roles or artifact boundaries.
+- `.codex/agents/file_ontology_content_writer.toml` before authoring or rewriting learner-facing file ontology node content.
 - `references/artifact-contracts.md` when emitting or checking repository artifacts.
 
 ## Workflow
@@ -35,4 +36,5 @@ Maintain the repository as a persistent scholarly physics graph. New material sh
 - Argument graph direction should flow from problem and assumptions toward derivations, results, interpretations, and limits.
 - Never flatten a paper's proof tree into a simple prerequisite list.
 - Keep source chunk or section evidence attached to claims, derivation steps, and graph edges.
-- In file-ontology learner content, use highlight links as inline prerequisite compression, not as a separate "graph links" or connectivity section. The body should stay on the local argument and link out only where explaining a sub-concept would make the node too long.
+- In file-ontology learner content, use the `file_ontology_content_writer` role and treat highlight links as inline prerequisite compression, not as a separate "graph links" or connectivity section. The body should stay on the local argument and link out exactly where explaining a sub-concept would make the node too long.
+- File ontology sources belong in a final `References` section. Avoid `Source Scope`, `Source Basis`, `Scope and Graph Links`, and catch-all `Graph Interpretation` sections unless graph interpretation is itself the target concept.

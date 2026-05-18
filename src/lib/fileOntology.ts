@@ -114,6 +114,9 @@ const RETIRED_LEARNER_CONTENT_MARKERS = [
     'What This Node Contributes to the Graph',
     'Scope and Graph Links',
     'Scope and Links',
+    'Source Basis',
+    'Source Scope',
+    'Graph Interpretation',
 ];
 const MULTI_SOURCE_LEARNER_CONTENT_MARKERS = ['OpenStax', 'NIST', 'MIT OpenCourseWare'];
 
@@ -321,7 +324,7 @@ export function createBlankFileOntologyFile(index: number): FileOntologyFile {
         id,
         title,
         summary: 'Add a short hidden summary for hover tooltips.',
-        content: `# ${title}\n\n## Abstract\n\nState the conclusion this file node should give the learner first. The rest of the file should explain the definitions, equations, assumptions, and validity conditions needed to understand that conclusion.\n\n## Core Claim\n\nWrite the central claim or result here.\n\n## Definitions and Symbols\n\nDefine only the quantities used by this node. If a definition requires a reusable background concept, mention it as an inline [[target-file-id|highlight link]] at the point where it is needed instead of adding a separate link section.\n\n## Logical Development\n\nExplain how the claim follows. Keep the reasoning path local and use highlight links only to offload sub-concepts that would make this file unnecessarily long.\n\n## Equations and Conditions\n\nAdd formulas with symbol meanings, assumptions, sign conventions, and validity conditions. Avoid generic graph-link summaries; links belong inside the sentence they clarify.`,
+        content: `# ${title}\n\n## Abstract\n\nState the conclusion this file node should give the learner first. The rest of the file should explain the definitions, equations, assumptions, and validity conditions needed to understand that conclusion.\n\n## Core Claim\n\nWrite the central claim or result here.\n\n## Definitions and Symbols\n\nDefine only the quantities used by this node. If a definition requires a reusable background concept, mention it as an inline [[target-file-id|highlight link]] at the point where it is first needed instead of adding a separate link section.\n\n## Logical Development\n\nExplain how the claim follows. Keep the reasoning path local and use highlight links only to offload sub-concepts that would make this file unnecessarily long.\n\n## Equations and Conditions\n\nAdd formulas with symbol meanings, assumptions, sign conventions, and validity conditions. Avoid generic graph-link summaries; links belong inside the sentence they clarify.\n\n## References\n\n- Add source citations here only in this final section.`,
         x: 140 + offset,
         y: 140 + offset,
         width: 440,

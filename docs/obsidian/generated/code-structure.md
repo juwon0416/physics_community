@@ -2,13 +2,13 @@
 
 > GENERATED FILE. Do not edit directly.
 
-- Files scanned: 167
+- Files scanned: 168
 - Nodes generated: 134
 - Edges generated: 202
 
 ## .codex
 
-- Files scanned: 40
+- Files scanned: 41
 - Registry nodes: 2
 
 - `.codex/config.toml` -> [[config-config]]

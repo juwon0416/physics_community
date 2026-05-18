@@ -1,13 +1,13 @@
 {
   "meta": {
     "branch": "master",
-    "commit": "ac1ef0b2df220a8737de156cc9def2df002c1e66",
-    "generated_at": "2026-05-18T02:23:06.260Z",
+    "commit": "02ee8abbcdb6f4dca458d94870f826c1f9f566ee",
+    "generated_at": "2026-05-18T02:46:55.417Z",
     "extractor_version": "0.1.0",
     "file_list_mode": "filesystem-fallback",
     "tracked_file_count": 0,
-    "untracked_file_count": 197,
-    "scanned_file_count": 167,
+    "untracked_file_count": 198,
+    "scanned_file_count": 168,
     "node_count": 134,
     "edge_count": 202
   },
@@ -4494,6 +4494,13 @@
     },
     {
       "path": ".codex/agents/equation_extractor.toml",
+      "tracked": false,
+      "untracked": true,
+      "kind": "source",
+      "node_ids": []
+    },
+    {
+      "path": ".codex/agents/file_ontology_content_writer.toml",
       "tracked": false,
       "untracked": true,
       "kind": "source",

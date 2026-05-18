@@ -267,3 +267,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Remove dedicated connectivity sections from bundled Chapter 1 and Chapter 2 content, update file-node templates and workflow prompts to place links inline, and refresh old DB rows when those retired headings are detected.
 - Prevention: When authoring file-ontology content, keep the local argument primary; use `[[target|phrase]]` links at the exact sentence that needs a sub-concept, never as a standalone graph-link catalog.
 - Related files: `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `src/lib/fileOntology.ts`, `src/lib/ontologyWorkflow.ts`, `src/components/graph/FileOntologyCanvas.tsx`, `.codex/skills/knowledge-reconstruction/SKILL.md`
+
+### 2026-05-18 - File ontology links must appear at first prerequisite use
+
+- Context: After removing explicit graph-link sections, Chapter 2 still kept `Graph Interpretation` and `Source Scope` sections, so prerequisite links were clustered after the concept had already used terms such as velocity and position.
+- False assumption or risk: Moving graph links out of one section is enough if another later section still carries the relationship explanation.
+- Signal: The user pointed to the acceleration node: a learner who does not know velocity needs the velocity file at the definition and equation where \(v(t)\), \(\Delta v\), or \(dv/dt\) first appears.
+- Correction: Rewrite Chapter 1 and Chapter 2 file bodies so prerequisite terms are linked at first use, remove `Source Scope` and broad `Graph Interpretation` sections, place citations in final `References`, and add a dedicated `file_ontology_content_writer` agent role.
+- Prevention: Before approving file-node content, scan definitions and equations for imported concepts; each imported concept should either be locally defined because it belongs to the node, or linked inline to its prerequisite file at first use.
+- Related files: `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `src/lib/fileOntology.ts`, `src/lib/ontologyWorkflow.ts`, `.codex/agents/file_ontology_content_writer.toml`, `.codex/skills/knowledge-reconstruction/SKILL.md`

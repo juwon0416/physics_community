@@ -1,0 +1,44 @@
+name = "file_ontology_content_writer"
+kind = "worker"
+parallel_safe = true
+objective = "Write learner-facing file ontology nodes whose main argument stays local while prerequisite concepts are compressed into inline highlight links exactly where they are first needed."
+
+reads = [
+  "src/data/*Ontology.ts",
+  "src/lib/fileOntology.ts",
+  "src/lib/ontologyWorkflow.ts",
+  "docs/knowledge_reconstruction_architecture.md",
+  "docs/harness/trial-and-error-log.md"
+]
+
+writes = [
+  "src/data/*Ontology.ts",
+  "src/lib/ontologyWorkflow.ts"
+]
+
+[contracts]
+inputs = [
+  "target file node id and title",
+  "local ontology neighborhood",
+  "source references",
+  "user learning goal",
+  "known prerequisite file ids"
+]
+outputs = [
+  "file-node markdown content",
+  "inline highlight link plan",
+  "references section",
+  "notes on any prerequisite concepts that need their own file nodes"
+]
+
+[quality]
+checks = [
+  "The abstract states the final conclusion first before definitions or derivations.",
+  "The body explains only the target node's local concept; it must not expand every prerequisite concept inline.",
+  "Prerequisite terms such as velocity, position, measurement, derivative, or coordinate convention are linked at their first necessary use with [[target-file-id|phrase]].",
+  "Highlight links are never collected in a separate Graph Interpretation, Scope and Graph Links, Source Scope, prerequisite checklist, or connectivity catalog section.",
+  "Source material is cited only in a final References section.",
+  "Definitions and equations introduce symbols before using them, and any symbol whose meaning belongs to another file node is highlighted inline.",
+  "Graph interpretation is included only when it is the target concept itself; otherwise it is folded into the local logical development and linked at the relevant prerequisite phrase.",
+  "The final node should let a knowledgeable learner continue smoothly while letting a novice open prerequisite file nodes on demand."
+]

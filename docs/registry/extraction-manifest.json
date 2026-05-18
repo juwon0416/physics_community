@@ -1,8 +1,8 @@
 {
   "branch": "master",
-  "commit": "ac1ef0b2df220a8737de156cc9def2df002c1e66",
+  "commit": "02ee8abbcdb6f4dca458d94870f826c1f9f566ee",
   "extraction_command": "node tools/extraction/generate_site_code_graph.js",
-  "extraction_timestamp": "2026-05-18T02:23:06.260Z",
+  "extraction_timestamp": "2026-05-18T02:46:55.417Z",
   "extractor_version": "0.1.0",
   "scanned_paths": [
     "src/",
@@ -24,8 +24,8 @@
   ],
   "counts": {
     "tracked_files": 0,
-    "untracked_files": 197,
-    "scanned_files": 167,
+    "untracked_files": 198,
+    "scanned_files": 168,
     "nodes": 134,
     "edges": 202,
     "warnings": 1

@@ -7,15 +7,9 @@ const FUNDAMENTALS_CHAPTER_1_CONTENT = String.raw`# Fundamentals Chapter 1: Meas
 
 ## Abstract
 
-The conclusion of this node is that measurement is not a preliminary bookkeeping step before "real physics"; it is the operation that turns a qualitative claim about the world into a public, testable, and transferable mathematical statement. A physical quantity is meaningful only when a property, a numerical value, a unit, a standard, and a justified precision travel together.
+The conclusion of this file node is that measurement is the operation that turns a qualitative claim about the world into a public, testable, and transferable physical statement. A number becomes physics only when it names a property, a numerical value, a unit, a reproducible standard, and a justified precision.
 
-The practical result is that every later node in mechanics inherits a measurement contract. [[ch2-position-displacement-average-velocity|Position]] is a length-valued function of time; [[ch2-instantaneous-velocity-speed|velocity]] is length per time; [[ch2-acceleration|acceleration]] is length per time squared; force later becomes mass times acceleration. The measurement chapter does not need to re-derive those later concepts. It fixes the unit, standard, dimensional, and precision rules that let those concepts become physical claims instead of bare algebra.
-
-## Source Basis
-
-Source basis: ${FUNDAMENTALS_CHAPTER_1_SOURCE}
-
-Halliday supplies the local chapter sequence. OpenStax supplies a complementary open textbook framing of units, standards, and derived quantities. NIST and the BIPM SI Brochure supply the official standards perspective. MIT OCW supplies the bridge from units and dimensional analysis to problem solving. This file synthesizes those sources into one graph-native essay rather than treating any one source as the sole authority.
+The practical result is that every later mechanics variable inherits a measurement contract. [[ch2-position-displacement-average-velocity|Position]] is meaningful because length can be measured relative to an origin; [[ch2-instantaneous-velocity-speed|velocity]] is meaningful because length and time can be combined into a rate; [[ch2-acceleration|acceleration]] is meaningful because a rate can itself change with time. This file does not re-teach those later nodes. It gives the common unit, standard, dimensional, and precision structure that lets those nodes make physical claims.
 
 ## Keywords
 
@@ -34,7 +28,7 @@ Halliday supplies the local chapter sequence. OpenStax supplies a complementary 
 
 ## 1. Measurement as the Entry Point to Physics
 
-Physics begins when a claim can be checked against the world. "The body moved," "the clock ran briefly," or "the sample is heavy" can guide intuition, but they cannot yet be compared by distant observers, used in equations, or tested against predictions. The statement becomes physics when it is recast as a measured quantity.
+Physics begins when a claim can be checked against the world. "The body moved," "the clock ran briefly," or "the sample is heavy" can guide intuition, but those statements are not yet transferable scientific claims. They become physics when they are recast as measured quantities.
 
 The structure is compact:
 
@@ -44,7 +38,7 @@ The structure is compact:
 - a numerical value is assigned by measurement;
 - uncertainty and significant figures state how much trust the value deserves.
 
-This is why measurement belongs at the root of the ontology. It is the interface between physical reality and mathematical structure. Later topics can be abstract and elegant because their variables already carry units, standards, and justified precision.
+This is why measurement sits at the root of introductory mechanics. It is the interface between physical reality and mathematical structure. Later topics can be abstract only because their variables already carry units, standards, and justified precision.
 
 ## 2. Quantity Equals Property, Number, Unit, and Precision
 
@@ -56,31 +50,27 @@ $$
 Q = n[u]
 $$
 
-Here \(Q\) is the quantity, \(n\) is the numerical value, and \([u]\) is the unit. The unit is not decoration attached after calculation. It is part of the meaning of the claim. The numerical value changes when the unit changes, but the quantity should remain the same.
+Here \(Q\) is the physical quantity, \(n\) is the numerical value, and \([u]\) is the unit. The unit is not decoration attached after calculation. It is part of the meaning of the claim. The numerical value changes when the unit changes, but the physical quantity should remain invariant.
 
 A reported value also carries precision. The difference between \(2.3\ \mathrm{m}\) and \(2.300\ \mathrm{m}\) is not typographic. The second statement claims a more precise measurement process. Physics therefore asks not only "what number did the calculator return?" but also "what measurement justified that many digits?"
 
 ## 3. Standards Make Measurements Public
 
-A unit works only if different observers can reproduce it. Modern SI standards are designed to be stable, coherent, and tied to reproducible definitions rather than local artifacts. NIST and the BIPM frame SI as an international measurement language: a way for laboratories, classrooms, industries, and scientific communities to compare claims without renegotiating the meaning of meter, second, kilogram, and derived units each time.
+A unit works only if different observers can reproduce it. Modern SI standards are designed to be stable, coherent, and tied to reproducible definitions rather than local artifacts. A private ruler, a private clock, or a private mass reference cannot sustain physics at scale.
 
-This public character matters philosophically and practically. A private ruler, a private clock, or a private mass reference cannot sustain physics at scale. Standards turn measurement into a shared infrastructure. They allow a value measured here and now to be compared with a value measured elsewhere and later.
-
-For introductory mechanics, the most immediate base quantities are length, time, and mass. They are not arbitrary examples. They are the ingredients from which displacement, speed, velocity, acceleration, momentum, force, work, and energy will be built.
+For introductory mechanics, the most immediate base quantities are length, time, and mass. Length gives spatial coordinates; time orders events and allows rates; mass prepares the later transition from kinematics to dynamics. Those descendants should not all be taught here. Instead, this file fixes the measurement grammar that later lets \(x\), \(v\), \(a\), \(p=mv\), \(F=ma\), work, and energy become meaningful quantities.
 
 ## 4. SI Coherence and Derived Quantities
 
-The SI is powerful because it is coherent. Base units and derived units are not isolated labels. They form a connected system in which dimensions constrain how quantities can combine.
-
-Examples:
+The SI is powerful because base units and derived units form a connected system. Dimensions constrain how quantities can combine:
 
 - area has dimension \(L^2\);
 - volume has dimension \(L^3\);
-- velocity has dimension \(L T^{-1}\);
-- acceleration has dimension \(L T^{-2}\);
+- [[ch2-instantaneous-velocity-speed|velocity]] has dimension \(L T^{-1}\);
+- [[ch2-acceleration|acceleration]] has dimension \(L T^{-2}\);
 - force later has dimension \(M L T^{-2}\).
 
-The word "derived" does not mean secondary in importance. It means structurally built. [[ch2-instantaneous-velocity-speed|Velocity]] is not a new primitive kind of measurement; it is position change per time. [[ch2-acceleration|Acceleration]] is velocity change per time. This chapter stays focused on the unit structure that all rates inherit instead of expanding every later rate concept inside the measurement argument.
+The word "derived" does not mean secondary in importance. It means structurally built. Velocity is position change per time; acceleration is velocity change per time. Measurement supplies the dimensional grammar, while the kinematics files carry the full motion argument.
 
 ## 5. Dimensions Are the Grammar of Equations
 
@@ -98,9 +88,9 @@ $$
 [at] = (LT^{-2})(T) = LT^{-1}
 $$
 
-The right side has the dimension of velocity, not displacement. The proposal is wrong before numerical substitution begins. A displacement caused by constant acceleration must contain \(t^2\), though dimensional analysis alone cannot supply the coefficient \(\frac{1}{2}\).
+The right side has the dimension of [[ch2-instantaneous-velocity-speed|velocity]], not displacement. The proposal is wrong before numerical substitution begins. A displacement caused by constant [[ch2-acceleration|acceleration]] must contain \(t^2\), though dimensional analysis alone cannot supply the coefficient \(\frac{1}{2}\).
 
-This is the compact reason Chapter 2 can introduce \(x(t)\), \(v(t)\), and \(a(t)\) without repeatedly rebuilding the unit system. The reader who needs the kinematic meaning can open [[fundamentals-ch2-motion-along-straight-line|motion along a straight line]], but the measurement argument itself stays local: dimensions decide which algebraic combinations can even be physical.
+This is the compact reason Chapter 2 can introduce \(x(t)\), \(v(t)\), and \(a(t)\) without rebuilding the unit system every time. The measurement argument stays local: dimensions decide which algebraic combinations can even be physical.
 
 ## 6. Conversion as Invariance
 
@@ -115,15 +105,11 @@ $$
 = 20 \frac{\mathrm{m}}{\mathrm{s}}
 $$
 
-The kilometer and hour units cancel because the conversion factors have been oriented correctly. The result is not a new speed; it is the same speed written in a different unit language.
-
-This habit scales. In later mechanics, errors in unit conversion often become errors in acceleration, force, work, or energy. Chain-link conversion is therefore a small algebraic ritual that protects physical meaning.
+The kilometer and hour units cancel because the conversion factors have been oriented correctly. The result is not a new speed; it is the same speed written in a different unit language. This habit scales: errors in unit conversion often become errors in acceleration, force, work, or energy.
 
 ## 7. Significant Figures as Epistemic Discipline
 
-Significant figures are a compact way to prevent a calculation from pretending to know more than the measurement process knew. A calculator may output ten digits, but the physical result must be rounded to a precision justified by the inputs, model assumptions, and instrument resolution.
-
-This is not a cosmetic rule. It is part of scientific honesty. If the length, time, or mass values entering a problem are rough, then a highly precise final answer is misleading even if the arithmetic is exact.
+Significant figures prevent a calculation from pretending to know more than the measurement process knew. A calculator may output ten digits, but the physical result must be rounded to a precision justified by the inputs, model assumptions, and instrument resolution.
 
 The working rule is:
 
@@ -132,13 +118,9 @@ The working rule is:
 - keep units attached through the calculation;
 - distinguish accuracy, precision, and numerical display.
 
-## 8. Length, Time, and Mass as Mechanics Seeds
+This is not a cosmetic rule. It is part of scientific honesty. If the length, time, or mass values entering a problem are rough, then a highly precise final answer is misleading even when the arithmetic is exact.
 
-Length gives mechanics its spatial coordinate. Time orders events and allows rates. Mass prepares the later transition from kinematics to dynamics, where acceleration becomes a response to force.
-
-Their later descendants include \(x\), \(\Delta x\), distance, and path length from length; \(v = dx/dt\) from length and time; \(a = dv/dt\) from length and time; \(p = mv\) from mass, length, and time; \(F = ma\) from mass, length, and time; and kinetic energy from mass and speed squared. Those descendants should not all be taught inside this file. The file only states the common measurement grammar; the linked descendants carry their own definitions when a learner needs that layer.
-
-## 9. Scale, Prefixes, and Scientific Notation
+## 8. Scale, Prefixes, and Scientific Notation
 
 Physics moves across scales: atomic distances, human-scale motion, planetary orbits, and astronomical baselines. SI prefixes and scientific notation compress this range without changing the underlying dimension.
 
@@ -151,6 +133,13 @@ Examples:
 - \(1\ \mathrm{nm}=10^{-9}\ \mathrm{m}\).
 
 The prefix changes the numerical value used to express the measurement, but it does not create a new physical dimension. A nanometer and a kilometer are both length. The core message is therefore simple but deep: if the unit, standard, and precision structure is absent, the number is not yet physics.
+
+## References
+
+- Halliday, Resnick, and Walker, Fundamentals of Physics, Chapter 1: Measurement.
+- OpenStax University Physics Volume 1, Section 1.2, Units and Standards.
+- NIST SP 330 and the BIPM SI Brochure, 9th edition.
+- MIT OpenCourseWare 8.01SC, Chapter 2, Units, Dimensional Analysis, Problem Solving, and Estimation.
 `;
 
 export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [

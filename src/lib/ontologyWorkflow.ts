@@ -278,7 +278,7 @@ function assessGranularity(
     const looksLikeLightweightChapter = UNICODE_LIGHTWEIGHT_SECTION_PATTERN.test(text) && wordCount < 1800;
     const legacyDecision = decideSplitStrategy(input, intent, detectedConceptCount);
     const contentDepthTarget =
-        'Learner-facing node content should state the final conclusion first in the abstract, then continue with source scope, definitions, logical development, equations, and conditions. Use inline highlight links only where a prerequisite or sub-concept would otherwise make the argument too long; do not add separate graph-link sections, examples, misconception lists, prerequisite checklists, or ontology-granularity policy to the default file body.';
+        'Learner-facing file-node content should state the final conclusion first in the abstract, then continue with definitions, local logical development, equations, assumptions, and conditions. Put source information only in a final References section. Use inline highlight links exactly where a prerequisite or sub-concept first appears; do not collect highlights in graph interpretation, source scope, graph-link, example, misconception, prerequisite-checklist, or ontology-granularity sections.';
 
     const makeAssessment = (
         decision: OntologySplitDecision,
@@ -529,7 +529,7 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
             ? `${primary.title} should state its final result here first, then use the body to explain why that result follows. If the argument needs background concepts such as ${inlineLinks.join(', ')}, introduce them as inline highlights exactly where the reasoning depends on them.`
             : `${primary.title} should state its final result here first, then use the body to explain why that result follows.`,
         '',
-        '## 1. Research Question and Scope',
+        '## 1. Central Question',
         '',
         normalizeText(userGoal) || `Explain ${primary.title} as a compact file node whose prerequisites are linked inline only when they are needed by the argument.`,
         '',
@@ -547,6 +547,10 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
         '## 4. Mathematical Structure',
         '',
         'Add equations only when their symbols, assumptions, and dimensional meaning are explained in prose. If the source contains a derivation, preserve the derivation path instead of reducing it to a formula list. Do not add a separate graph-link section; use inline highlights to offload sub-concepts.',
+        '',
+        '## References',
+        '',
+        '- Add source citations here, not near the beginning of the file.',
     ].join('\n');
 }
 
@@ -719,9 +723,9 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             '',
             normalizeText(input.researchNotes) || 'Source material is intentionally kept as one ontology file until source-grounded details are added.',
             '',
-            '## Source Scope',
+            '## Reconstruction Context',
             '',
-            normalizeText(input.userGoal) || 'Record the source scope, reconstruction goal, and evidence basis before splitting any file nodes.',
+            normalizeText(input.userGoal) || 'Record the reconstruction goal before splitting any file nodes.',
             '',
             '## Required Reconstruction',
             '',
@@ -731,6 +735,10 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             '- Add equations with symbol definitions, assumptions, dimensional meaning, and derivation context.',
             '- Add conditions and limits that directly support the conclusion.',
             '- Use highlight links inside the relevant passage when a prerequisite or hidden step needs its own sub-file node.',
+            '',
+            '## References',
+            '',
+            '- Add source citations here only in this final section.',
         ].join('\n');
 
         fileDrafts.unshift({
