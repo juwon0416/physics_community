@@ -41,8 +41,9 @@ Read the matching skill before substantial work:
 - `.codex/skills/website-content-authoring/SKILL.md` - Quill HTML, KaTeX formulas, topic imports, `TOPIC_CONTENT_OVERRIDES`, editor-ready content.
 - `.codex/skills/graph-data-stewardship/SKILL.md` - Supabase graph tables, SQL migrations, MCP data tools, graph model persistence.
 - `.codex/skills/frontend-site-implementation/SKILL.md` - React/Vite UI, routes, graph views, editor UI, styling, frontend validation.
+- `.codex/skills/harness-engineering/SKILL.md` - AGENTS.md routing, project-local skills, Karpathy-style harness workflow, verification gates, and agent scaffolding.
 - `.codex/skills/harness-memory/SKILL.md` - failure logs, decision logs, recurring mistakes, guardrail updates.
-- `.codex/skills/obsidian-site-code-registry/SKILL.md` - repo extraction, site-code graph manifest, Obsidian generated registry, and registry validation.
+- `.codex/skills/obsidian-site-code-registry/SKILL.md` - repo extraction, site-code graph manifest, Obsidian generated views, and registry validation.
 - `.codex/skills/security-harness/SKILL.md` - secret handling, tracked env files, credential hygiene, and deployment security gates.
 
 If multiple skills apply, start with the one that owns the artifact being changed. Use `harness-memory` when learning something that should affect future runs.

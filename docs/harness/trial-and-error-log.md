@@ -25,6 +25,15 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 
 ## Active Lessons
 
+### 2026-05-18 - Harness engineering belongs in repo-local agent files, not Obsidian
+
+- Context: User asked for “하네스 엔지니어링 구조” and the previous run wrote equipment-specific harness notes into the external Obsidian vault.
+- False assumption or risk: Treating harness engineering as user-facing study-note content instead of project agent scaffolding.
+- Signal: User clarified that the intended target was project-local `AGENTS.md` plus the skills folder, in the Andrei Karpathy harness-engineering sense.
+- Correction: Store agent operating workflow in `AGENTS.md`, `.codex/skills/harness-engineering/`, and `docs/harness/`; remove Obsidian-only harness engineering notes when they are not user-facing content.
+- Prevention: For future requests mentioning harness engineering, first decide whether the user means agent scaffolding. If yes, load `harness-engineering` and modify repo-local harness files rather than Obsidian.
+- Related files: `AGENTS.md`, `.codex/skills/harness-engineering/SKILL.md`, `docs/harness/index.md`
+
 ### 2026-05-15 - Project-local skill initialization may need elevated filesystem access
 
 - Context: Creating folders under `.codex/skills/` with the skill initialization script.

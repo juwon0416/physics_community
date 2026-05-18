@@ -2,7 +2,10 @@
 
 This repository uses a harness-engineering style: make agent work legible, bounded, verifiable, and recoverable inside the repo. The short `AGENTS.md` is the table of contents; detailed operating knowledge lives in docs, skills, scripts, and logs.
 
-Primary reference: OpenAI, "Harness engineering: leveraging Codex in an agent-first world" at `https://openai.com/index/harness-engineering/`.
+Primary references:
+
+- OpenAI, "Harness engineering: leveraging Codex in an agent-first world" at `https://openai.com/index/harness-engineering/`.
+- Andrei Karpathy-style agent harness framing: the LLM is the reasoning core, but reliable work comes from the surrounding context, tools, memory, evals, and feedback loop encoded in the repository.
 
 ## Harness Layers
 
@@ -32,6 +35,7 @@ Before implementation, unresolved product or data-shape ambiguity should be surf
 - `website-content-authoring` owns Quill HTML, KaTeX, source-to-topic imports, and topic writing.
 - `graph-data-stewardship` owns Supabase tables, schema migrations, graph scopes, and MCP write paths.
 - `frontend-site-implementation` owns React/Vite UI, routing, graph views, editor UI, and browser-visible behavior.
+- `harness-engineering` owns AGENTS.md routing, project-local skills, Karpathy-style harness workflow, verification gates, and agent scaffolding.
 - `harness-memory` owns the learning ledger and guardrail promotion loop.
 - `obsidian-site-code-registry` owns repo extraction, graph manifest rendering, Obsidian generated views, and registry validation.
 - `security-harness` owns secret handling, tracked env file checks, and deployment security gates.
