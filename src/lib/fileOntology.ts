@@ -393,12 +393,8 @@ export async function fetchFileOntologyModel(): Promise<FileOntologyLoadResult> 
     return {
         model: merged.model,
         source: 'database',
-        warning:
-            merged.addedBundledFilesCount > 0
-                ? 'Database file ontology is missing bundled ontology nodes. Showing bundled seed nodes until the database migration is applied or the nodes are saved.'
-                : merged.refreshedBundledFilesCount > 0
-                  ? 'Database file ontology contains older bundled learner content. Showing the updated bundled file-node structure until the database rows are refreshed.'
-                : undefined,
+        // Bundled file nodes are merged intentionally so deployed graphs stay current
+        // even before matching database rows are refreshed. This is not user-actionable.
     };
 }
 

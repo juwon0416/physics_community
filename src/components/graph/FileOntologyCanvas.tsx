@@ -1268,12 +1268,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             setMaximizedFileId(null);
             setSplitFileIds([]);
             setSummonedFilePositions({});
-            setStatusMessage(
-                result.warning ||
-                    (loadedFiles === result.model.files
-                        ? null
-                        : 'Rebalanced file layers locally to prevent overlap. Use Optimize layout to save it.'),
-            );
+            setStatusMessage(result.warning || null);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown file ontology load error';
             setStatusMessage(message);

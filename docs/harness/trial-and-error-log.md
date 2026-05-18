@@ -249,3 +249,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Report the blocked validation and rely on direct SKILL.md/openai.yaml inspection unless a Python environment with PyYAML is available.
 - Prevention: If skill validation becomes a repeated gate, use a repo-local or bundled Python environment that includes PyYAML instead of the ambient interpreter.
 - Related files: `.codex/skills/frontend-site-implementation/SKILL.md`, `C:/Users/user/.codex/skills/.system/skill-creator/scripts/quick_validate.py`
+
+### 2026-05-18 - Normal file-ontology reconciliation should not surface as a warning toast
+
+- Context: `/graph` displayed a bottom warning that the database file ontology was missing bundled nodes even though the canvas was correctly showing the merged bundled seed files.
+- False assumption or risk: Every DB/static-seed mismatch should become a user-facing status message.
+- Signal: The warning exposed deployment and migration internals during normal graph browsing, and a follow-up Browser check showed the automatic local layout rebalance message occupied the same warning-like surface.
+- Correction: Keep real read/schema warnings, but suppress normal bundled-node reconciliation and initial automatic layout rebalance messages on page load.
+- Prevention: For graph load states, only show bottom status toasts for user-actionable errors or explicit user actions; silent recovery paths should be verified in Browser without UI noise.
+- Related files: `src/lib/fileOntology.ts`, `src/components/graph/FileOntologyCanvas.tsx`
