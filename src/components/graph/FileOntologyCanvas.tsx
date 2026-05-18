@@ -166,6 +166,9 @@ const MAX_SPLIT_FILE_PANES = 6;
 const SUMMON_RETURN_DISTANCE = 420;
 const VIEWPORT_STATE_COMMIT_DELAY_MS = 90;
 const FILE_TITLE_ONLY_SCREEN_FONT_SIZE = 10.5;
+const MONOCHROME_LAYER_BORDER = 'rgb(17 24 39)';
+const MONOCHROME_LAYER_BACKGROUND = 'rgb(255 255 255)';
+const MONOCHROME_LAYER_TEXT = 'rgb(17 24 39)';
 
 const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
     ['measurement-foundations', 'Measurement Foundations'],
@@ -173,20 +176,8 @@ const FILE_ONTOLOGY_LAYER_TITLES = new Map<string, string>([
 ]);
 const FILE_ONTOLOGY_LAYER_ACCENTS = [
     {
-        color: 'hsla(205, 78%, 36%, 0.78)',
-        background: 'hsla(205, 78%, 44%, 0.065)',
-    },
-    {
-        color: 'hsla(28, 78%, 39%, 0.78)',
-        background: 'hsla(28, 78%, 48%, 0.065)',
-    },
-    {
-        color: 'hsla(146, 46%, 34%, 0.78)',
-        background: 'hsla(146, 46%, 42%, 0.065)',
-    },
-    {
-        color: 'hsla(354, 62%, 42%, 0.78)',
-        background: 'hsla(354, 62%, 50%, 0.055)',
+        color: MONOCHROME_LAYER_BORDER,
+        background: MONOCHROME_LAYER_BACKGROUND,
     },
 ];
 
@@ -286,6 +277,33 @@ function getFileOntologyLayerAccent(layerId: string) {
     const paletteIndex = knownIndex >= 0 ? knownIndex : fallbackIndex;
 
     return FILE_ONTOLOGY_LAYER_ACCENTS[paletteIndex % FILE_ONTOLOGY_LAYER_ACCENTS.length];
+}
+
+function getLayerTitleLayout(layer: FileOntologyLayer, viewportScale: number, isLayerOnlyView: boolean) {
+    const words = layer.title.split(/\s+/).filter(Boolean);
+    const lineCount = words.length > 1 ? 2 : 1;
+    const longestWordLength = Math.max(...words.map((word) => word.length), 1);
+    const balancedLineLength = Math.ceil(layer.title.length / lineCount);
+    const maxLineLength = Math.max(longestWordLength, balancedLineLength);
+    const screenWidth = layer.width * viewportScale;
+    const screenHeight = layer.height * viewportScale;
+    const preferredScreenFontSize = isLayerOnlyView ? 26 : 14;
+    const minimumScreenFontSize = isLayerOnlyView ? 11 : 9;
+    const maximumScreenFontSize = isLayerOnlyView ? 28 : 14;
+    const widthLimitedFontSize = (screenWidth * 0.76) / (maxLineLength * 0.58);
+    const heightLimitedFontSize = (screenHeight * 0.52) / (lineCount * 1.08);
+    const screenFontSize = clamp(
+        Math.min(preferredScreenFontSize, widthLimitedFontSize, heightLimitedFontSize),
+        minimumScreenFontSize,
+        maximumScreenFontSize,
+    );
+
+    return {
+        fontSize: Math.round(screenFontSize / Math.max(viewportScale, MIN_SCALE)),
+        lineHeight: 1.08,
+        maxWidth: Math.round(layer.width * 0.82),
+        maxHeight: Math.round(layer.height * 0.68),
+    };
 }
 
 function groupFilesByOntologyLayer(files: FileOntologyFile[]) {
@@ -2482,8 +2500,8 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                 className="absolute inset-0"
                 style={{
                     backgroundImage:
-                        'radial-gradient(circle at 18% 12%, hsl(var(--accent) / 0.10), transparent 34rem), linear-gradient(to right, hsl(var(--border) / 0.28) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.28) 1px, transparent 1px)',
-                    backgroundSize: 'auto, 40px 40px, 40px 40px',
+                        'linear-gradient(to right, hsl(var(--foreground) / 0.08) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / 0.08) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px',
                 }}
             />
 
@@ -2504,26 +2522,20 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                     }}
                 >
                     {fileLayers.map((layer) => {
-                        const layerTitleFontSize = Math.round(
-                            isLayerOnlyView
-                                ? clamp(28 / Math.max(viewport.scale, MIN_SCALE), 96, 220)
-                                : clamp(16 / Math.max(viewport.scale, 0.45), 22, 48),
-                        );
-                        const layerBadgeFontSize = Math.round(clamp(12 / Math.max(viewport.scale, 0.45), 16, 32));
+                        const layerTitleLayout = getLayerTitleLayout(layer, viewport.scale, isLayerOnlyView);
+                        const layerBadgeFontSize = Math.round(clamp(11 / Math.max(viewport.scale, 0.45), 14, 28));
 
                         return (
                             <div
                                 key={layer.id}
                                 className={cn(
-                                    'pointer-events-none absolute rounded-[2rem] border-2 transition-colors duration-200',
-                                    isLayerOnlyView
-                                        ? 'bg-background/70'
-                                        : 'bg-background/20',
+                                    'pointer-events-none absolute rounded-[1.7rem] border transition-colors duration-200',
+                                    'bg-white',
                                 )}
                                 style={{
-                                    backgroundColor: isLayerOnlyView ? 'hsl(var(--background) / 0.72)' : layer.accentBackground,
-                                    borderColor: layer.accentColor,
-                                    boxShadow: `inset 0 0 0 1px ${layer.accentColor}`,
+                                    backgroundColor: MONOCHROME_LAYER_BACKGROUND,
+                                    borderColor: MONOCHROME_LAYER_BORDER,
+                                    boxShadow: 'none',
                                     left: layer.x,
                                     top: layer.y,
                                     width: layer.width,
@@ -2532,15 +2544,16 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                             >
                                 {!isLayerOnlyView ? (
                                     <div
-                                        className="absolute left-7 top-6 flex items-center gap-3 rounded-full border bg-background/90 px-4 py-2 font-semibold text-foreground shadow-[0_0_0_3px_hsl(var(--background))]"
+                                        className="absolute left-7 top-6 flex items-center gap-3 rounded-full border bg-white px-4 py-2 font-semibold text-foreground shadow-none"
                                         style={{
-                                            borderColor: layer.accentColor,
+                                            borderColor: MONOCHROME_LAYER_BORDER,
                                             fontSize: layerBadgeFontSize,
+                                            color: MONOCHROME_LAYER_TEXT,
                                         }}
                                     >
                                         <span
                                             className="h-2.5 w-2.5 shrink-0 rounded-full"
-                                            style={{ backgroundColor: layer.accentColor }}
+                                            style={{ backgroundColor: MONOCHROME_LAYER_TEXT }}
                                         />
                                         <span>{layer.title}</span>
                                         <span className="text-muted-foreground">{layer.fileIds.length} files</span>
@@ -2548,10 +2561,19 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
                                 ) : null}
                                 <div
                                     className={cn(
-                                        'absolute left-1/2 top-1/2 w-[90%] -translate-x-1/2 -translate-y-1/2 text-center font-display font-bold leading-none text-foreground transition-opacity duration-200',
+                                        'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden text-center font-display font-bold text-foreground transition-opacity duration-200',
                                         isLayerOnlyView ? 'opacity-100' : 'opacity-10',
                                     )}
-                                    style={{ fontSize: layerTitleFontSize }}
+                                    style={{
+                                        color: MONOCHROME_LAYER_TEXT,
+                                        fontSize: layerTitleLayout.fontSize,
+                                        lineHeight: layerTitleLayout.lineHeight,
+                                        maxHeight: layerTitleLayout.maxHeight,
+                                        maxWidth: layerTitleLayout.maxWidth,
+                                        overflowWrap: 'break-word',
+                                        whiteSpace: 'normal',
+                                        wordBreak: 'normal',
+                                    }}
                                 >
                                     {layer.title}
                                 </div>
@@ -2658,7 +2680,7 @@ export default function FileOntologyCanvas({ isEditable, currentUserLabel }: Fil
             </div>
 
             <div className="pointer-events-none absolute inset-x-4 top-4 z-50 flex items-start justify-between gap-3">
-                <div className="pointer-events-auto flex max-w-[calc(100vw-2rem)] flex-wrap items-center gap-1 rounded-xl border border-border/80 bg-background/90 p-1.5 text-foreground shadow-[0_16px_44px_hsl(var(--foreground)/0.08)] backdrop-blur-xl">
+                <div className="pointer-events-auto flex max-w-[calc(100vw-2rem)] flex-wrap items-center gap-1 rounded-xl border border-border bg-background/95 p-1.5 text-foreground shadow-none backdrop-blur">
                     <button
                         type="button"
                         className="inline-flex h-9 items-center gap-2 rounded-md border border-foreground bg-foreground px-3 text-sm font-medium text-background transition hover:opacity-80 disabled:opacity-40"
