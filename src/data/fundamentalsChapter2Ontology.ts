@@ -9,7 +9,7 @@ const CHAPTER_2_OVERVIEW = String.raw`# Fundamentals Chapter 2: Motion Along a S
 
 The conclusion of this chapter-level node is that one-dimensional kinematics is a calculus-based reconstruction of motion from three nested time functions: position, velocity, and acceleration. Once position is modeled as a signed measured function \(x(t)\), velocity is the local rate of change of that function, acceleration is the local rate of change of velocity, and constant-acceleration motion is the special case where those derivative relations integrate into a compact equation family.
 
-The deeper learning result is that kinematics is not a memorized list of formulas. It is a reversible structure: slopes move from position to velocity to acceleration, while signed areas move from acceleration to velocity to displacement. This chapter node points to the reusable files that carry that structure: [[ch2-position-displacement-average-velocity|position and displacement]], [[ch2-instantaneous-velocity-speed|instantaneous velocity]], [[ch2-acceleration|acceleration]], [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]].
+The deeper learning result is that kinematics is not a memorized list of formulas. It is a reversible structure: slopes move from [[ch2-position-displacement-average-velocity|position and displacement]] to [[ch2-instantaneous-velocity-speed|instantaneous velocity]] to [[ch2-acceleration|acceleration]], while signed areas move from acceleration back to velocity and displacement. Each linked term appears where the argument would otherwise have to pause and rebuild a sub-concept; readers who already know that layer can keep reading.
 
 ## Source Basis
 
@@ -78,9 +78,7 @@ $$
 
 The sign belongs to the chosen coordinate direction. The magnitude \(g\) is positive; the acceleration component is negative because the acceleration points downward.
 
-## Scope and Graph Links
-
-Chapter 2 depends on [[fundamentals-ch1-measurement|measurement]] because every kinematic variable is a measured quantity with units. It prepares vector kinematics by using sign as a one-dimensional version of direction, and it prepares Newtonian dynamics by making acceleration a precise time-dependent quantity before force is introduced.
+Every equation in this chapter inherits the measurement discipline from [[fundamentals-ch1-measurement|measurement]]: position is measured in length units, velocity in length per time, and acceleration in length per time squared. That dependency is mentioned here only because it prevents a common failure mode: treating \(x\), \(v\), and \(a\) as interchangeable symbols rather than physically different time functions.
 `;
 
 const POSITION_DISPLACEMENT_CONTENT = String.raw`# Position, Displacement, and Average Velocity
@@ -128,9 +126,7 @@ Average velocity uses displacement, so it is directed. Average speed uses total 
 
 On a graph of position $x$ versus time $t$, the average velocity over an interval is the slope of the secant line connecting the two endpoint events. A positive slope means positive average velocity. A negative slope means negative average velocity. A zero slope means no net displacement over that interval.
 
-## Scope and Graph Links
-
-This node depends on [[fundamentals-ch1-measurement|measurement]] because position and time must carry units before rates can be defined. It feeds directly into [[ch2-instantaneous-velocity-speed|instantaneous velocity]], where the finite interval \(\Delta t\) is shrunk toward an instant.
+Position and time must carry the unit discipline of [[fundamentals-ch1-measurement|measurement]] before rates can be defined. Once that finite-interval structure is clear, [[ch2-instantaneous-velocity-speed|instantaneous velocity]] is only the limiting version of the same idea: shrink \(\Delta t\) until the secant slope becomes a tangent slope.
 `;
 
 const INSTANTANEOUS_VELOCITY_CONTENT = String.raw`# Instantaneous Velocity and Speed
@@ -172,9 +168,7 @@ Speed is the magnitude of instantaneous velocity. It discards the sign and keeps
 
 On an $x(t)$ graph, instantaneous velocity is the slope of the tangent line at the chosen time. A horizontal tangent gives zero velocity even if the particle may accelerate immediately afterward. Steeper tangent magnitude means greater speed. The sign of the slope gives the direction along the axis.
 
-## Scope and Graph Links
-
-This node depends on [[ch2-position-displacement-average-velocity|position, displacement, and average velocity]]. It leads to [[ch2-acceleration|acceleration]] because acceleration asks how this instantaneous velocity changes with time.
+This definition deliberately reuses [[ch2-position-displacement-average-velocity|average velocity]] rather than starting over. [[ch2-acceleration|Acceleration]] can then be introduced without a new conceptual apparatus: it asks how this instantaneous velocity changes with time.
 `;
 
 const ACCELERATION_CONTENT = String.raw`# Acceleration
@@ -220,9 +214,7 @@ The direction of acceleration is encoded by sign in one dimension. If velocity a
 
 On a velocity-time graph, acceleration is the slope. On a position-time graph, acceleration is related to the curvature: a changing slope means nonzero acceleration. A straight position-time graph has constant velocity and zero acceleration.
 
-## Scope and Graph Links
-
-This node depends on [[ch2-instantaneous-velocity-speed|instantaneous velocity]]. It leads to [[ch2-constant-acceleration|constant acceleration]], [[ch2-free-fall-acceleration|free fall]], and [[ch2-graphical-integration-motion-analysis|graphical integration]]. It also prepares Newton's laws, where acceleration becomes the observable response to net force.
+The definition should be read as one more rate operation applied to [[ch2-instantaneous-velocity-speed|instantaneous velocity]]. The special case where this rate stays fixed becomes [[ch2-constant-acceleration|constant acceleration]], and the inverse operation of accumulating that rate becomes [[ch2-graphical-integration-motion-analysis|graphical integration]].
 `;
 
 const CONSTANT_ACCELERATION_CONTENT = String.raw`# Constant Acceleration
@@ -277,9 +269,7 @@ The practical skill is not memorizing all five equations in isolation. It is ide
 
 Starting from $a = dv/dt$, constant $a$ integrates to $v = v_0 + at$. Starting from $v = dx/dt$, substituting that velocity function and integrating gives $x - x_0 = v_0t + \frac{1}{2}at^2$. The remaining equations follow by eliminating one variable from those two core relations.
 
-## Scope and Graph Links
-
-This node depends on [[ch2-acceleration|acceleration]] and directly supports [[ch2-free-fall-acceleration|free fall]]. It also becomes the first reusable equation family for later projectile and force problems.
+These equations are therefore not separate facts. They are the integrated form of [[ch2-acceleration|acceleration]] under the condition \(a=\mathrm{constant}\). [[ch2-free-fall-acceleration|Free fall]] is the first major application because it uses one nearly constant vertical acceleration near Earth's surface.
 `;
 
 const FREE_FALL_CONTENT = String.raw`# Free-Fall Acceleration
@@ -333,9 +323,7 @@ At the top of an upward toss, the velocity is momentarily zero. The acceleration
 - The object is modeled as a particle or particle-like body.
 - The vertical coordinate convention must be chosen and kept consistent.
 
-## Scope and Graph Links
-
-This node depends on [[ch2-constant-acceleration|constant acceleration]] and prepares projectile motion, where horizontal motion and vertical free fall are combined.
+Free fall should be learned as a disciplined substitution inside [[ch2-constant-acceleration|constant acceleration]], not as a new formula list. Projectile motion later adds a horizontal component, but this file stays with the vertical one-dimensional model.
 `;
 
 const GRAPHICAL_INTEGRATION_CONTENT = String.raw`# Graphical Integration in Motion Analysis
@@ -370,9 +358,7 @@ The graph area carries units. Area under $a(t)$ has units of velocity because $(
 
 Area above the time axis contributes positively. Area below the time axis contributes negatively. Piecewise graphs can be analyzed by splitting the area into simple regions such as rectangles and triangles, then adding signed contributions.
 
-## Scope and Graph Links
-
-This node depends on [[ch2-instantaneous-velocity-speed|instantaneous velocity]] and [[ch2-acceleration|acceleration]]. It prepares later work-energy reasoning, impulse-momentum reasoning, and any topic where a rate graph must be accumulated into a physical change.
+Graphical integration is the inverse-side companion of [[ch2-instantaneous-velocity-speed|instantaneous velocity]] and [[ch2-acceleration|acceleration]]. It lets the learner move from a rate graph back to a physical change without expanding this node into later work-energy or impulse-momentum theory.
 `;
 
 export const FUNDAMENTALS_CHAPTER_2_FILES: FileOntologyFile[] = [

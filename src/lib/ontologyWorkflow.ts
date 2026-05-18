@@ -278,7 +278,7 @@ function assessGranularity(
     const looksLikeLightweightChapter = UNICODE_LIGHTWEIGHT_SECTION_PATTERN.test(text) && wordCount < 1800;
     const legacyDecision = decideSplitStrategy(input, intent, detectedConceptCount);
     const contentDepthTarget =
-        'Learner-facing node content should state the final conclusion first in the abstract, then continue with source scope, definitions, logical development, equations, conditions, and graph links. Keep examples, misconception lists, prerequisite checklists, and ontology-granularity policy out of the default file body.';
+        'Learner-facing node content should state the final conclusion first in the abstract, then continue with source scope, definitions, logical development, equations, and conditions. Use inline highlight links only where a prerequisite or sub-concept would otherwise make the argument too long; do not add separate graph-link sections, examples, misconception lists, prerequisite checklists, or ontology-granularity policy to the default file body.';
 
     const makeAssessment = (
         decision: OntologySplitDecision,
@@ -501,12 +501,12 @@ function buildStubContent(concept: ResolvedConcept) {
             'This provisional section should be expanded only with material that directly explains the abstract conclusion.',
             '',
         ]),
-        '## Scope and Links',
+        '## Conditions and Local Dependencies',
         '',
         '- Define the concept precisely before using equations or interpretations.',
         '- Reconstruct the logical flow that makes the concept necessary.',
-        '- Add source-grounded equations, assumptions, limits, and graph links.',
-        '- Use markdown highlight links when a sentence needs its own sub-file node.',
+        '- Add source-grounded equations, assumptions, and limits.',
+        '- Use markdown highlight links inside the relevant sentence when a prerequisite needs its own sub-file node.',
     ].join('\n').trimEnd();
 }
 
@@ -515,10 +515,6 @@ function targetFileId(concept: ResolvedConcept) {
 }
 
 function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[], userGoal: string) {
-    const linkLines = related
-        .filter((concept) => targetFileId(concept) !== targetFileId(primary))
-        .map((concept) => `- [[${targetFileId(concept)}|${concept.title}]]: ${concept.relation.replace(/_/g, ' ')}`);
-
     const inlineLinks = related
         .filter((concept) => targetFileId(concept) !== targetFileId(primary))
         .slice(0, 4)
@@ -530,12 +526,12 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
         '## Abstract',
         '',
         inlineLinks.length > 0
-            ? `${primary.title} should state its final result here first, then use the body to explain why that result follows. It is directly connected to ${inlineLinks.join(', ')}.`
+            ? `${primary.title} should state its final result here first, then use the body to explain why that result follows. If the argument needs background concepts such as ${inlineLinks.join(', ')}, introduce them as inline highlights exactly where the reasoning depends on them.`
             : `${primary.title} should state its final result here first, then use the body to explain why that result follows.`,
         '',
         '## 1. Research Question and Scope',
         '',
-        normalizeText(userGoal) || `Explain ${primary.title} with graph-native links to prerequisite and neighboring concepts.`,
+        normalizeText(userGoal) || `Explain ${primary.title} as a compact file node whose prerequisites are linked inline only when they are needed by the argument.`,
         '',
         '## 2. Formal Definition',
         '',
@@ -550,11 +546,7 @@ function buildConceptContent(primary: ResolvedConcept, related: ResolvedConcept[
         '',
         '## 4. Mathematical Structure',
         '',
-        'Add equations only when their symbols, assumptions, and dimensional meaning are explained in prose. If the source contains a derivation, preserve the derivation path instead of reducing it to a formula list.',
-        '',
-        '## 5. Scope and Graph Links',
-        '',
-        linkLines.length > 0 ? linkLines.join('\n') : '- No linked neighbor has been selected yet.',
+        'Add equations only when their symbols, assumptions, and dimensional meaning are explained in prose. If the source contains a derivation, preserve the derivation path instead of reducing it to a formula list. Do not add a separate graph-link section; use inline highlights to offload sub-concepts.',
     ].join('\n');
 }
 
@@ -737,8 +729,8 @@ export function buildOntologyWorkflow(input: OntologyWorkflowInput): OntologyWor
             '- Define the central problem and source thesis.',
             '- Preserve the section-level argument flow as internal headings when the source remains one file node.',
             '- Add equations with symbol definitions, assumptions, dimensional meaning, and derivation context.',
-            '- Add conditions, limits, and graph links that directly support the conclusion.',
-            '- Use highlight links when a passage needs its own sub-file node.',
+            '- Add conditions and limits that directly support the conclusion.',
+            '- Use highlight links inside the relevant passage when a prerequisite or hidden step needs its own sub-file node.',
         ].join('\n');
 
         fileDrafts.unshift({

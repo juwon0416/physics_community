@@ -9,7 +9,7 @@ const FUNDAMENTALS_CHAPTER_1_CONTENT = String.raw`# Fundamentals Chapter 1: Meas
 
 The conclusion of this node is that measurement is not a preliminary bookkeeping step before "real physics"; it is the operation that turns a qualitative claim about the world into a public, testable, and transferable mathematical statement. A physical quantity is meaningful only when a property, a numerical value, a unit, a standard, and a justified precision travel together.
 
-The practical result is that every later node in mechanics inherits a measurement contract. Position is a length-valued function of time; velocity is length per time; acceleration is length per time squared; force later becomes mass times acceleration. If this contract is broken, equations may still be algebraically tidy, but they stop being physical claims.
+The practical result is that every later node in mechanics inherits a measurement contract. [[ch2-position-displacement-average-velocity|Position]] is a length-valued function of time; [[ch2-instantaneous-velocity-speed|velocity]] is length per time; [[ch2-acceleration|acceleration]] is length per time squared; force later becomes mass times acceleration. The measurement chapter does not need to re-derive those later concepts. It fixes the unit, standard, dimensional, and precision rules that let those concepts become physical claims instead of bare algebra.
 
 ## Source Basis
 
@@ -44,7 +44,7 @@ The structure is compact:
 - a numerical value is assigned by measurement;
 - uncertainty and significant figures state how much trust the value deserves.
 
-This is why measurement belongs at the root of the ontology. It is the interface between physical reality and mathematical structure. Later topics can be abstract and elegant only because their variables are already disciplined by units and standards.
+This is why measurement belongs at the root of the ontology. It is the interface between physical reality and mathematical structure. Later topics can be abstract and elegant because their variables already carry units, standards, and justified precision.
 
 ## 2. Quantity Equals Property, Number, Unit, and Precision
 
@@ -80,7 +80,7 @@ Examples:
 - acceleration has dimension \(L T^{-2}\);
 - force later has dimension \(M L T^{-2}\).
 
-The word "derived" does not mean secondary in importance. It means structurally built. Velocity is not a new primitive kind of measurement; it is position change per time. Acceleration is velocity change per time. This is exactly the dependency structure that the ontology graph should expose.
+The word "derived" does not mean secondary in importance. It means structurally built. [[ch2-instantaneous-velocity-speed|Velocity]] is not a new primitive kind of measurement; it is position change per time. [[ch2-acceleration|Acceleration]] is velocity change per time. This chapter stays focused on the unit structure that all rates inherit instead of expanding every later rate concept inside the measurement argument.
 
 ## 5. Dimensions Are the Grammar of Equations
 
@@ -100,7 +100,7 @@ $$
 
 The right side has the dimension of velocity, not displacement. The proposal is wrong before numerical substitution begins. A displacement caused by constant acceleration must contain \(t^2\), though dimensional analysis alone cannot supply the coefficient \(\frac{1}{2}\).
 
-This is a crucial graph edge into Chapter 2: dimensional analysis prepares the learner to see why \(x(t)\), \(v(t)\), and \(a(t)\) cannot be freely interchanged.
+This is the compact reason Chapter 2 can introduce \(x(t)\), \(v(t)\), and \(a(t)\) without repeatedly rebuilding the unit system. The reader who needs the kinematic meaning can open [[fundamentals-ch2-motion-along-straight-line|motion along a straight line]], but the measurement argument itself stays local: dimensions decide which algebraic combinations can even be physical.
 
 ## 6. Conversion as Invariance
 
@@ -136,16 +136,7 @@ The working rule is:
 
 Length gives mechanics its spatial coordinate. Time orders events and allows rates. Mass prepares the later transition from kinematics to dynamics, where acceleration becomes a response to force.
 
-Their later descendants include:
-
-- \(x\), \(\Delta x\), distance, and path length from length;
-- \(v = dx/dt\) from length and time;
-- \(a = dv/dt\) from length and time;
-- \(p = mv\) from mass, length, and time;
-- \(F = ma\) from mass, length, and time;
-- kinetic energy from mass and speed squared.
-
-This list is not merely a catalog. It is the first visible shape of the ontology: later nodes depend on Chapter 1 whenever their variables need unit meaning, dimensional constraints, or precision discipline.
+Their later descendants include \(x\), \(\Delta x\), distance, and path length from length; \(v = dx/dt\) from length and time; \(a = dv/dt\) from length and time; \(p = mv\) from mass, length, and time; \(F = ma\) from mass, length, and time; and kinetic energy from mass and speed squared. Those descendants should not all be taught inside this file. The file only states the common measurement grammar; the linked descendants carry their own definitions when a learner needs that layer.
 
 ## 9. Scale, Prefixes, and Scientific Notation
 
@@ -159,33 +150,7 @@ Examples:
 - \(1\ \mathrm{\mu m}=10^{-6}\ \mathrm{m}\);
 - \(1\ \mathrm{nm}=10^{-9}\ \mathrm{m}\).
 
-The prefix changes the numerical value used to express the measurement, but it does not create a new physical dimension. A nanometer and a kilometer are both length.
-
-## 10. What This Node Contributes to the Graph
-
-This file should function as the measurement hub of the ontology. It should connect outward to:
-
-- [[fundamentals-ch2-motion-along-straight-line|Motion Along a Straight Line]], because kinematics needs measured position and time;
-- position and displacement, because they are length-based quantities;
-- velocity and acceleration, because they are derived rates;
-- Newtonian dynamics, because force depends on mass and acceleration;
-- work and energy, because their units encode mass, length, and time;
-- any later experimental topic, because reported values require uncertainty and precision.
-
-The core message is therefore simple but deep: if the unit and precision structure is absent, the number is not yet physics.
-
-## Suggested Next Nodes
-
-- Motion Along a Straight Line
-- Position and Displacement
-- Average Velocity and Speed
-- Acceleration
-- Vectors
-- Newton's Laws
-- Momentum
-- Work and Energy
-- Density and Pressure
-- Oscillation Period and Frequency
+The prefix changes the numerical value used to express the measurement, but it does not create a new physical dimension. A nanometer and a kilometer are both length. The core message is therefore simple but deep: if the unit, standard, and precision structure is absent, the number is not yet physics.
 `;
 
 export const FUNDAMENTALS_CHAPTER_1_FILES: FileOntologyFile[] = [

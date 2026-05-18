@@ -35,3 +35,4 @@ Maintain the repository as a persistent scholarly physics graph. New material sh
 - Argument graph direction should flow from problem and assumptions toward derivations, results, interpretations, and limits.
 - Never flatten a paper's proof tree into a simple prerequisite list.
 - Keep source chunk or section evidence attached to claims, derivation steps, and graph edges.
+- In file-ontology learner content, use highlight links as inline prerequisite compression, not as a separate "graph links" or connectivity section. The body should stay on the local argument and link out only where explaining a sub-concept would make the node too long.

@@ -258,3 +258,12 @@ This ledger stores compact lessons from failed runs, surprising constraints, and
 - Correction: Keep real read/schema warnings, but suppress normal bundled-node reconciliation and initial automatic layout rebalance messages on page load.
 - Prevention: For graph load states, only show bottom status toasts for user-actionable errors or explicit user actions; silent recovery paths should be verified in Browser without UI noise.
 - Related files: `src/lib/fileOntology.ts`, `src/components/graph/FileOntologyCanvas.tsx`
+
+### 2026-05-18 - Highlight links are prerequisite compression, not connectivity sections
+
+- Context: Chapter 1 and Chapter 2 file-ontology bodies contained learner-facing sections such as "What This Node Contributes to the Graph" and "Scope and Graph Links."
+- False assumption or risk: File nodes should explain their graph connectivity in a dedicated section.
+- Signal: The user clarified that highlights should keep the main argument compact by linking prerequisite or lower-level concepts only where the body would otherwise become too long.
+- Correction: Remove dedicated connectivity sections from bundled Chapter 1 and Chapter 2 content, update file-node templates and workflow prompts to place links inline, and refresh old DB rows when those retired headings are detected.
+- Prevention: When authoring file-ontology content, keep the local argument primary; use `[[target|phrase]]` links at the exact sentence that needs a sub-concept, never as a standalone graph-link catalog.
+- Related files: `src/data/fundamentalsChapter1Ontology.ts`, `src/data/fundamentalsChapter2Ontology.ts`, `src/lib/fileOntology.ts`, `src/lib/ontologyWorkflow.ts`, `src/components/graph/FileOntologyCanvas.tsx`, `.codex/skills/knowledge-reconstruction/SKILL.md`

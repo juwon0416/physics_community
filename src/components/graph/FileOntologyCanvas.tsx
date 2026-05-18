@@ -591,10 +591,7 @@ function buildHighlightExpansionContent(title: string, sourceFile: FileOntologyF
         '',
         'Add equations with symbol meanings, assumptions, sign conventions, and validity conditions. Omit equations that do not directly support the highlighted claim.',
         '',
-        '## Scope and Links',
-        '',
-        `- Parent highlight: [[${sourceFile.id}|${sourceFile.title}]]`,
-        '- Add graph edges from this file to the reusable concept files that justify the calculation or definition.',
+        'When this node needs another prerequisite, place that link inside the relevant explanatory sentence. Do not add a separate graph-links section.',
     ].join('\n');
 }
 
